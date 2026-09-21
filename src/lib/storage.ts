@@ -419,6 +419,26 @@ export const StorageService = {
     };
   },
 
+  anonimizarLeitor(id: string): { success: boolean; message: string } {
+    return this.anonymizeLeitor(id);
+  },
+
+  gerarProximaMatricula(): string {
+    const leitores = this.getLeitores();
+    let maxNum = 0;
+    const anoAtual = new Date().getFullYear();
+    for (const l of leitores) {
+      if (l.matricula) {
+        const match = l.matricula.match(/\d+$/);
+        if (match) {
+          const num = parseInt(match[0], 10);
+          if (!isNaN(num) && num > maxNum) maxNum = num;
+        }
+      }
+    }
+    return `${anoAtual}-A${String(maxNum + 1).padStart(3, '0')}`;
+  },
+
   // EMPRESTIMOS
   getEmprestimos(): Emprestimo[] {
     return safeGet<Emprestimo[]>(STORAGE_KEYS.EMPRESTIMOS, []);
@@ -573,6 +593,10 @@ export const StorageService = {
     this.addAuditoria('DEVOLVER_EMPRESTIMO', 'emprestimos', emp.id, `Devolução registrada: Livro "${livro?.titulo || 'Desconhecido'}" devolvido por ${leitor?.nome || 'Leitor'}`);
 
     return { success: true, message: `Devolução confirmada! Exemplar devolvido ao acervo e disponível para novo empréstimo.` };
+  },
+
+  registrarDevolucao(emprestimoId: string): { success: boolean; message: string } {
+    return this.devolverEmprestimo(emprestimoId);
   },
 
   renovarEmprestimo(emprestimoId: string, diasAdicionais?: number): { success: boolean; message: string } {
@@ -763,6 +787,28 @@ export const StorageService = {
     this.setSessaoUsuario(null);
   },
 
+  autenticarUsuario(email: string, senha: string): UsuarioSessao | null {
+    const res = this.loginConta(email, senha);
+    return res.success && res.usuario ? res.usuario : null;
+  },
+
+  cadastrarUsuario(dados: {
+    nome: string;
+    email: string;
+    senha: string;
+    role: UserRole;
+    matricula?: string;
+    turma?: string;
+    telefone?: string;
+  }): UsuarioSessao | null {
+    const res = this.cadastrarConta(dados);
+    return res.success && res.usuario ? res.usuario : null;
+  },
+
+  logoutUsuario(): void {
+    this.logout();
+  },
+
   // CONFIGURAÇÕES
   getConfiguracoes(): ConfiguracoesBiblioteca {
     return safeGet<ConfiguracoesBiblioteca>(STORAGE_KEYS.CONFIGURACOES, SEED_CONFIG);
@@ -924,12 +970,13 @@ export const StorageService = {
     return this.adicionarComentario(dados);
   },
 
-  moderarComentario(id: string, novoStatus: 'aprovado' | 'removido_professor'): void {
+  moderarComentario(id: string, novoStatus: 'aprovado' | 'removido_professor' | 'remover', usuarioNome?: string): void {
     const comentarios = this.getComentarios();
     const index = comentarios.findIndex(c => c.id === id);
     if (index === -1) return;
 
-    comentarios[index].status = novoStatus;
+    const statusFinal = novoStatus === 'remover' ? 'removido_professor' : novoStatus;
+    comentarios[index].status = statusFinal;
     safeSet(STORAGE_KEYS.COMENTARIOS, comentarios);
     saveComentarioFirestore(comentarios[index]).catch(e => console.warn('Sync Moderar Firestore:', e));
 
@@ -937,7 +984,7 @@ export const StorageService = {
       'MODERACAO_COMENTARIO',
       'livros',
       id,
-      `Comentário moderado pelo professor: status alterado para "${novoStatus}"`
+      `Comentário moderado por ${usuarioNome || 'professor'}: status alterado para "${statusFinal}"`
     );
   },
 
@@ -1051,7 +1098,7 @@ export const StorageService = {
       `"${l.nome.replace(/"/g, '""')}"`,
       l.tipo,
       l.telefone,
-      l.email,
+      l.email || '',
       l.ativo ? 'Ativo' : 'Inativo',
       l.criado_em.split('T')[0],
     ]);

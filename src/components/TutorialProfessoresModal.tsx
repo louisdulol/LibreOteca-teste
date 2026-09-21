@@ -40,12 +40,12 @@ const PASSOS: PassoTutorial[] = [
     titulo: 'Como Emprestar um Livro para um Aluno',
     subtitulo: 'Tudo feito em apenas 3 cliques rápidos no balcão',
     icone: ArrowRightLeft,
-    cor: 'text-amber-800 bg-amber-100',
+    cor: 'text-amber-400 bg-amber-500/20 border border-amber-500/30',
     passos: [
-      'Clique no botão marrom "Empréstimo" no topo da tela.',
+      'Clique no botão dourado "Empréstimo" no topo da tela.',
       'Escolha o Livro que o aluno está levando (você pode digitar o nome ou código da etiqueta).',
       'Escolha o Aluno na lista de alunos cadastrados.',
-      'O sistema já calcula automaticamente a data de devolução (7 dias). Clique no botão verde "Confirmar Empréstimo". Pronto! O exemplar já sai do acervo.',
+      'O sistema já calcula automaticamente a data de devolução (7 dias). Clique no botão "Confirmar Empréstimo". Pronto! O exemplar já sai do acervo.',
     ],
     dicaPratica:
       'Se o aluno já tiver livros em atraso, o sistema avisa você na mesma hora para evitar que novos livros fiquem retidos.',
@@ -55,7 +55,7 @@ const PASSOS: PassoTutorial[] = [
     titulo: 'Como Registrar a Devolução de um Livro',
     subtitulo: 'Quando o aluno entrega o livro de volta na biblioteca',
     icone: CheckCircle2,
-    cor: 'text-emerald-800 bg-emerald-100',
+    cor: 'text-emerald-400 bg-emerald-500/20 border border-emerald-500/30',
     passos: [
       'Vá na aba "Empréstimos & Devoluções" no topo da tela.',
       'Encontre o nome do aluno ou o título do livro na lista.',
@@ -70,7 +70,7 @@ const PASSOS: PassoTutorial[] = [
     titulo: 'Como Renovar o Prazo de Leitura',
     subtitulo: 'Quando o aluno precisa de mais tempo para terminar o livro',
     icone: Calendar,
-    cor: 'text-sky-800 bg-sky-100',
+    cor: 'text-sky-400 bg-sky-500/20 border border-sky-500/30',
     passos: [
       'Vá na aba "Empréstimos & Devoluções".',
       'Localize o empréstimo do aluno.',
@@ -85,7 +85,7 @@ const PASSOS: PassoTutorial[] = [
     titulo: 'Como Cadastrar um Livro Novo (Automático)',
     subtitulo: 'Não precisa digitar tudo na mão: a internet busca para você',
     icone: Sparkles,
-    cor: 'text-purple-800 bg-purple-100',
+    cor: 'text-purple-400 bg-purple-500/20 border border-purple-500/30',
     passos: [
       'No topo da tela, clique em "Explorar Open Library".',
       'Digite o nome do livro ou o autor (por exemplo: "Dom Casmurro" ou "Harry Potter").',
@@ -100,7 +100,7 @@ const PASSOS: PassoTutorial[] = [
     titulo: 'Como Imprimir a Etiqueta com Código de Barras',
     subtitulo: 'Para colar na lombada ou contracapa do livro físico',
     icone: Printer,
-    cor: 'text-indigo-800 bg-indigo-100',
+    cor: 'text-indigo-400 bg-indigo-500/20 border border-indigo-500/30',
     passos: [
       'Na aba "Acervo de Livros", clique no livro desejado.',
       'Abrirá a ficha do livro. Clique no botão "Etiqueta".',
@@ -115,9 +115,9 @@ const PASSOS: PassoTutorial[] = [
     titulo: 'Como Ver os Alunos com Livros Atrasados',
     subtitulo: 'Identifique rapidamente quem precisa devolver sem perder tempo',
     icone: AlertTriangle,
-    cor: 'text-rose-800 bg-rose-100',
+    cor: 'text-rose-400 bg-rose-500/20 border border-rose-500/30',
     passos: [
-      'Olhe no topo da tela: se houver algum atraso, aparecerá um aviso vermelho piscando com o total de atrasos.',
+      'Olhe no topo da tela: se houver algum atraso, aparecerá um aviso com o total de atrasos.',
       'Basta clicar nele ou na aba "Empréstimos & Devoluções".',
       'Clique no filtro "Em Atraso".',
       'Você verá o nome do aluno, telefone, turma e há quantos dias o livro está atrasado.',
@@ -187,15 +187,16 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
       title="Guia Passo a Passo para Professores e Bibliotecários"
       subtitle="Instruções claras e fáceis, sem palavras difíceis, para facilitar seu dia a dia"
       maxWidth="3xl"
+      zIndex="z-[80]"
     >
-      <div className={`space-y-5 ${letraGrande ? 'text-base' : 'text-sm'}`}>
+      <div className={`space-y-4 ${letraGrande ? 'text-base' : 'text-sm'}`}>
         {/* Barra superior de acessibilidade e ações */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-900 border border-slate-800 rounded-2xl">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-amber-800 text-white rounded-lg">
+            <span className="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg">
               <Smile className="w-4 h-4" />
             </span>
-            <span className="font-semibold text-amber-950 text-xs sm:text-sm">
+            <span className="font-semibold text-slate-200 text-xs sm:text-sm">
               Criado com carinho para quem cuida dos livros
             </span>
           </div>
@@ -203,10 +204,10 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
           <div className="flex items-center gap-2">
             <button
               onClick={() => setLetraGrande(!letraGrande)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors border ${
                 letraGrande
-                  ? 'bg-amber-800 text-white border-amber-900'
-                  : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-100'
+                  ? 'bg-amber-500 text-slate-950 border-amber-400'
+                  : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
               }`}
               title="Aumentar tamanho do texto para leitura confortável"
             >
@@ -216,9 +217,9 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
 
             <button
               onClick={handlePrintGuia}
-              className="px-3 py-1.5 bg-white text-stone-700 border border-stone-300 hover:bg-stone-100 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+              className="px-3 py-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs"
             >
-              <Printer className="w-3.5 h-3.5" />
+              <Printer className="w-3.5 h-3.5 text-amber-400" />
               <span>Imprimir Guia em Papel</span>
             </button>
           </div>
@@ -233,23 +234,23 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
               <button
                 key={passo.numero}
                 onClick={() => setPassoAtivo(idx)}
-                className={`p-2.5 rounded-xl border text-center flex flex-col items-center justify-center transition-all ${
+                className={`p-2.5 rounded-2xl border text-center flex flex-col items-center justify-center transition-all ${
                   isSelected
-                    ? 'bg-stone-900 text-white border-stone-900 shadow-xs scale-102'
-                    : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
+                    ? 'bg-amber-500/15 text-white border-amber-500/60 shadow-sm scale-102'
+                    : 'bg-slate-900/60 hover:bg-slate-900 text-slate-400 border-slate-800'
                 }`}
               >
                 <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 ${
-                    isSelected ? 'bg-amber-500 text-stone-950' : 'bg-stone-200 text-stone-700'
+                  className={`w-7 h-7 rounded-xl flex items-center justify-center mb-1.5 ${
+                    isSelected ? 'bg-amber-500 text-slate-950 shadow-sm' : 'bg-slate-800 text-slate-400'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
                 </div>
-                <span className="text-[11px] font-bold block truncate max-w-full">
+                <span className="text-[11px] font-bold block truncate max-w-full text-white">
                   Passo {passo.numero}
                 </span>
-                <span className="text-[10px] opacity-80 truncate max-w-full">
+                <span className="text-[10px] text-slate-400 truncate max-w-full">
                   {passo.titulo.split(' ')[1] || 'Passo'}
                 </span>
               </button>
@@ -258,46 +259,46 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
         </div>
 
         {/* Cartão Central do Passo Ativo */}
-        <div className="p-5 sm:p-6 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-4">
+        <div className="p-5 sm:p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xs space-y-4">
           <div className="flex items-start gap-4">
             <div className={`p-3 rounded-2xl shrink-0 ${atual.cor}`}>
               <IconeAtual className="w-8 h-8" />
             </div>
 
             <div className="flex-1">
-              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-stone-100 text-stone-700 border border-stone-200 mb-1">
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700 mb-1">
                 Passo {atual.numero} de {PASSOS.length}
               </span>
-              <h3 className={`font-serif font-bold text-stone-900 leading-tight ${letraGrande ? 'text-2xl' : 'text-xl'}`}>
+              <h3 className={`font-serif font-bold text-white leading-tight ${letraGrande ? 'text-2xl' : 'text-xl'}`}>
                 {atual.titulo}
               </h3>
-              <p className="text-stone-600 mt-1">{atual.subtitulo}</p>
+              <p className="text-slate-400 mt-1 text-xs">{atual.subtitulo}</p>
             </div>
           </div>
 
           {/* Relação de Passos Numerados */}
-          <div className="space-y-3 pt-3 border-t border-stone-100">
+          <div className="space-y-2.5 pt-3 border-t border-slate-800">
             {atual.passos.map((instrucao, index) => (
               <div
                 key={index}
-                className="flex items-start gap-3 p-3 rounded-xl bg-stone-50/70 border border-stone-100"
+                className="flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80"
               >
-                <div className="w-6 h-6 rounded-full bg-amber-800 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                <div className="w-6 h-6 rounded-full bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                   {index + 1}
                 </div>
-                <p className="text-stone-800 font-medium leading-relaxed">{instrucao}</p>
+                <p className="text-slate-200 font-medium leading-relaxed text-xs sm:text-sm">{instrucao}</p>
               </div>
             ))}
           </div>
 
           {/* Dica Prática */}
-          <div className="p-4 bg-emerald-50/80 border border-emerald-200 rounded-xl flex items-start gap-3">
-            <ShieldCheck className="w-5 h-5 text-emerald-800 shrink-0 mt-0.5" />
+          <div className="p-4 bg-emerald-950/40 border border-emerald-800/70 rounded-2xl flex items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-emerald-950 block text-xs uppercase tracking-wider">
+              <span className="font-bold text-emerald-300 block text-xs uppercase tracking-wider">
                 Dica importante para o seu dia a dia:
               </span>
-              <p className="text-emerald-900 mt-0.5 leading-relaxed">{atual.dicaPratica}</p>
+              <p className="text-slate-300 mt-0.5 leading-relaxed text-xs">{atual.dicaPratica}</p>
             </div>
           </div>
         </div>
@@ -307,20 +308,20 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
           <button
             onClick={() => setPassoAtivo(prev => Math.max(0, prev - 1))}
             disabled={passoAtivo === 0}
-            className="px-4 py-2 border border-stone-300 hover:bg-stone-100 text-stone-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+            className="px-4 py-2 border border-slate-700 hover:bg-slate-800 text-slate-300 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-30 disabled:pointer-events-none"
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Passo Anterior</span>
           </button>
 
-          <span className="text-xs text-stone-500 font-medium">
+          <span className="text-xs text-slate-400 font-medium">
             Passo {passoAtivo + 1} de {PASSOS.length}
           </span>
 
           {passoAtivo < PASSOS.length - 1 ? (
             <button
               onClick={() => setPassoAtivo(prev => Math.min(PASSOS.length - 1, prev + 1))}
-              className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shadow-md"
             >
               <span>Próximo Passo</span>
               <ChevronRight className="w-4 h-4" />
@@ -328,7 +329,7 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
           ) : (
             <button
               onClick={onClose}
-              className="px-5 py-2 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shadow-xs"
+              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shadow-md"
             >
               <span>Entendido! Concluir</span>
               <CheckCircle2 className="w-4 h-4" />

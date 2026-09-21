@@ -59,87 +59,49 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (isOpen) {
-      setValidationErrors({});
-      setFeedback(null);
-      setCandidateBooks([]);
-      setAvailableCovers([]);
-      setSearchQuery('');
-
-      if (livroParaEditar) {
-        setFormData({
-          isbn: livroParaEditar.isbn || '',
-          codigo_interno: livroParaEditar.codigo_interno,
-          titulo: livroParaEditar.titulo,
-          autor: livroParaEditar.autor,
-          categoria: livroParaEditar.categoria,
-          capa_url: livroParaEditar.capa_url || '',
-          total_exemplares: livroParaEditar.total_exemplares,
-          disponiveis: livroParaEditar.disponiveis,
-          ano_publicacao: livroParaEditar.ano_publicacao || '',
-          paginas: livroParaEditar.paginas || '',
-          editora: livroParaEditar.editora || '',
-          sinopse: livroParaEditar.sinopse || '',
-        });
-        if (livroParaEditar.capa_url) {
-          setAvailableCovers([livroParaEditar.capa_url]);
-        }
-      } else {
-        const proximoCodigo = StorageService.gerarProximoCodigoInterno();
-        setFormData({
-          isbn: '',
-          codigo_interno: proximoCodigo,
-          titulo: '',
-          autor: '',
-          categoria: 'Literatura Brasileira',
-          capa_url: '',
-          total_exemplares: 1,
-          disponiveis: 1,
-          ano_publicacao: '',
-          paginas: '',
-          editora: '',
-          sinopse: '',
-        });
-      }
-    }
-  }, [isOpen, livroParaEditar]);
-
-  const handleApplyIdentifiedBook = (book: IdentifiedBook) => {
-    setFormData(prev => ({
-      ...prev,
-      titulo: book.titulo || prev.titulo,
-      autor: book.autor || prev.autor,
-      isbn: book.isbn || prev.isbn,
-      categoria: book.categoria || prev.categoria,
-      sinopse: book.sinopse || prev.sinopse,
-      ano_publicacao: book.ano_publicacao || prev.ano_publicacao,
-      paginas: book.paginas || prev.paginas,
-      editora: book.editora || prev.editora,
-      capa_url: book.capa_url || prev.capa_url,
-    }));
-
-    if (book.capas_disponiveis && book.capas_disponiveis.length > 0) {
-      setAvailableCovers(book.capas_disponiveis);
-    } else if (book.capa_url) {
-      setAvailableCovers([book.capa_url]);
-    }
-
-    setCandidateBooks([]);
-    setFeedback({
-      type: 'success',
-      message: `Livro "${book.titulo}" identificado via ${book.fonte}! Dados e sinopse preenchidos automaticamente.`,
-    });
-  };
-
-  const handleIdentifyBook = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const query = (searchQuery || formData.isbn || formData.titulo).trim();
-
-    if (!query) {
-      setFeedback({
-        type: 'error',
-        message: 'Digite o título, autor ou código ISBN para buscar na internet.',
+    if (livroParaEditar) {
+      setFormData({
+        isbn: livroParaEditar.isbn || '',
+        codigo_interno: livroParaEditar.codigo_interno,
+        titulo: livroParaEditar.titulo,
+        autor: livroParaEditar.autor,
+        categoria: livroParaEditar.categoria,
+        capa_url: livroParaEditar.capa_url || '',
+        total_exemplares: livroParaEditar.total_exemplares,
+        disponiveis: livroParaEditar.disponiveis,
+        ano_publicacao: livroParaEditar.ano_publicacao || '',
+        paginas: livroParaEditar.paginas || '',
+        editora: livroParaEditar.editora || '',
+        sinopse: livroParaEditar.sinopse || '',
       });
+      setSearchQuery(livroParaEditar.titulo);
+    } else {
+      setFormData({
+        isbn: '',
+        codigo_interno: StorageService.gerarProximoCodigoInterno(),
+        titulo: '',
+        autor: '',
+        categoria: 'Literatura Brasileira',
+        capa_url: '',
+        total_exemplares: 1,
+        disponiveis: 1,
+        ano_publicacao: '',
+        paginas: '',
+        editora: '',
+        sinopse: '',
+      });
+      setSearchQuery('');
+    }
+    setCandidateBooks([]);
+    setAvailableCovers([]);
+    setFeedback(null);
+    setValidationErrors({});
+  }, [livroParaEditar, isOpen]);
+
+  const handleIdentifyBook = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) {
+      setFeedback({ type: 'error', message: 'Digite o título, ISBN ou autor do livro para buscar.' });
       return;
     }
 
@@ -148,36 +110,82 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
     setCandidateBooks([]);
 
     try {
-      const results = await identifyBookOnline(query);
-      if (results.length === 0) {
-        setFeedback({
-          type: 'error',
-          message: `Nenhum livro localizado para "${query}". Tente buscar por outro termo ou preencha manualmente.`,
-        });
-      } else if (results.length === 1) {
-        handleApplyIdentifiedBook(results[0]);
+      const result = await identifyBookOnline(searchQuery.trim());
+      setIsIdentifying(false);
+
+      if (result && result.length > 0) {
+        const principal = result[0];
+        setFormData(prev => ({
+          ...prev,
+          titulo: principal.titulo || prev.titulo,
+          autor: principal.autor || prev.autor,
+          categoria: principal.categoria || prev.categoria,
+          capa_url: principal.capa_url || prev.capa_url,
+          isbn: principal.isbn || prev.isbn,
+          ano_publicacao: principal.ano_publicacao || prev.ano_publicacao,
+          paginas: principal.paginas || prev.paginas,
+          editora: principal.editora || prev.editora,
+          sinopse: principal.sinopse || prev.sinopse,
+        }));
+
+        if (principal.capas_disponiveis && principal.capas_disponiveis.length > 0) {
+          setAvailableCovers(principal.capas_disponiveis);
+        }
+
+        if (result.length > 1) {
+          setCandidateBooks(result);
+          setFeedback({
+            type: 'success',
+            message: `Identificado com sucesso: "${principal.titulo}". Mais ${result.length - 1} edições encontradas abaixo.`,
+          });
+        } else {
+          setFeedback({
+            type: 'success',
+            message: `Dados oficiais de "${principal.titulo}" preenchidos automaticamente via ${principal.fonte}!`,
+          });
+        }
       } else {
-        setCandidateBooks(results);
         setFeedback({
           type: 'info',
-          message: `Encontramos ${results.length} edições na internet. Selecione a obra desejada abaixo:`,
+          message: 'Nenhum resultado online exato encontrado. Você pode preencher os dados manualmente abaixo.',
         });
       }
     } catch {
+      setIsIdentifying(false);
       setFeedback({
         type: 'error',
-        message: 'Falha momentânea ao conectar com o serviço de livros. Você pode preencher os dados manualmente.',
+        message: 'Falha momentânea na conexão com as bases bibliográficas. Preencha manualmente.',
       });
-    } finally {
-      setIsIdentifying(false);
     }
+  };
+
+  const handleApplyIdentifiedBook = (cand: IdentifiedBook) => {
+    setFormData(prev => ({
+      ...prev,
+      titulo: cand.titulo || prev.titulo,
+      autor: cand.autor || prev.autor,
+      categoria: cand.categoria || prev.categoria,
+      capa_url: cand.capa_url || prev.capa_url,
+      isbn: cand.isbn || prev.isbn,
+      ano_publicacao: cand.ano_publicacao || prev.ano_publicacao,
+      paginas: cand.paginas || prev.paginas,
+      editora: cand.editora || prev.editora,
+      sinopse: cand.sinopse || prev.sinopse,
+    }));
+    if (cand.capas_disponiveis && cand.capas_disponiveis.length > 0) {
+      setAvailableCovers(cand.capas_disponiveis);
+    }
+    setFeedback({
+      type: 'success',
+      message: `Edição "${cand.titulo}" (${cand.editora || 'Edição'}) aplicada ao formulário!`,
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setValidationErrors({});
 
-    const rawData = {
+    const dadosParaValidar = {
       ...formData,
       total_exemplares: Number(formData.total_exemplares),
       disponiveis: Number(formData.disponiveis),
@@ -185,28 +193,32 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
       paginas: formData.paginas ? Number(formData.paginas) : undefined,
     };
 
-    const parseResult = livroSchema.safeParse(rawData);
-    if (!parseResult.success) {
-      const errors: Record<string, string> = {};
-      parseResult.error.issues.forEach(err => {
+    const validacao = livroSchema.safeParse(dadosParaValidar);
+    if (!validacao.success) {
+      const erros: Record<string, string> = {};
+      validacao.error.issues.forEach(err => {
         if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
+          erros[err.path[0].toString()] = err.message;
         }
       });
-      setValidationErrors(errors);
+      setValidationErrors(erros);
       return;
     }
 
     try {
-      const saved = StorageService.saveLivro({
-        ...rawData,
-        id: livroParaEditar?.id,
-      });
-      onSaved(saved);
+      if (livroParaEditar) {
+        const livroAtualizado = StorageService.saveLivro({
+          ...livroParaEditar,
+          ...validacao.data,
+        });
+        onSaved(livroAtualizado);
+      } else {
+        const novoLivro = StorageService.saveLivro(validacao.data);
+        onSaved(novoLivro);
+      }
       onClose();
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Erro ao salvar livro';
-      setValidationErrors({ form: errorMsg });
+    } catch (err: any) {
+      setValidationErrors({ form: err.message || 'Erro ao gravar livro.' });
     }
   };
 
@@ -214,28 +226,21 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={livroParaEditar ? 'Editar Livro do Acervo' : 'Cadastrar Livro no Acervo'}
-      subtitle="Identificação automática na web: busca sinopse, capa, páginas, ano e autor"
-      maxWidth="3xl"
+      title={livroParaEditar ? 'Editar Livro do Acervo' : 'Cadastrar Novo Livro'}
+      subtitle="Insira o título para preenchimento inteligente e capas reais da Web"
+      maxWidth="2xl"
+      zIndex="z-[80]"
     >
-      <div className="space-y-5">
-        {/* Identificador Inteligente de Livros */}
-        <div className="p-4 bg-stone-900 text-stone-100 rounded-xl border border-stone-800 shadow-sm">
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-amber-500/20 text-amber-400 flex items-center justify-center">
-                <Globe className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-xs font-semibold text-stone-200 uppercase tracking-wider">
-                Identificador Automático na Internet
-              </span>
-            </div>
-            <span className="text-[11px] text-stone-400">Google Books & Open Library</span>
+      <div className="space-y-4">
+        {/* Identificador Automático na Web */}
+        <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+              <Globe className="w-4 h-4 text-amber-400" />
+              Identificação Automática Online (Google Books & Open Library)
+            </span>
+            <span className="text-[10px] text-slate-400">Preenchimento instantâneo</span>
           </div>
-
-          <p className="text-xs text-stone-300 mb-3 leading-relaxed">
-            Digite o <strong>título</strong>, <strong>autor</strong> ou o código <strong>ISBN</strong> do livro. O sistema consultará as bases mundiais e preencherá a sinopse, capa, páginas e ano em 1 clique.
-          </p>
 
           <form onSubmit={handleIdentifyBook} className="flex gap-2">
             <div className="relative flex-1">
@@ -245,25 +250,25 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Ex: O Menino Maluquinho, 9788535914849, Grande Sertão Veredas..."
-                className="w-full pl-9 pr-3 py-2 bg-stone-800 border border-stone-700 rounded-lg text-xs text-white placeholder-stone-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
-              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5 pointer-events-none" />
+              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
             </div>
             <button
               type="submit"
               id="btn-identificar-web"
               disabled={isIdentifying}
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shrink-0 transition-colors shadow-xs disabled:opacity-50"
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors shadow-sm disabled:opacity-50"
             >
               {isIdentifying ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Buscando dados...
+                  <span>Buscando...</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-3.5 h-3.5" />
-                  Identificar Livro
+                  <span>Identificar Livro</span>
                 </>
               )}
             </button>
@@ -272,7 +277,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
           {/* Feedback de busca */}
           {feedback && (
             <div
-              className={`mt-3 p-2.5 rounded-lg text-xs flex items-center gap-2 ${
+              className={`mt-3 p-2.5 rounded-xl text-xs flex items-center gap-2 ${
                 feedback.type === 'success'
                   ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800'
                   : feedback.type === 'error'
@@ -293,7 +298,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
               {candidateBooks.map((cand, idx) => (
                 <div
                   key={idx}
-                  className="p-2.5 bg-stone-800/90 hover:bg-stone-750 border border-stone-700 rounded-lg flex items-center justify-between gap-3 transition-colors"
+                  className="p-2.5 bg-slate-950/80 hover:bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between gap-3 transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {cand.capa_url ? (
@@ -301,19 +306,19 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                         src={cand.capa_url}
                         alt={cand.titulo}
                         referrerPolicy="no-referrer"
-                        className="w-10 h-14 object-cover rounded-xs border border-stone-600 shrink-0 shadow-xs"
+                        className="w-10 h-14 object-cover rounded-md border border-slate-700 shrink-0 shadow-xs"
                       />
                     ) : (
-                      <div className="w-10 h-14 bg-stone-700 rounded-xs flex items-center justify-center text-stone-400 shrink-0">
+                      <div className="w-10 h-14 bg-slate-800 rounded-md flex items-center justify-center text-slate-500 shrink-0">
                         <BookOpen className="w-4 h-4" />
                       </div>
                     )}
                     <div className="min-w-0">
                       <h4 className="text-xs font-semibold text-white truncate">{cand.titulo}</h4>
-                      <p className="text-[11px] text-stone-300 truncate">
+                      <p className="text-[11px] text-slate-400 truncate">
                         {cand.autor} {cand.ano_publicacao ? `• ${cand.ano_publicacao}` : ''} {cand.paginas ? `• ${cand.paginas} págs` : ''}
                       </p>
-                      <p className="text-[10px] text-stone-400 line-clamp-1 mt-0.5">
+                      <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
                         {cand.sinopse || 'Sem sinopse disponível'}
                       </p>
                     </div>
@@ -321,9 +326,9 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleApplyIdentifiedBook(cand)}
-                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold rounded-md text-xs shrink-0 flex items-center gap-1 transition-colors"
+                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs shrink-0 flex items-center gap-1 transition-colors"
                   >
-                    Usar Este
+                    <span>Usar Este</span>
                     <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
@@ -335,7 +340,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
         {/* Formulário Principal */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {validationErrors.form && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs flex items-center gap-2">
+            <div className="p-3 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-300 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{validationErrors.form}</span>
             </div>
@@ -344,8 +349,8 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
           {/* Código interno e ISBN */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">
-                Código de Tombo / Patrimônio <span className="text-rose-500">*</span>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                Código de Tombo / Patrimônio <span className="text-rose-400">*</span>
               </label>
               <div className="flex gap-2">
                 <input
@@ -354,7 +359,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                   id="input-codigo-interno"
                   value={formData.codigo_interno}
                   onChange={e => setFormData({ ...formData, codigo_interno: e.target.value })}
-                  className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs font-mono font-bold text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs font-mono font-bold text-amber-300 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                 />
                 {!livroParaEditar && (
                   <button
@@ -362,7 +367,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                     onClick={() =>
                       setFormData({ ...formData, codigo_interno: StorageService.gerarProximoCodigoInterno() })
                     }
-                    className="px-2.5 py-1.5 bg-stone-150 hover:bg-stone-200 text-stone-700 rounded-lg text-[11px] font-medium shrink-0 transition-colors border border-stone-200"
+                    className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-[11px] font-medium shrink-0 transition-colors border border-slate-700"
                     title="Gerar código sequencial automático"
                   >
                     Gerar
@@ -370,12 +375,12 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                 )}
               </div>
               {validationErrors.codigo_interno && (
-                <p className="text-[11px] text-rose-600 mt-0.5">{validationErrors.codigo_interno}</p>
+                <p className="text-[11px] text-rose-400 mt-0.5">{validationErrors.codigo_interno}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
                 ISBN (Identificador Internacional)
               </label>
               <input
@@ -384,7 +389,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                 placeholder="Ex: 9788535914849"
                 value={formData.isbn}
                 onChange={e => setFormData({ ...formData, isbn: e.target.value })}
-                className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs font-mono text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs font-mono text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
             </div>
           </div>
@@ -392,8 +397,8 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
           {/* Título e Autor */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-stone-700 mb-1">
-                Título do Livro <span className="text-rose-500">*</span>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                Título do Livro <span className="text-rose-400">*</span>
               </label>
               <input
                 type="text"
@@ -402,16 +407,16 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                 placeholder="Ex: Dom Casmurro"
                 value={formData.titulo}
                 onChange={e => setFormData({ ...formData, titulo: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm font-serif font-medium text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-sm font-serif font-medium text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
               {validationErrors.titulo && (
-                <p className="text-[11px] text-rose-600 mt-0.5">{validationErrors.titulo}</p>
+                <p className="text-[11px] text-rose-400 mt-0.5">{validationErrors.titulo}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">
-                Autor(es) <span className="text-rose-500">*</span>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                Autor(es) <span className="text-rose-400">*</span>
               </label>
               <input
                 type="text"
@@ -420,40 +425,40 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                 placeholder="Ex: Machado de Assis"
                 value={formData.autor}
                 onChange={e => setFormData({ ...formData, autor: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
               {validationErrors.autor && (
-                <p className="text-[11px] text-rose-600 mt-0.5">{validationErrors.autor}</p>
+                <p className="text-[11px] text-rose-400 mt-0.5">{validationErrors.autor}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">
-                Categoria / Gênero <span className="text-rose-500">*</span>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                Categoria / Gênero <span className="text-rose-400">*</span>
               </label>
               <select
                 id="select-categoria-livro"
                 value={formData.categoria}
                 onChange={e => setFormData({ ...formData, categoria: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               >
                 {CATEGORIAS_PADRAO.map(cat => (
-                  <option key={cat} value={cat}>
+                  <option key={cat} value={cat} className="bg-slate-900">
                     {cat}
                   </option>
                 ))}
                 {!CATEGORIAS_PADRAO.includes(formData.categoria) && formData.categoria && (
-                  <option value={formData.categoria}>{formData.categoria}</option>
+                  <option value={formData.categoria} className="bg-slate-900">{formData.categoria}</option>
                 )}
               </select>
             </div>
           </div>
 
           {/* Exemplares e Estoque */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-stone-50 border border-stone-200 rounded-xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-slate-900/60 border border-slate-800 rounded-2xl">
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">
-                Total de Exemplares Físicos <span className="text-rose-500">*</span>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                Total de Exemplares Físicos <span className="text-rose-400">*</span>
               </label>
               <input
                 type="number"
@@ -469,15 +474,15 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                     disponiveis: livroParaEditar ? Math.min(prev.disponiveis, val) : val,
                   }));
                 }}
-                className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs font-bold text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs font-bold text-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
               {validationErrors.total_exemplares && (
-                <p className="text-[11px] text-rose-600 mt-0.5">{validationErrors.total_exemplares}</p>
+                <p className="text-[11px] text-rose-400 mt-0.5">{validationErrors.total_exemplares}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
                 Exemplares Disponíveis para Empréstimo
               </label>
               <input
@@ -490,10 +495,10 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                 onChange={e =>
                   setFormData({ ...formData, disponiveis: parseInt(e.target.value, 10) || 0 })
                 }
-                className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs font-bold text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs font-bold text-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
               {validationErrors.disponiveis && (
-                <p className="text-[11px] text-rose-600 mt-0.5">{validationErrors.disponiveis}</p>
+                <p className="text-[11px] text-rose-400 mt-0.5">{validationErrors.disponiveis}</p>
               )}
             </div>
           </div>
@@ -501,72 +506,72 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
           {/* Metadados adicionais: Ano, Páginas, Editora */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-stone-600 mb-1">Ano de Lançamento</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Ano de Lançamento</label>
               <input
                 type="number"
                 placeholder="Ex: 1899"
                 id="input-ano"
                 value={formData.ano_publicacao}
                 onChange={e => setFormData({ ...formData, ano_publicacao: e.target.value })}
-                className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-stone-600 mb-1">Nº de Páginas</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Nº de Páginas</label>
               <input
                 type="number"
                 placeholder="Ex: 256"
                 id="input-paginas"
                 value={formData.paginas}
                 onChange={e => setFormData({ ...formData, paginas: e.target.value })}
-                className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-stone-600 mb-1">Editora</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Editora</label>
               <input
                 type="text"
                 placeholder="Ex: Record, Companhia das Letras..."
                 id="input-editora"
                 value={formData.editora}
                 onChange={e => setFormData({ ...formData, editora: e.target.value })}
-                className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
             </div>
           </div>
 
           {/* Capa com Identificador Real */}
-          <div className="p-3.5 bg-stone-50 border border-stone-200/90 rounded-xl space-y-2.5">
+          <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-2.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold text-stone-800 flex items-center gap-1.5">
-                <ImageIcon className="w-3.5 h-3.5 text-amber-700" />
-                Capa do Livro
+              <label className="block text-xs font-bold text-white flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
+                <span>Capa do Livro</span>
               </label>
               <button
                 type="button"
                 id="btn-abrir-seletor-capa"
                 onClick={() => setIsCoverSelectorOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1 bg-amber-800 hover:bg-amber-900 text-white rounded-lg text-xs font-bold shadow-xs transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-xs transition-colors"
               >
-                <Sparkles className="w-3 h-3 text-amber-300" />
-                Buscar Capas Reais na Web
+                <Sparkles className="w-3 h-3 text-slate-950" />
+                <span>Buscar Capas Reais na Web</span>
               </button>
             </div>
 
             <div className="flex gap-3 items-center">
               {formData.capa_url ? (
-                <div className="relative w-14 h-20 rounded-md overflow-hidden bg-stone-200 border border-stone-300 shrink-0 shadow-xs group">
+                <div className="relative w-14 h-20 rounded-lg overflow-hidden bg-slate-900 border border-slate-700 shrink-0 shadow-sm group">
                   <img
                     src={formData.capa_url}
                     alt="Capa selecionada"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <button
                       type="button"
                       onClick={() => setIsCoverSelectorOpen(true)}
-                      className="text-[10px] text-white font-bold bg-amber-800 px-1.5 py-0.5 rounded"
+                      className="text-[10px] text-slate-950 font-bold bg-amber-400 px-2 py-1 rounded-md"
                     >
                       Trocar
                     </button>
@@ -575,7 +580,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
               ) : (
                 <div
                   onClick={() => setIsCoverSelectorOpen(true)}
-                  className="w-14 h-20 rounded-md border-2 border-dashed border-stone-300 hover:border-amber-600 bg-white flex flex-col items-center justify-center text-stone-400 hover:text-amber-700 cursor-pointer shrink-0 transition-colors"
+                  className="w-14 h-20 rounded-lg border-2 border-dashed border-slate-700 hover:border-amber-500 bg-slate-900 flex flex-col items-center justify-center text-slate-500 hover:text-amber-400 cursor-pointer shrink-0 transition-colors"
                   title="Clique para buscar a capa oficial"
                 >
                   <ImageIcon className="w-5 h-5 mb-0.5" />
@@ -591,19 +596,19 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                     placeholder="URL da capa ou clique no botão para buscar automaticamente"
                     value={formData.capa_url}
                     onChange={e => setFormData({ ...formData, capa_url: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs font-mono text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs font-mono text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                   />
                   {formData.capa_url && (
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, capa_url: '' })}
-                      className="px-2.5 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg shrink-0 border border-stone-200"
+                      className="px-2.5 py-1 text-xs font-semibold text-rose-400 hover:bg-rose-950/40 rounded-xl shrink-0 border border-rose-900/50"
                     >
                       Remover
                     </button>
                   )}
                 </div>
-                <p className="text-[11px] text-stone-500">
+                <p className="text-[11px] text-slate-500">
                   O sistema busca automaticamente capas reais de edições brasileiras no Google Books e Open Library.
                 </p>
               </div>
@@ -611,8 +616,8 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
 
             {/* Alternativas de capa identificadas */}
             {availableCovers.length > 1 && (
-              <div className="pt-2 border-t border-stone-200/60">
-                <span className="text-[11px] font-semibold text-stone-700 block mb-1.5">
+              <div className="pt-2 border-t border-slate-800">
+                <span className="text-[11px] font-semibold text-slate-300 block mb-1.5">
                   Capas adicionais desta obra identificadas na web:
                 </span>
                 <div className="flex gap-2 overflow-x-auto py-1">
@@ -621,8 +626,8 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                       key={idx}
                       type="button"
                       onClick={() => setFormData({ ...formData, capa_url: capa })}
-                      className={`relative rounded-md overflow-hidden shrink-0 border-2 transition-transform hover:scale-105 ${
-                        formData.capa_url === capa ? 'border-amber-800 shadow-sm ring-1 ring-amber-800' : 'border-stone-200 opacity-70 hover:opacity-100'
+                      className={`relative rounded-lg overflow-hidden shrink-0 border-2 transition-transform hover:scale-105 ${
+                        formData.capa_url === capa ? 'border-amber-500 shadow-sm ring-1 ring-amber-500' : 'border-slate-800 opacity-70 hover:opacity-100'
                       }`}
                     >
                       <img
@@ -640,7 +645,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
 
           {/* Sinopse */}
           <div>
-            <label className="block text-xs font-semibold text-stone-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-300 mb-1">
               Sinopse Completa / Descrição da Obra
             </label>
             <textarea
@@ -649,24 +654,24 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
               placeholder="A sinopse é preenchida automaticamente ao identificar na internet, ou você pode escrever uma apresentação personalizada para os leitores..."
               value={formData.sinopse}
               onChange={e => setFormData({ ...formData, sinopse: e.target.value })}
-              className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-800 leading-relaxed focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 leading-relaxed focus:outline-hidden focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
           {/* Rodapé com botões de ação */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-200">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
             <button
               type="button"
               id="btn-cancelar-livro"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors"
+              className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               id="btn-salvar-livro"
-              className="px-5 py-2 text-xs font-semibold text-white bg-amber-800 hover:bg-amber-900 rounded-lg shadow-sm transition-all active:scale-98"
+              className="px-5 py-2 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 rounded-xl shadow-md transition-all active:scale-98"
             >
               {livroParaEditar ? 'Salvar Alterações' : 'Confirmar e Cadastrar Livro'}
             </button>

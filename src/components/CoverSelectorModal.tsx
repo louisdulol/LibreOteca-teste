@@ -131,45 +131,46 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
       title="Identificar e Selecionar Capa Real"
       subtitle="Busca nas bases do Google Books e Open Library com capas de edições brasileiras e mundiais"
       maxWidth="3xl"
+      zIndex="z-[90]"
     >
       <div className="space-y-4">
         {/* Navegação de Métodos de Capa */}
-        <div className="flex border-b border-stone-200 gap-4 text-xs font-semibold">
+        <div className="flex border-b border-slate-800 gap-4 text-xs font-semibold">
           <button
             type="button"
             onClick={() => setActiveTab('busca')}
             className={`pb-2.5 flex items-center gap-1.5 transition-colors border-b-2 -mb-px ${
               activeTab === 'busca'
-                ? 'border-amber-800 text-amber-900 font-bold'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-amber-500 text-amber-400 font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-            Buscar Capas na Web
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Buscar Capas na Web</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('link')}
             className={`pb-2.5 flex items-center gap-1.5 transition-colors border-b-2 -mb-px ${
               activeTab === 'link'
-                ? 'border-amber-800 text-amber-900 font-bold'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-amber-500 text-amber-400 font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            Colar Link de Imagem (URL)
+            <span>Colar Link de Imagem (URL)</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('upload')}
             className={`pb-2.5 flex items-center gap-1.5 transition-colors border-b-2 -mb-px ${
               activeTab === 'upload'
-                ? 'border-amber-800 text-amber-900 font-bold'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-amber-500 text-amber-400 font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
             <Upload className="w-3.5 h-3.5" />
-            Enviar Imagem do Dispositivo
+            <span>Enviar Imagem do Dispositivo</span>
           </button>
         </div>
 
@@ -183,32 +184,32 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Pesquisar por título, autor ou ISBN..."
-                  className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                  className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                 />
-                <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5 pointer-events-none" />
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
               </div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-4 py-2 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors shadow-xs disabled:opacity-50"
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors shadow-md disabled:opacity-50"
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Localizando...
+                    <span>Localizando...</span>
                   </>
                 ) : (
                   <>
                     <RefreshCw className="w-3.5 h-3.5" />
-                    Buscar Capas
+                    <span>Buscar Capas</span>
                   </>
                 )}
               </button>
             </form>
 
             {searchFeedback && (
-              <div className="p-3 bg-stone-100 border border-stone-200 rounded-xl text-xs text-stone-700 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
                 <span>{searchFeedback}</span>
               </div>
             )}
@@ -216,17 +217,17 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
             {/* Grid de Capas Encontradas */}
             {isLoading ? (
               <div className="py-12 flex flex-col items-center justify-center text-center space-y-2">
-                <Loader2 className="w-8 h-8 text-amber-700 animate-spin" />
-                <p className="text-xs font-semibold text-stone-700">
+                <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+                <p className="text-xs font-semibold text-white">
                   Pesquisando edições nos catálogos mundiais e verificando qualidade...
                 </p>
-                <p className="text-[11px] text-stone-400">
+                <p className="text-[11px] text-slate-400">
                   Descartando automaticamente links quebrados e páginas vazias
                 </p>
               </div>
             ) : covers.length > 0 ? (
               <div>
-                <p className="text-[11px] text-stone-500 font-medium mb-2.5">
+                <p className="text-[11px] text-slate-400 font-medium mb-2.5">
                   Encontramos {covers.length} opções de capa real para este livro. Clique na edição desejada para aplicar:
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-80 overflow-y-auto p-1">
@@ -234,13 +235,13 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
                     <div
                       key={idx}
                       onClick={() => handleConfirmSelection(c.url)}
-                      className={`group relative flex flex-col items-center p-2 rounded-xl border-2 cursor-pointer transition-all duration-150 hover:shadow-md ${
+                      className={`group relative flex flex-col items-center p-2.5 rounded-2xl border-2 cursor-pointer transition-all duration-150 hover:shadow-lg ${
                         selectedUrl === c.url
-                          ? 'border-amber-800 bg-amber-50/70 shadow-sm'
-                          : 'border-stone-200 bg-white hover:border-amber-400'
+                          ? 'border-amber-500 bg-amber-500/15 shadow-md'
+                          : 'border-slate-800 bg-slate-900/80 hover:border-amber-500/50'
                       }`}
                     >
-                      <div className="relative w-24 h-36 rounded-md overflow-hidden bg-stone-100 shadow-xs mb-2">
+                      <div className="relative w-24 h-36 rounded-lg overflow-hidden bg-slate-950 shadow-md mb-2">
                         <img
                           src={c.url}
                           alt={c.tituloEdicao || 'Capa'}
@@ -248,8 +249,8 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
                         {selectedUrl === c.url && (
-                          <div className="absolute inset-0 bg-amber-900/30 backdrop-blur-2xs flex items-center justify-center">
-                            <div className="w-7 h-7 rounded-full bg-amber-800 text-white flex items-center justify-center shadow-md">
+                          <div className="absolute inset-0 bg-amber-950/40 backdrop-blur-xs flex items-center justify-center">
+                            <div className="w-7 h-7 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-md">
                               <Check className="w-4 h-4 stroke-[3]" />
                             </div>
                           </div>
@@ -257,18 +258,18 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
                       </div>
 
                       <div className="w-full text-center">
-                        <span className="block text-[11px] font-bold text-stone-900 truncate" title={c.editora || c.tituloEdicao}>
+                        <span className="block text-[11px] font-bold text-white truncate" title={c.editora || c.tituloEdicao}>
                           {c.editora || 'Edição Comercial'}
                         </span>
-                        <span className="block text-[10px] text-stone-500 truncate">
+                        <span className="block text-[10px] text-slate-400 truncate">
                           {c.ano ? `${c.ano} • ` : ''}{c.fonte}
                         </span>
                         <button
                           type="button"
                           className={`mt-1.5 w-full py-1 rounded-lg text-[10px] font-bold transition-colors ${
                             selectedUrl === c.url
-                              ? 'bg-amber-800 text-white'
-                              : 'bg-stone-100 group-hover:bg-amber-800 group-hover:text-white text-stone-700'
+                              ? 'bg-amber-500 text-slate-950'
+                              : 'bg-slate-800 group-hover:bg-amber-500 group-hover:text-slate-950 text-slate-300'
                           }`}
                         >
                           {selectedUrl === c.url ? 'Selecionada' : 'Usar Esta Capa'}
@@ -285,7 +286,7 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
         {/* Aba 2: Colar Link Direto */}
         {activeTab === 'link' && (
           <div className="space-y-3 py-2">
-            <p className="text-xs text-stone-600">
+            <p className="text-xs text-slate-300">
               Copie o endereço de imagem da capa em qualquer site (Amazon, Skoob, livrarias, Google Imagens) e cole abaixo:
             </p>
             <div className="flex gap-2">
@@ -297,22 +298,22 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
                   setUploadError(null);
                 }}
                 placeholder="https://exemplo.com/capa-do-livro.jpg"
-                className="flex-1 px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs text-stone-900 font-mono focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white font-mono placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
               <button
                 type="button"
                 onClick={handleApplyManualUrl}
                 disabled={!manualUrl.trim() || isLoading}
-                className="px-4 py-2 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
               >
                 {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                Aplicar Imagem
+                <span>Aplicar Imagem</span>
               </button>
             </div>
             {uploadError && (
-              <p className="text-xs text-rose-600 flex items-center gap-1 mt-1">
+              <p className="text-xs text-rose-400 flex items-center gap-1 mt-1">
                 <AlertCircle className="w-3.5 h-3.5" />
-                {uploadError}
+                <span>{uploadError}</span>
               </p>
             )}
           </div>
@@ -321,14 +322,14 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
         {/* Aba 3: Upload do Arquivo Local */}
         {activeTab === 'upload' && (
           <div className="space-y-3 py-2">
-            <label className="border-2 border-dashed border-stone-300 hover:border-amber-600 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer bg-stone-50/50 hover:bg-amber-50/20 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center mb-2 shadow-xs">
+            <label className="border-2 border-dashed border-slate-700 hover:border-amber-500 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer bg-slate-900/60 hover:bg-amber-500/5 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-2 shadow-xs">
                 <Upload className="w-6 h-6" />
               </div>
-              <span className="text-xs font-bold text-stone-800">
+              <span className="text-xs font-bold text-white">
                 Clique para selecionar a imagem da capa do livro
               </span>
-              <span className="text-[11px] text-stone-500 mt-0.5">
+              <span className="text-[11px] text-slate-400 mt-0.5">
                 PNG, JPG ou WebP até 5MB (será salva localmente na biblioteca)
               </span>
               <input
@@ -339,16 +340,16 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
               />
             </label>
             {uploadError && (
-              <p className="text-xs text-rose-600 flex items-center gap-1 mt-1">
+              <p className="text-xs text-rose-400 flex items-center gap-1 mt-1">
                 <AlertCircle className="w-3.5 h-3.5" />
-                {uploadError}
+                <span>{uploadError}</span>
               </p>
             )}
           </div>
         )}
 
         {/* Botão de Fechar */}
-        <div className="pt-3 border-t border-stone-200 flex items-center justify-between">
+        <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
           <button
             type="button"
             onClick={() => {
@@ -356,14 +357,14 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
               onSelectCover('');
               onClose();
             }}
-            className="text-xs text-stone-500 hover:text-rose-600 font-medium"
+            className="text-xs text-slate-400 hover:text-rose-400 font-medium"
           >
             Remover capa existente
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-semibold"
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold"
           >
             Fechar
           </button>

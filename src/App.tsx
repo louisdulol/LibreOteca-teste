@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Livro, Leitor, ConfiguracoesBiblioteca, UsuarioSessao, ActiveTab } from './types';
 import { StorageService } from './lib/storage';
+import { ThemeService } from './lib/theme';
 import { observarAutenticacao } from './lib/firebaseAuth';
 import { Navbar } from './components/Navbar';
 import { AcervoView } from './components/AcervoView';
@@ -88,6 +89,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    ThemeService.initTheme();
     carregarDados();
     StorageService.inicializarFirebaseSync().then(() => {
       carregarDados();
@@ -199,7 +201,7 @@ export default function App() {
   const isProfessor = usuarioAtual?.role === 'professor';
 
   return (
-    <div className="min-h-screen bg-[#F8F5EE] text-stone-900 flex flex-col font-sans selection:bg-amber-800 selection:text-white">
+    <div className="min-h-screen bg-[#0b0e14] text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
       {/* Header com Navegação, Perfil e Ações Rápidas */}
       <Navbar
         activeTab={activeTab}
@@ -219,17 +221,17 @@ export default function App() {
 
       {/* Banner de Boas-Vindas e Convite de Login caso não autenticado */}
       {!usuarioAtual && (
-        <div className="bg-amber-900 text-amber-50 py-2.5 px-4 text-xs">
+        <div className="bg-amber-500/10 border-b border-amber-500/20 text-amber-200 py-2.5 px-4 text-xs">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-center sm:text-left">
-              <span className="font-semibold">Modo de Leitura / Consulta Livre:</span>
-              <span className="text-amber-200">
+              <span className="font-bold text-amber-400">Modo de Leitura Livre:</span>
+              <span className="text-slate-300">
                 Você pode explorar o acervo e ler resenhas. Para emprestar livros ou gerenciar o sistema, entre como Professor ou Aluno.
               </span>
             </div>
             <button
               onClick={() => setIsLoginModalOpen(true)}
-              className="px-3 py-1 bg-amber-800 hover:bg-amber-700 text-white rounded-lg font-bold flex items-center gap-1.5 transition-colors shrink-0 shadow-2xs"
+              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-bold flex items-center gap-1.5 transition-all shrink-0 shadow-md active:scale-95"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>Entrar / Criar Conta</span>
@@ -239,7 +241,7 @@ export default function App() {
       )}
 
       {/* Conteúdo Principal de cada Aba */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Aba Exclusiva do Aluno: Minhas Estatísticas & Leituras */}
         {usuarioAtual?.role === 'aluno' && activeTab === 'minhas-estatisticas' && (
           <MinhasEstatisticasAlunoView
@@ -298,10 +300,10 @@ export default function App() {
       </main>
 
       {/* Rodapé Informativo */}
-      <footer className="bg-white/90 backdrop-blur-xs border-t border-stone-200/90 py-6 text-xs text-stone-500">
+      <footer className="bg-[#0f1420] border-t border-slate-800/80 py-6 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-stone-600">
-            <span className="font-serif font-bold text-stone-900 text-sm">LibreOteca</span>
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-slate-400">
+            <span className="font-serif font-bold text-white text-sm">LibreOteca</span>
             <span>•</span>
             <span>Sistema Livre de Gestão para Bibliotecas Escolares e Comunitárias</span>
             <span>•</span>
@@ -309,21 +311,21 @@ export default function App() {
               href="https://wole-br.pages.dev/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 font-semibold text-stone-700 hover:text-amber-900 transition-colors"
+              className="inline-flex items-center gap-1 font-semibold text-slate-300 hover:text-amber-400 transition-colors"
             >
-              Powered by <span className="font-extrabold text-amber-900 underline decoration-amber-400 underline-offset-2">Wole</span> ↗
+              Powered by <span className="font-extrabold text-amber-400 underline decoration-amber-400 underline-offset-2">Wole</span> ↗
             </a>
           </div>
 
           <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1 text-stone-600">
-              <ShieldCheck className="w-3.5 h-3.5 text-stone-500" />
+            <span className="flex items-center gap-1 text-slate-400">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               LGPD & Filtro Anti-Bullying Ativo
             </span>
             {isProfessor && (
               <button
                 onClick={() => setIsTutorialOpen(true)}
-                className="flex items-center gap-1 text-amber-800 hover:text-amber-900 font-semibold transition-colors"
+                className="flex items-center gap-1 text-amber-400 hover:text-amber-300 font-semibold transition-colors"
               >
                 <HelpCircle className="w-3.5 h-3.5" />
                 Guia para Professores
@@ -334,14 +336,6 @@ export default function App() {
       </footer>
 
       {/* MODAIS GLOBAIS */}
-
-      {/* Modal de Login / Cadastro Real por E-mail e Senha */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        usuarioAtual={usuarioAtual}
-        onLoginSuccess={handleLoginSuccess}
-      />
 
       {/* Tutorial Passo a Passo para Professores e Bibliotecários de mais idade */}
       <TutorialProfessoresModal
@@ -414,6 +408,14 @@ export default function App() {
           carregarDados();
         }}
         leitorParaEditar={readerToEdit}
+      />
+
+      {/* Modal de Login / Cadastro Real por E-mail e Senha (renderizado por último com maior prioridade visual) */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        usuarioAtual={usuarioAtual}
+        onLoginSuccess={handleLoginSuccess}
       />
     </div>
   );

@@ -58,95 +58,109 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
       if (filtroStatus === 'atrasados' && !emp.atrasado) return false;
       if (filtroStatus === 'devolvidos' && emp.devolvido_em === null) return false;
 
-      // Filtro de busca
-      if (!searchTerm.trim()) return true;
-      const term = searchTerm.toLowerCase();
-      const matchLivro =
-        emp.livro?.titulo.toLowerCase().includes(term) ||
-        emp.livro?.codigo_interno.toLowerCase().includes(term);
-      const matchLeitor =
-        emp.leitor?.nome.toLowerCase().includes(term) ||
-        emp.leitor?.matricula.toLowerCase().includes(term);
+      // Busca por texto
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        const matchLivro = emp.livro?.titulo.toLowerCase().includes(term);
+        const matchCodigo = emp.livro?.codigo_interno.toLowerCase().includes(term);
+        const matchLeitor = emp.leitor?.nome.toLowerCase().includes(term);
+        const matchMatricula = emp.leitor?.matricula.toLowerCase().includes(term);
 
-      return matchLivro || matchLeitor;
+        if (!matchLivro && !matchCodigo && !matchLeitor && !matchMatricula) {
+          return false;
+        }
+      }
+
+      return true;
     });
   }, [emprestimos, filtroStatus, searchTerm]);
 
-  const handleDevolucao = (empId: string) => {
-    const res = StorageService.devolverEmprestimo(empId);
-    if (res.success) {
-      setActionFeedback({ type: 'success', text: res.message });
+  const handleDevolucao = (emprestimoId: string) => {
+    const success = StorageService.registrarDevolucao(emprestimoId);
+    if (success) {
+      setActionFeedback({
+        type: 'success',
+        text: 'Devolução registrada com sucesso! Exemplar retornado ao acervo.',
+      });
       onRefresh();
+      setTimeout(() => setActionFeedback(null), 3500);
     } else {
-      setActionFeedback({ type: 'error', text: res.message });
+      setActionFeedback({
+        type: 'error',
+        text: 'Falha ao registrar devolução do livro.',
+      });
     }
-    setTimeout(() => setActionFeedback(null), 4000);
   };
 
-  const handleRenovacao = (empId: string) => {
-    const res = StorageService.renovarEmprestimo(empId);
-    if (res.success) {
-      setActionFeedback({ type: 'success', text: res.message });
+  const handleRenovacao = (emprestimoId: string) => {
+    const success = StorageService.renovarEmprestimo(emprestimoId);
+    if (success) {
+      setActionFeedback({
+        type: 'success',
+        text: 'Empréstimo renovado por mais 14 dias com sucesso!',
+      });
       onRefresh();
+      setTimeout(() => setActionFeedback(null), 3500);
     } else {
-      setActionFeedback({ type: 'error', text: res.message });
+      setActionFeedback({
+        type: 'error',
+        text: 'Limite de renovações atingido para este empréstimo.',
+      });
     }
-    setTimeout(() => setActionFeedback(null), 4000);
   };
 
   const handleCopiarMensagemAtraso = (emp: EmprestimoComDetalhes) => {
-    const config = StorageService.getConfiguracoes();
-    const mensagem = `Olá ${emp.leitor?.nome}! Notamos que o empréstimo do livro "${emp.livro?.titulo}" (${emp.livro?.codigo_interno}) na ${config.nome_biblioteca} venceu em ${new Date(emp.devolucao_prevista + 'T00:00:00').toLocaleDateString('pt-BR')} (atraso de ${emp.dias_atraso} dia(s)). Por favor, compareça à biblioteca para registrar a devolução ou renovar o exemplar. Obrigado!`;
-
-    navigator.clipboard.writeText(mensagem);
+    const msg = `Olá, ${emp.leitor?.nome}! Notamos que o livro "${emp.livro?.titulo}" retirado na LibreOteca está com o prazo de devolução vencido (${emp.dias_atraso} dias de atraso). Por gentileza, traga o exemplar para devolução ou renovação. Obrigado!`;
+    navigator.clipboard.writeText(msg);
     setCopiedReminderId(emp.id);
     setTimeout(() => setCopiedReminderId(null), 3000);
   };
 
   return (
     <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-stone-200/90 shadow-2xs">
+      {/* Header com Ações Rápidas */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-serif font-bold text-stone-900 tracking-tight">
-            Controle de Empréstimos & Devoluções
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white tracking-tight flex items-center gap-2.5">
+            <ArrowRightLeft className="w-6 h-6 text-amber-400" />
+            <span>Circulação & Empréstimos</span>
           </h2>
-          <p className="text-xs text-stone-500 mt-1">
-            Status dinâmico: atraso calculado em tempo real para evitar inconsistências no acervo
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Controle de retiradas, devoluções, prazos e renovações de exemplares.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => StorageService.exportarEmprestimosCsv()}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
           >
             <Download className="w-3.5 h-3.5" />
-            Exportar CSV
+            <span>Exportar CSV</span>
           </button>
 
           <button
             onClick={onNovoEmprestimo}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-amber-800 hover:bg-amber-900 text-white shadow-xs transition-all active:scale-95"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md transition-all active:scale-95"
           >
             <Plus className="w-4 h-4" />
-            Novo Empréstimo
+            <span>Novo Empréstimo</span>
           </button>
         </div>
       </div>
 
       {actionFeedback && (
         <div
-          className={`p-3.5 rounded-xl text-xs flex items-center gap-2 animate-in fade-in ${
+          className={`p-3.5 rounded-2xl text-xs flex items-center gap-2 animate-in fade-in ${
             actionFeedback.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-              : 'bg-rose-50 text-rose-800 border border-rose-200'
+              ? 'bg-emerald-950/50 text-emerald-300 border border-emerald-800'
+              : 'bg-rose-950/50 text-rose-300 border border-rose-800'
           }`}
         >
           {actionFeedback.type === 'success' ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           ) : (
-            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
           )}
           <span>{actionFeedback.text}</span>
         </div>
@@ -154,23 +168,23 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
 
       {/* Alerta de Atrasos se houver */}
       {totalAtrasados > 0 && filtroStatus !== 'atrasados' && (
-        <div className="p-4 bg-rose-50 border border-rose-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="p-4 bg-rose-950/20 border border-rose-800/60 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-full bg-rose-900/50 text-rose-400 flex items-center justify-center shrink-0">
               <AlertTriangle className="w-4 h-4" />
             </div>
             <div>
-              <p className="font-bold text-rose-900">
+              <p className="font-bold text-rose-300">
                 Atenção: Há {totalAtrasados} empréstimo(s) em atraso pendente(s) de devolução!
               </p>
-              <p className="text-rose-700 text-[11px]">
+              <p className="text-rose-400/80 text-[11px]">
                 Clique para filtrar e gerar mensagens de aviso aos leitores.
               </p>
             </div>
           </div>
           <button
             onClick={() => setFiltroStatus('atrasados')}
-            className="px-3.5 py-1.5 bg-rose-700 hover:bg-rose-800 text-white rounded-lg font-semibold text-xs transition-colors shrink-0 shadow-2xs"
+            className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold text-xs transition-colors shrink-0 shadow-sm"
           >
             Ver Empréstimos Atrasados
           </button>
@@ -178,69 +192,69 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
       )}
 
       {/* Filtros e Busca */}
-      <div className="bg-white p-4 rounded-xl border border-stone-200/90 shadow-2xs space-y-3">
+      <div className="bg-[#131926] p-4 rounded-3xl border border-slate-800 shadow-sm space-y-3">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Buscar por leitor, matrícula, título do livro ou código LO-XXXXXX..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-600 focus:bg-white transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700/80 rounded-2xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500 transition-all"
             />
           </div>
 
           {/* Abas de status */}
-          <div className="inline-flex rounded-lg border border-stone-200 p-0.5 bg-stone-50 overflow-x-auto scrollbar-none">
+          <div className="inline-flex rounded-2xl border border-slate-800 p-1 bg-slate-900 overflow-x-auto scrollbar-none">
             <button
               onClick={() => setFiltroStatus('abertos')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-colors flex items-center gap-1.5 ${
                 filtroStatus === 'abertos'
-                  ? 'bg-white text-stone-900 shadow-2xs'
-                  : 'text-stone-500 hover:text-stone-800'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               <span>Em Aberto</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-200 text-stone-700 font-bold">
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/40 text-current font-bold">
                 {totalAbertos}
               </span>
             </button>
 
             <button
               onClick={() => setFiltroStatus('atrasados')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-colors flex items-center gap-1.5 ${
                 filtroStatus === 'atrasados'
-                  ? 'bg-rose-700 text-white shadow-2xs'
-                  : 'text-rose-700 hover:bg-rose-50'
+                  ? 'bg-rose-600 text-white font-bold shadow-sm'
+                  : 'text-rose-400 hover:bg-rose-950/40'
               }`}
             >
               <span>Atrasados</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-200 text-rose-900 font-bold">
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/40 text-current font-bold">
                 {totalAtrasados}
               </span>
             </button>
 
             <button
               onClick={() => setFiltroStatus('devolvidos')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-colors flex items-center gap-1.5 ${
                 filtroStatus === 'devolvidos'
-                  ? 'bg-white text-emerald-800 shadow-2xs'
-                  : 'text-stone-500 hover:text-stone-800'
+                  ? 'bg-emerald-600 text-white font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               <span>Devolvidos</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-200 text-stone-700">
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/40 text-current font-bold">
                 {totalDevolvidos}
               </span>
             </button>
 
             <button
               onClick={() => setFiltroStatus('todos')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-colors ${
                 filtroStatus === 'todos'
-                  ? 'bg-white text-stone-900 shadow-2xs'
-                  : 'text-stone-500 hover:text-stone-800'
+                  ? 'bg-slate-800 text-white font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Todos ({emprestimos.length})
@@ -251,19 +265,19 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
 
       {/* Lista de Empréstimos */}
       {emprestimosFiltrados.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-2xl border border-stone-200/80 shadow-2xs space-y-3">
-          <ArrowRightLeft className="w-10 h-10 text-stone-300 mx-auto" />
-          <p className="text-base font-serif font-bold text-stone-800">
+        <div className="p-12 text-center bg-[#131926] rounded-3xl border border-dashed border-slate-800 shadow-sm space-y-3">
+          <ArrowRightLeft className="w-10 h-10 text-slate-600 mx-auto" />
+          <p className="text-base font-serif font-bold text-white">
             Nenhum empréstimo encontrado
           </p>
-          <p className="text-xs text-stone-500 max-w-sm mx-auto">
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
             {filtroStatus === 'atrasados'
               ? 'Excelente! Não há nenhum exemplar em atraso no momento.'
               : 'Não há registros que coincidam com o filtro ou busca selecionada.'}
           </p>
           <button
             onClick={onNovoEmprestimo}
-            className="px-4 py-2 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-bold shadow-xs"
+            className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-sm"
           >
             Registrar Primeiro Empréstimo
           </button>
@@ -278,10 +292,10 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
               <div
                 key={emp.id}
                 id={`loan-card-${emp.id}`}
-                className={`p-4 bg-white rounded-xl border transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                className={`p-4 bg-[#131926] rounded-2xl border transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4 ${
                   emp.atrasado
-                    ? 'border-rose-300 bg-rose-50/20 shadow-xs'
-                    : 'border-stone-200/90 hover:border-stone-300'
+                    ? 'border-rose-800/80 bg-rose-950/15 shadow-sm'
+                    : 'border-slate-800 hover:border-slate-700'
                 }`}
               >
                 {/* Informações do Livro & Leitor */}
@@ -291,55 +305,55 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
                       src={emp.livro.capa_url}
                       alt=""
                       referrerPolicy="no-referrer"
-                      className="w-11 h-16 object-cover rounded-md bg-stone-100 border border-stone-200 shrink-0"
+                      className="w-11 h-16 object-cover rounded-lg bg-slate-900 border border-slate-800 shrink-0"
                       onError={e => {
                         (e.currentTarget as HTMLImageElement).style.display = 'none';
                       }}
                     />
                   ) : (
-                    <div className="w-11 h-16 rounded-md bg-stone-100 flex items-center justify-center shrink-0 border border-stone-200 text-stone-400">
+                    <div className="w-11 h-16 rounded-lg bg-slate-900 flex items-center justify-center shrink-0 border border-slate-800 text-slate-600">
                       <BookOpen className="w-5 h-5" />
                     </div>
                   )}
 
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-sm bg-stone-100 text-stone-800">
+                      <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 border border-slate-700">
                         {emp.livro?.codigo_interno || 'LO-000000'}
                       </span>
-                      <h4 className="text-sm font-serif font-bold text-stone-900 line-clamp-1">
+                      <h4 className="text-sm font-serif font-bold text-white line-clamp-1">
                         {emp.livro?.titulo || 'Livro Removido'}
                       </h4>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-600">
-                      <div className="flex items-center gap-1 font-medium text-stone-900">
-                        <User className="w-3.5 h-3.5 text-stone-400" />
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
+                      <div className="flex items-center gap-1 font-medium text-slate-200">
+                        <User className="w-3.5 h-3.5 text-slate-500" />
                         <span>{emp.leitor?.nome || 'Leitor Removido'}</span>
-                        <span className="text-[11px] text-stone-400 font-mono">
+                        <span className="text-[11px] text-slate-500 font-mono">
                           ({emp.leitor?.matricula || '-'})
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-1 text-stone-500">
-                        <Calendar className="w-3.5 h-3.5 text-stone-400" />
+                      <div className="flex items-center gap-1 text-slate-400">
+                        <Calendar className="w-3.5 h-3.5 text-slate-500" />
                         <span>Retirado em: {new Date(emp.emprestado_em + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
                       </div>
 
-                      <div className="flex items-center gap-1 text-stone-500">
-                        <Clock className="w-3.5 h-3.5 text-stone-400" />
+                      <div className="flex items-center gap-1 text-slate-400">
+                        <Clock className="w-3.5 h-3.5 text-slate-500" />
                         <span>Previsto: {new Date(emp.devolucao_prevista + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
                       </div>
 
                       {emp.renovacoes > 0 && (
-                        <span className="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-sm border border-amber-200">
+                        <span className="text-[10px] text-amber-300 bg-amber-500/10 px-1.5 py-0.5 rounded-md border border-amber-500/20">
                           {emp.renovacoes}x renovado
                         </span>
                       )}
                     </div>
 
                     {emp.observacao && (
-                      <p className="text-[11px] text-stone-500 italic">
+                      <p className="text-[11px] text-slate-500 italic">
                         Obs: {emp.observacao}
                       </p>
                     )}
@@ -347,28 +361,28 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
                 </div>
 
                 {/* Status Badge & Ações */}
-                <div className="flex items-center justify-between md:justify-end gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-stone-100">
+                <div className="flex items-center justify-between md:justify-end gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-slate-800">
                   {/* Status Indicator */}
                   <div>
                     {emAberto ? (
                       emp.atrasado ? (
                         <div className="flex flex-col items-start md:items-end">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">
-                            <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-950 text-rose-300 border border-rose-800">
+                            <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
                             Atrasado há {emp.dias_atraso} dia(s)
                           </span>
                         </div>
                       ) : (
                         <div className="flex flex-col items-start md:items-end">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200">
-                            <Clock className="w-3.5 h-3.5 text-amber-700" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-950 text-amber-300 border border-amber-800">
+                            <Clock className="w-3.5 h-3.5 text-amber-400" />
                             {emp.dias_restantes === 0 ? 'Vence hoje' : `Faltam ${emp.dias_restantes} dia(s)`}
                           </span>
                         </div>
                       )
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                         Devolvido em {new Date(emp.devolvido_em + 'T00:00:00').toLocaleDateString('pt-BR')}
                       </span>
                     )}
@@ -380,34 +394,34 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
                       {emp.atrasado && (
                         <button
                           onClick={() => handleCopiarMensagemAtraso(emp)}
-                          className={`px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors border ${
+                          className={`px-2.5 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1 transition-colors border ${
                             isCopied
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                              : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
+                              ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                              : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
                           }`}
                           title="Copiar texto de aviso para WhatsApp / E-mail"
                         >
-                          {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <MessageSquare className="w-3.5 h-3.5 text-rose-600" />}
+                          {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <MessageSquare className="w-3.5 h-3.5 text-rose-400" />}
                           <span className="hidden sm:inline">{isCopied ? 'Copiado!' : 'Avisar'}</span>
                         </button>
                       )}
 
                       <button
                         onClick={() => handleRenovacao(emp.id)}
-                        className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors"
+                        className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-medium flex items-center gap-1 transition-colors"
                         title="Renovar prazo de devolução"
                       >
-                        <RefreshCw className="w-3 h-3 text-stone-600" />
+                        <RefreshCw className="w-3 h-3 text-slate-400" />
                         <span className="hidden sm:inline">Renovar</span>
                       </button>
 
                       <button
                         id={`btn-devolver-${emp.id}`}
                         onClick={() => handleDevolucao(emp.id)}
-                        className="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"
+                        className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        Devolver
+                        <span>Devolver</span>
                       </button>
                     </div>
                   )}

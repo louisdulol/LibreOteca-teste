@@ -128,31 +128,32 @@ export const LoanModal: React.FC<LoanModalProps> = ({
       title="Registrar Novo Empréstimo"
       subtitle="Selecione o leitor cadastrado e o exemplar disponível no acervo"
       maxWidth="xl"
+      zIndex="z-[80]"
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {errorMsg && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-start gap-2 animate-in fade-in">
-            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+          <div className="p-3 bg-rose-950/60 border border-rose-800 rounded-2xl text-rose-300 text-xs flex items-start gap-2 animate-in fade-in">
+            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {/* 1. SELEÇÃO DO LEITOR */}
-        <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
+        <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-2.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-              <UserCheck className="w-3.5 h-3.5 text-stone-700" />
-              1. Selecionar Leitor (Nome ou Matrícula)
+            <label className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+              <UserCheck className="w-3.5 h-3.5 text-amber-400" />
+              <span>1. Selecionar Leitor (Nome ou Matrícula)</span>
             </label>
             {selectedLeitor && (
-              <span className="text-[11px] font-mono text-stone-500">
+              <span className="text-[11px] font-mono text-amber-300">
                 Matrícula: {selectedLeitor.matricula}
               </span>
             )}
           </div>
 
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Digite o nome ou matrícula do leitor..."
@@ -163,15 +164,15 @@ export const LoanModal: React.FC<LoanModalProps> = ({
                   setSelectedLeitorId('');
                 }
               }}
-              className="w-full pl-9 pr-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+              className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
           {/* Lista de sugestões de leitores se não houver selecionado */}
           {!selectedLeitorId && searchLeitor.trim().length > 0 && (
-            <div className="max-h-36 overflow-y-auto bg-white border border-stone-200 rounded-lg divide-y divide-stone-100 shadow-xs">
+            <div className="max-h-36 overflow-y-auto bg-slate-950 border border-slate-800 rounded-xl divide-y divide-slate-800 shadow-md">
               {filteredLeitores.length === 0 ? (
-                <div className="p-2 text-center text-xs text-stone-500">
+                <div className="p-3 text-center text-xs text-slate-500">
                   Nenhum leitor ativo encontrado.
                 </div>
               ) : (
@@ -183,13 +184,13 @@ export const LoanModal: React.FC<LoanModalProps> = ({
                       setSelectedLeitorId(l.id);
                       setSearchLeitor(l.nome);
                     }}
-                    className="w-full text-left p-2.5 hover:bg-amber-50/70 text-xs flex items-center justify-between transition-colors"
+                    className="w-full text-left p-2.5 hover:bg-slate-900 text-xs flex items-center justify-between transition-colors"
                   >
                     <div>
-                      <p className="font-semibold text-stone-900">{l.nome}</p>
-                      <p className="text-[11px] text-stone-500">Matrícula: {l.matricula} • {l.tipo}</p>
+                      <p className="font-semibold text-white">{l.nome}</p>
+                      <p className="text-[11px] text-slate-400">Matrícula: {l.matricula} • {l.tipo}</p>
                     </div>
-                    <span className="text-[11px] text-amber-700 font-medium">Selecionar</span>
+                    <span className="text-[11px] text-amber-400 font-bold">Selecionar</span>
                   </button>
                 ))
               )}
@@ -198,24 +199,24 @@ export const LoanModal: React.FC<LoanModalProps> = ({
 
           {/* Feedback do leitor selecionado */}
           {selectedLeitor && (
-            <div className="pt-2 border-t border-stone-200 flex flex-col gap-1.5 text-xs">
+            <div className="pt-2 border-t border-slate-800 flex flex-col gap-1.5 text-xs">
               <div className="flex items-center justify-between">
-                <span className="text-stone-600">Empréstimos em aberto no momento:</span>
-                <span className="font-semibold text-stone-900">
+                <span className="text-slate-400">Empréstimos em aberto no momento:</span>
+                <span className="font-semibold text-white">
                   {emprestimosLeitor.length} de {config.limite_emprestimos_por_leitor} permitidos
                 </span>
               </div>
 
               {leitorTemAtraso && (
-                <div className="p-2 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-[11px] flex items-center gap-1.5 font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                <div className="p-2.5 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-300 text-[11px] flex items-center gap-1.5 font-medium">
+                  <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
                   <span>Atenção: Este leitor possui livros em atraso pendentes de devolução!</span>
                 </div>
               )}
 
               {leitorNoLimite && (
-                <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-[11px] flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <div className="p-2.5 bg-amber-950/60 border border-amber-800 rounded-xl text-amber-300 text-[11px] flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                   <span>O leitor já atingiu o limite máximo de livros emprestados simultâneos.</span>
                 </div>
               )}
@@ -224,21 +225,21 @@ export const LoanModal: React.FC<LoanModalProps> = ({
         </div>
 
         {/* 2. SELEÇÃO DO LIVRO */}
-        <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
+        <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-2.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5 text-stone-700" />
-              2. Selecionar Livro Disponível
+            <label className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+              <span>2. Selecionar Livro Disponível</span>
             </label>
             {selectedLivro && (
-              <span className="text-[11px] font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-sm border border-emerald-200">
+              <span className="text-[11px] font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-lg border border-emerald-800">
                 {selectedLivro.codigo_interno} • {selectedLivro.disponiveis} disp.
               </span>
             )}
           </div>
 
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Digite o título, código (LO-000001) ou ISBN..."
@@ -249,15 +250,15 @@ export const LoanModal: React.FC<LoanModalProps> = ({
                   setSelectedLivroId('');
                 }
               }}
-              className="w-full pl-9 pr-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+              className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
           {/* Sugestões de livros disponíveis */}
           {!selectedLivroId && searchLivro.trim().length > 0 && (
-            <div className="max-h-36 overflow-y-auto bg-white border border-stone-200 rounded-lg divide-y divide-stone-100 shadow-xs">
+            <div className="max-h-36 overflow-y-auto bg-slate-950 border border-slate-800 rounded-xl divide-y divide-slate-800 shadow-md">
               {filteredLivros.length === 0 ? (
-                <div className="p-2 text-center text-xs text-stone-500">
+                <div className="p-3 text-center text-xs text-slate-500">
                   Nenhum livro disponível encontrado com esse termo.
                 </div>
               ) : (
@@ -269,15 +270,15 @@ export const LoanModal: React.FC<LoanModalProps> = ({
                       setSelectedLivroId(l.id);
                       setSearchLivro(l.titulo);
                     }}
-                    className="w-full text-left p-2.5 hover:bg-amber-50/70 text-xs flex items-center justify-between transition-colors"
+                    className="w-full text-left p-2.5 hover:bg-slate-900 text-xs flex items-center justify-between transition-colors"
                   >
                     <div>
-                      <p className="font-serif font-bold text-stone-900">{l.titulo}</p>
-                      <p className="text-[11px] text-stone-500">
-                        {l.autor} • <span className="font-mono text-stone-700">{l.codigo_interno}</span>
+                      <p className="font-serif font-bold text-white">{l.titulo}</p>
+                      <p className="text-[11px] text-slate-400">
+                        {l.autor} • <span className="font-mono text-amber-300">{l.codigo_interno}</span>
                       </p>
                     </div>
-                    <span className="text-[11px] font-semibold text-emerald-700">
+                    <span className="text-[11px] font-semibold text-emerald-400">
                       {l.disponiveis} disponível(is)
                     </span>
                   </button>
@@ -290,9 +291,9 @@ export const LoanModal: React.FC<LoanModalProps> = ({
         {/* 3. PRAZO E OBSERVAÇÕES */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-stone-700 mb-1 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-stone-500" />
-              Prazo de Devolução
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-amber-400" />
+              <span>Prazo de Devolução</span>
             </label>
             <div className="grid grid-cols-3 gap-1.5">
               {[7, 14, 21].map(dias => (
@@ -300,23 +301,23 @@ export const LoanModal: React.FC<LoanModalProps> = ({
                   key={dias}
                   type="button"
                   onClick={() => setPrazoDias(dias)}
-                  className={`py-2 px-2 rounded-lg text-xs font-semibold border transition-all ${
+                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all ${
                     prazoDias === dias
-                      ? 'bg-amber-800 text-white border-amber-900 shadow-xs'
-                      : 'bg-white text-stone-700 border-stone-300 hover:border-stone-400'
+                      ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-sm'
+                      : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
                   }`}
                 >
                   {dias} dias
                 </button>
               ))}
             </div>
-            <p className="text-[11px] text-stone-500 mt-1.5">
-              Devolução prevista: <strong>{calcularDataDevolucao(prazoDias)}</strong>
+            <p className="text-[11px] text-slate-400 mt-1.5">
+              Devolução prevista: <strong className="text-white">{calcularDataDevolucao(prazoDias)}</strong>
             </p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-stone-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
               Observação / Finalidade
             </label>
             <input
@@ -324,27 +325,27 @@ export const LoanModal: React.FC<LoanModalProps> = ({
               placeholder="Ex: Trabalho de sociologia, pesquisa..."
               value={observacao}
               onChange={e => setObservacao(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
             />
           </div>
         </div>
 
         {/* Rodapé com Botão de Confirmação */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors"
+            className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={!selectedLeitorId || !selectedLivroId}
-            className="px-5 py-2 text-xs font-semibold text-white bg-stone-900 hover:bg-stone-800 rounded-lg shadow-sm transition-all disabled:opacity-50 flex items-center gap-1.5 active:scale-98"
+            className="px-5 py-2 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 rounded-xl shadow-md transition-all disabled:opacity-50 flex items-center gap-1.5 active:scale-98"
           >
             <Check className="w-4 h-4" />
-            Confirmar Empréstimo
+            <span>Confirmar Empréstimo</span>
           </button>
         </div>
       </form>

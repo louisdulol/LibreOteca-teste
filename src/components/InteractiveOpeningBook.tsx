@@ -1,251 +1,280 @@
 import React, { useState } from 'react';
 import { Livro } from '../types';
 import { EditorialCover } from './EditorialCover';
-import { BookOpen, Star, Bookmark, ExternalLink } from 'lucide-react';
+import {
+  BookOpen,
+  Star,
+  Sparkles,
+  ChevronRight,
+  BookMarked,
+  Layers,
+  ArrowRightLeft,
+  CheckCircle2,
+  Clock,
+  Quote,
+  Eye,
+} from 'lucide-react';
 
 interface InteractiveOpeningBookProps {
   livro: Livro;
-  onOpenDetail: (livro: Livro) => void;
-  className?: string;
+  onVerDetalhes: (livro: Livro) => void;
+  onEmprestar?: (livro: Livro) => void;
+  isProfessor?: boolean;
 }
 
 export const InteractiveOpeningBook: React.FC<InteractiveOpeningBookProps> = ({
   livro,
-  onOpenDetail,
-  className = '',
+  onVerDetalhes,
+  onEmprestar,
+  isProfessor = false,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [isAberto, setIsAberto] = useState(false);
+  const [paginaAtiva, setPaginaAtiva] = useState<'sinopse' | 'ficha'>('sinopse');
 
-  // Calcula trecho da sinopse ou texto padrão literário
-  const sinopseTexto =
-    livro.sinopse && livro.sinopse.trim().length > 0
-      ? livro.sinopse
-      : `Uma obra fascinante de ${livro.autor}, indispensável na estante e aguardando por sua leitura e reflexão.`;
+  const disponivel = livro.disponiveis > 0;
 
   return (
-    <div
-      className={`relative select-none ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={() => onOpenDetail(livro)}
-      style={{ perspective: '1400px' }}
-      title={`Clique para abrir a ficha completa de "${livro.titulo}"`}
-    >
-      {/* Dica interativa sutil de descoberta */}
-      <div
-        className={`absolute -top-7 left-1/2 -translate-x-1/2 transition-all duration-300 pointer-events-none z-30 whitespace-nowrap ${
-          isHovered
-            ? 'opacity-0 -translate-y-2'
-            : 'opacity-100 translate-y-0'
-        }`}
-      >
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-900/90 text-amber-100 shadow-md backdrop-blur-xs">
-          <BookOpen className="w-3 h-3 text-amber-300" />
-          Passe o mouse para abrir o livro
-        </span>
-      </div>
+    <div className="w-full flex flex-col items-center justify-center select-none py-2">
+      {!isAberto ? (
+        /* ESTADO: LIVRO FECHADO / STANDING 3D */
+        <div className="flex flex-col items-center group cursor-pointer" onClick={() => setIsAberto(true)}>
+          <div className="relative transition-all duration-300 ease-out group-hover:-translate-y-3 group-hover:scale-[1.02]">
+            {/* Sombra de Contato Suave */}
+            <div className="absolute -bottom-4 inset-x-4 h-6 bg-black/80 blur-lg rounded-full group-hover:bg-black/95 group-hover:blur-xl transition-all" />
 
-      {/* Sombra de Contato Físico do Livro */}
-      <div
-        className={`absolute -bottom-3 inset-x-4 h-6 bg-stone-900/40 rounded-full blur-md transition-all duration-500 ${
-          isHovered
-            ? 'scale-x-125 bg-stone-950/50 blur-lg translate-y-1'
-            : 'scale-x-100'
-        }`}
-      />
+            {/* Volume do Livro Fechado */}
+            <div className="relative w-56 sm:w-64 md:w-72 h-80 sm:h-92 md:h-96 rounded-r-xl rounded-l-xs overflow-hidden shadow-2xl border border-slate-700/80 bg-[#0d121c] flex flex-col">
+              {/* Capa */}
+              <EditorialCover
+                titulo={livro.titulo}
+                autor={livro.autor}
+                capaUrl={livro.capa_url}
+                categoria={livro.categoria}
+                ano={livro.ano_publicacao}
+                size="lg"
+                className="w-full h-full object-cover"
+              />
 
-      {/* O LIVRO TRIDIMENSIONAL */}
-      <div
-        className="relative w-72 sm:w-80 md:w-96 h-56 sm:h-64 cursor-pointer transition-transform duration-700 ease-out"
-        style={{
-          transformStyle: 'preserve-3d',
-          transform: isHovered
-            ? 'rotateY(-5deg) rotateX(2deg) translateY(-4px)'
-            : 'rotateY(-18deg) rotateX(6deg) translateY(0px)',
-        }}
-      >
-        {/* BLOCO DE PÁGINAS INTERNAS (Fundo fixo que aparece quando a capa abre) */}
-        <div
-          className="absolute inset-0 rounded-r-md bg-[#FAF6EE] border border-[#E4DCBF] shadow-xl overflow-hidden flex"
-          style={{
-            transform: 'translateZ(0px)',
-          }}
-        >
-          {/* Páginas do Lado Esquerdo (Contracapa interna e ex-libris) */}
-          <div className="w-1/2 h-full p-4 sm:p-5 border-r border-[#E2D8B9] bg-gradient-to-r from-[#F0E8D2] to-[#FAF6EE] flex flex-col justify-between relative overflow-hidden">
-            {/* Vinco da dobra central com sombra realista */}
-            <div className="absolute right-0 inset-y-0 w-6 bg-gradient-to-l from-stone-900/15 to-transparent pointer-events-none" />
+              {/* Lombada com Vinco Tátil */}
+              <div className="absolute left-0 inset-y-0 w-4 bg-gradient-to-r from-black/80 via-white/10 to-transparent pointer-events-none" />
 
-            <div>
-              <span className="text-[9px] font-mono uppercase tracking-widest text-amber-900/70 font-semibold block">
-                Ex-Libris • LibreOteca
-              </span>
-              <div className="mt-2.5">
-                <h4 className="font-serif font-bold text-xs sm:text-sm text-stone-900 leading-snug line-clamp-2">
-                  {livro.titulo}
-                </h4>
-                <p className="text-[11px] text-stone-600 italic mt-0.5">
-                  {livro.autor}
-                </p>
+              {/* Fita Marcadora Dourada (Bookmark) */}
+              <div className="absolute top-0 right-8 w-4 h-12 bg-amber-500 shadow-md transform -translate-y-1 rounded-b-sm border-b border-amber-600 pointer-events-none" />
+
+              {/* Badge Flutuante de Status */}
+              <div className="absolute top-3 left-4 z-10">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-900/90 text-amber-300 backdrop-blur-md border border-amber-500/40 shadow-md">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <span>Obra em Destaque</span>
+                </span>
               </div>
-            </div>
 
-            {/* Selo de Tombamento Escolar */}
-            <div className="pt-2 border-t border-amber-900/15 flex items-center justify-between text-[10px] text-stone-500 font-mono">
-              <span>Reg: {livro.codigo_interno}</span>
-              <span className="font-bold text-amber-900">{livro.categoria}</span>
+              {/* Badge de Disponibilidade */}
+              <div className="absolute bottom-3 left-4 z-10">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold backdrop-blur-md border shadow-md ${
+                    disponivel
+                      ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50'
+                      : 'bg-rose-950/90 text-rose-300 border-rose-500/50'
+                  }`}
+                >
+                  {disponivel ? (
+                    <>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>{livro.disponiveis} disp. para empréstimo</span>
+                    </>
+                  ) : (
+                    <>
+                      <Clock className="w-3 h-3 text-rose-300" />
+                      <span>Todos exemplares emprestados</span>
+                    </>
+                  )}
+                </span>
+              </div>
+
+              {/* Overlay Interativo ao passar o mouse */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end p-5 text-center">
+                <span className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow-xl transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                  <BookOpen className="w-4 h-4" />
+                  <span>Clique para Folhear o Livro</span>
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Páginas do Lado Direito (Texto do primeiro capítulo / sinopse) */}
-          <div className="w-1/2 h-full p-4 sm:p-5 bg-gradient-to-l from-[#F0E8D2] to-[#FAF6EE] flex flex-col justify-between relative overflow-hidden">
-            {/* Vinco da dobra central à esquerda */}
-            <div className="absolute left-0 inset-y-0 w-6 bg-gradient-to-r from-stone-900/15 to-transparent pointer-events-none" />
-
-            <div>
-              <div className="flex items-center justify-between text-[9px] text-stone-400 font-serif uppercase tracking-wider mb-1.5">
-                <span>Capítulo I</span>
-                <span>pág. 1</span>
-              </div>
-              <p className="font-serif text-[11px] sm:text-xs text-stone-700 leading-relaxed line-clamp-5 sm:line-clamp-6 text-justify">
-                <span className="float-left text-2xl sm:text-3xl font-serif font-bold text-amber-950 leading-none mr-1.5 mt-0.5">
-                  {sinopseTexto.charAt(0)}
-                </span>
-                {sinopseTexto.slice(1)}
-              </p>
-            </div>
-
-            {/* Rodapé da Página Aberta com Botão de Ação */}
-            <div className="pt-2 border-t border-[#E8DFCA] flex items-center justify-between">
-              <span className="text-[10px] font-bold text-amber-900 flex items-center gap-1 group-hover:underline">
-                <span>Ler Ficha Completa</span>
-                <span>→</span>
-              </span>
-              {livro.disponiveis > 0 ? (
-                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  {livro.disponiveis} disp.
-                </span>
-              ) : (
-                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
-                  Emprestado
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Fitilho / Marcador de Página em Fita de Cetim Vermelha/Dourada */}
-          <div
-            className={`absolute top-0 left-1/2 -translate-x-1/2 w-2 bg-gradient-to-b from-amber-700 via-rose-700 to-rose-800 shadow-md transition-all duration-700 pointer-events-none rounded-b-sm ${
-              isHovered ? 'h-full translate-y-1 rotate-2' : 'h-14 -rotate-1'
-            }`}
-          >
-            <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-400/60" />
+          <div className="mt-4 text-center">
+            <span className="text-xs font-semibold text-slate-400 group-hover:text-amber-300 flex items-center justify-center gap-1.5 transition-colors">
+              <span>Toque na capa para abrir e ler trechos</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </span>
           </div>
         </div>
-
-        {/* PÁGINAS INTERMEDIÁRIAS (Efeito realista de folhas de papel foleando suavemente) */}
-        <div
-          className="absolute inset-y-1 right-2 left-1/2 rounded-r-sm bg-[#F5EFE1] border-r border-[#E0D4B2] shadow-sm pointer-events-none transition-transform duration-500 ease-out origin-left"
-          style={{
-            transformStyle: 'preserve-3d',
-            transform: isHovered ? 'rotateY(-25deg) translateZ(1px)' : 'rotateY(0deg)',
-          }}
-        />
-        <div
-          className="absolute inset-y-1 right-3 left-1/2 rounded-r-sm bg-[#EDE3CE] border-r border-[#D9CB9E] shadow-sm pointer-events-none transition-transform duration-600 ease-out origin-left"
-          style={{
-            transformStyle: 'preserve-3d',
-            transform: isHovered ? 'rotateY(-45deg) translateZ(2px)' : 'rotateY(0deg)',
-          }}
-        />
-
-        {/* CAPA DA FRENTE (Que gira em 3D abrindo o livro com a dobradiça na lombada esquerda!) */}
-        <div
-          className="absolute inset-0 rounded-r-md rounded-l-xs overflow-hidden shadow-2xl transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
-          style={{
-            transformStyle: 'preserve-3d',
-            transformOrigin: 'left center',
-            transform: isHovered
-              ? 'rotateY(-145deg) translateZ(4px)'
-              : 'rotateY(0deg) translateZ(3px)',
-          }}
-        >
-          {/* Lado Exterior da Capa (A capa do livro visível quando fechado) */}
-          <div
-            className="absolute inset-0 w-full h-full bg-stone-900 overflow-hidden"
-            style={{
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
-            }}
-          >
-            <EditorialCover
-              titulo={livro.titulo}
-              autor={livro.autor}
-              capaUrl={livro.capa_url}
-              categoria={livro.categoria}
-              ano={livro.ano_publicacao}
-              size="lg"
-              className="w-full h-full object-cover"
-            />
-
-            {/* Vinco / Dobra da Lombada Realista */}
-            <div className="absolute left-0 inset-y-0 w-4 bg-gradient-to-r from-black/50 via-white/15 to-transparent pointer-events-none" />
-
-            {/* Borda direita simulando espessura do papel */}
-            <div className="absolute right-0 inset-y-0 w-1 bg-gradient-to-l from-stone-200 to-stone-400 opacity-80 pointer-events-none" />
-
-            {/* Badge de Disponibilidade na Capa */}
-            <div className="absolute top-3 right-3 z-10">
-              {livro.disponiveis > 0 ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-950/90 text-emerald-200 border border-emerald-400/40 shadow-md backdrop-blur-xs">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  {livro.disponiveis} disponíveis
+      ) : (
+        /* ESTADO: LIVRO ABERTO (DUAL PAGE SPREAD REALISTA NO TEMA ESCURO) */
+        <div className="w-full max-w-3xl animate-in zoom-in-95 duration-200">
+          <div className="relative bg-[#111724] border border-slate-700/80 rounded-3xl shadow-2xl p-4 sm:p-6 overflow-hidden">
+            {/* Faixa Superior com Controles de Folheamento */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold flex items-center gap-1.5 text-[11px]">
+                  <BookMarked className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Livro Aberto • Leitura Editorial</span>
                 </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-950/90 text-rose-200 border border-rose-400/40 shadow-md backdrop-blur-xs">
-                  Emprestado
+                <span className="text-slate-500 hidden sm:inline">•</span>
+                <span className="text-slate-400 font-mono text-[11px] hidden sm:inline">
+                  {livro.codigo_interno}
                 </span>
-              )}
-            </div>
-
-            {/* Selo do Código na Capa */}
-            <div className="absolute bottom-3 left-3 z-10">
-              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-black/80 text-amber-200 border border-white/10 backdrop-blur-xs">
-                {livro.codigo_interno}
-              </span>
-            </div>
-          </div>
-
-          {/* Lado Interior da Capa (Guardas de encadernação visíveis quando aberta) */}
-          <div
-            className="absolute inset-0 w-full h-full bg-[#EFE6CF] border border-[#D5C79E] p-4 flex flex-col justify-between text-stone-800"
-            style={{
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
-              transform: 'rotateY(180deg)',
-            }}
-          >
-            <div className="border border-amber-900/20 p-3 h-full rounded-sm flex flex-col justify-between bg-[#F7F2E4]/60">
-              <div>
-                <p className="text-[10px] font-mono uppercase tracking-widest text-amber-900/60 font-bold">
-                  LibreOteca • Acervo
-                </p>
-                <h5 className="font-serif font-black text-sm text-stone-900 mt-2 line-clamp-2">
-                  {livro.titulo}
-                </h5>
-                <p className="text-xs text-stone-600 italic mt-0.5">
-                  {livro.autor}
-                </p>
               </div>
 
-              <div className="text-[10px] text-stone-500 font-mono flex items-center justify-between border-t border-amber-900/15 pt-2">
-                <span>ISBN: {livro.isbn || 'N/A'}</span>
-                <span>{livro.paginas ? `${livro.paginas} págs` : 'Edição Escolar'}</span>
+              <div className="flex items-center gap-2">
+                <div className="inline-flex rounded-lg border border-slate-700 bg-slate-900 p-0.5 text-[11px]">
+                  <button
+                    onClick={() => setPaginaAtiva('sinopse')}
+                    className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
+                      paginaAtiva === 'sinopse' ? 'bg-slate-800 text-amber-300' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Sinopse
+                  </button>
+                  <button
+                    onClick={() => setPaginaAtiva('ficha')}
+                    className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
+                      paginaAtiva === 'ficha' ? 'bg-slate-800 text-amber-300' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Ficha Técnica
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setIsAberto(false)}
+                  className="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
+                  title="Fechar visualização de folheamento"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+
+            {/* Spread Duplo: Página Esquerda + Vinco Central + Página Direita */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
+              {/* PÁGINA ESQUERDA: Capa & Apresentação */}
+              <div className="md:col-span-5 flex flex-col items-center md:items-start text-center md:text-left bg-[#0c1018] p-4 sm:p-5 rounded-2xl border border-slate-800/80 shadow-inner">
+                <div className="w-36 sm:w-40 h-52 sm:h-56 rounded-xl overflow-hidden shadow-xl border border-slate-700/60 mx-auto md:mx-0">
+                  <EditorialCover
+                    titulo={livro.titulo}
+                    autor={livro.autor}
+                    capaUrl={livro.capa_url}
+                    categoria={livro.categoria}
+                    ano={livro.ano_publicacao}
+                    size="md"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                <div className="mt-4 w-full">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-amber-300 border border-slate-700">
+                    {livro.categoria}
+                  </span>
+                  <h3 className="font-serif font-bold text-base sm:text-lg text-white mt-1 leading-snug">
+                    {livro.titulo}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">{livro.autor}</p>
+
+                  <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                    <span>Publicação: <strong>{livro.ano_publicacao || 'Clássico'}</strong></span>
+                    <span>Volumes: <strong>{livro.total_exemplares}</strong></span>
+                  </div>
+                </div>
+              </div>
+
+              {/* PÁGINA DIREITA: Conteúdo Textual e Ações */}
+              <div className="md:col-span-7 flex flex-col justify-between bg-[#141b29] p-5 sm:p-6 rounded-2xl border border-slate-800/80 shadow-inner">
+                {paginaAtiva === 'sinopse' ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-amber-400 text-xs font-serif italic">
+                      <Quote className="w-4 h-4 shrink-0" />
+                      <span>Apresentação da Edição</span>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-serif line-clamp-6 sm:line-clamp-none">
+                      {livro.sinopse ||
+                        `Uma obra magistral da literatura que transporta o leitor através de reflexões profundas sobre a condição humana, o tempo e os dilemas que moldam nossa jornada coletiva. Indispensável para enriquecer o repertório cultural de estudantes e educadores.`}
+                    </p>
+
+                    <div className="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="flex text-amber-400">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
+                          ))}
+                        </div>
+                        <span className="text-xs font-bold text-white">5.0</span>
+                        <span className="text-[11px] text-slate-400">• Avaliação dos Leitores</span>
+                      </div>
+
+                      <span
+                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                          disponivel
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                        }`}
+                      >
+                        {disponivel ? `${livro.disponiveis} na estante` : 'Esgotado'}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3.5 text-xs text-slate-300">
+                    <h4 className="font-serif font-bold text-sm text-white">Ficha de Catalogação</h4>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div className="p-2.5 bg-slate-900/80 rounded-xl border border-slate-800">
+                        <span className="text-[10px] text-slate-500 block uppercase">Código Interno</span>
+                        <span className="font-mono font-bold text-amber-300">{livro.codigo_interno}</span>
+                      </div>
+                      <div className="p-2.5 bg-slate-900/80 rounded-xl border border-slate-800">
+                        <span className="text-[10px] text-slate-500 block uppercase">ISBN / Registro</span>
+                        <span className="font-mono text-slate-200">{livro.isbn || 'Não cadastrado'}</span>
+                      </div>
+                      <div className="p-2.5 bg-slate-900/80 rounded-xl border border-slate-800">
+                        <span className="text-[10px] text-slate-500 block uppercase">Editora</span>
+                        <span className="font-medium text-slate-200">{livro.editora || 'Edição Especial'}</span>
+                      </div>
+                      <div className="p-2.5 bg-slate-900/80 rounded-xl border border-slate-800">
+                        <span className="text-[10px] text-slate-500 block uppercase">Número de Páginas</span>
+                        <span className="font-medium text-slate-200">{livro.paginas ? `${livro.paginas} págs.` : 'Completo'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Ações da Obra */}
+                <div className="pt-5 mt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => onVerDetalhes(livro)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md transition-all active:scale-95"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Abrir Ficha Completa & Resenhas</span>
+                  </button>
+
+                  {isProfessor && disponivel && onEmprestar && (
+                    <button
+                      type="button"
+                      onClick={() => onEmprestar(livro)}
+                      className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 hover:border-amber-500/40 transition-colors shadow-sm"
+                    >
+                      <ArrowRightLeft className="w-3.5 h-3.5" />
+                      <span>Emprestar</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

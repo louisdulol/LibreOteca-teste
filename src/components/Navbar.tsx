@@ -18,6 +18,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { Logo } from './Logo';
+import { ThemeSelector } from './ThemeSelector';
 import { ConfiguracoesBiblioteca, UsuarioSessao, ActiveTab } from '../types';
 
 interface NavbarProps {
@@ -54,44 +55,44 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isProfessor = usuarioAtual?.role === 'professor';
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/90 shadow-2xs">
+    <header className="sticky top-0 z-40 bg-[#0f141e]/95 backdrop-blur-md border-b border-slate-800/80 shadow-xl">
       {/* Barra superior de identificação e perfil */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-3">
           {/* Logo e Nome da Biblioteca */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-xs border border-stone-200/90 shrink-0 p-1">
+            <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shadow-md border border-slate-700/60 shrink-0 p-1">
               <Logo className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-serif font-black text-lg sm:text-xl text-stone-900 tracking-tight">
+                <span className="font-serif font-black text-lg sm:text-xl text-white tracking-tight">
                   LibreOteca
                 </span>
                 <a
                   href="https://wole-br.pages.dev/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 hover:bg-amber-100 text-stone-700 hover:text-amber-950 border border-amber-200/90 transition-all shadow-2xs group"
+                  className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-all group"
                   title="Conheça a Wole"
                 >
-                  <span className="text-[9px] text-stone-400 uppercase tracking-wider">powered by</span>
-                  <span className="font-bold text-amber-900 group-hover:underline">Wole</span>
-                  <ExternalLink className="w-2.5 h-2.5 text-amber-700" />
+                  <span className="text-[9px] text-slate-400 uppercase tracking-wider">powered by</span>
+                  <span className="font-bold text-amber-400 group-hover:underline">Wole</span>
+                  <ExternalLink className="w-2.5 h-2.5 text-amber-400" />
                 </a>
                 {usuarioAtual && (
                   <span
-                    className={`hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    className={`hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       isProfessor
-                        ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                        : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                        : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                     }`}
                   >
                     {isProfessor ? 'Professor / Admin' : 'Espaço do Aluno'}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-stone-500 font-medium truncate max-w-[180px] sm:max-w-xs md:max-w-sm">
+              <p className="text-xs text-slate-400 font-medium truncate max-w-[180px] sm:max-w-xs md:max-w-sm">
                 {config.nome_biblioteca}
               </p>
             </div>
@@ -99,15 +100,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Botões Centrais e Direita */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Botão de Ajuda & Tutorial para Professores (APENAS PROFESSOR / ADMIN) */}
+            {/* Botão de Ajuda & Tutorial para Professores */}
             {isProfessor && (
               <button
                 onClick={onOpenTutorial}
                 id="btn-tutorial-guia"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-950 border border-amber-300 transition-colors shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800/80 hover:bg-slate-700 text-amber-300 border border-slate-700 hover:border-amber-500/40 transition-colors shadow-xs"
                 title="Abrir o tutorial passo a passo para bibliotecários e professores"
               >
-                <HelpCircle className="w-4 h-4 text-amber-800" />
+                <HelpCircle className="w-4 h-4 text-amber-400" />
                 <span className="hidden sm:inline">Guia Passo a Passo</span>
                 <span className="sm:hidden">Guia</span>
               </button>
@@ -120,10 +121,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {totalAtrasados > 0 && (
                   <button
                     onClick={() => setActiveTab('emprestimos')}
-                    className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors animate-pulse"
+                    className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-colors animate-pulse"
                     title="Clique para ver empréstimos atrasados"
                   >
-                    <AlertTriangle className="w-3.5 h-3.5" />
+                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
                     <span>{totalAtrasados} atrasados</span>
                   </button>
                 )}
@@ -132,9 +133,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   id="btn-explorar-open-library"
                   onClick={onExplorarOpenLibrary}
-                  className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-800 transition-colors"
+                  className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                   <span>Open Library</span>
                 </button>
 
@@ -142,9 +143,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   id="btn-novo-livro-topo"
                   onClick={onNovoLivro}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-800 transition-colors"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 text-amber-400" />
                   <span>Novo Livro</span>
                 </button>
 
@@ -152,7 +153,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   id="btn-novo-emprestimo-topo"
                   onClick={onNovoEmprestimo}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-800 hover:bg-amber-900 text-white shadow-xs transition-all active:scale-95"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md transition-all active:scale-95"
                 >
                   <ArrowRightLeft className="w-3.5 h-3.5" />
                   <span>Empréstimo</span>
@@ -160,40 +161,43 @@ export const Navbar: React.FC<NavbarProps> = ({
               </>
             )}
 
+            {/* Seletor Rápido de Paleta de Cores */}
+            <ThemeSelector />
+
             {/* Seletor / Botão de Usuário Ativo & Login */}
-            <div className="flex items-center pl-1 sm:pl-2 border-l border-stone-200">
+            <div className="flex items-center pl-1 sm:pl-2 border-l border-slate-800">
               {!usuarioAtual ? (
                 <button
                   id="btn-login-header"
                   onClick={onOpenLoginModal}
-                  className="flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold shadow-xs transition-all active:scale-95"
+                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-md transition-all active:scale-95"
                 >
                   <LogIn className="w-3.5 h-3.5" />
-                  <span>Entrar / Criar Conta</span>
+                  <span>Entrar / Conta</span>
                 </button>
               ) : (
                 <button
                   id="btn-usuario-ativo-header"
                   onClick={onOpenLoginModal}
-                  className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-stone-200 hover:border-stone-300 bg-stone-50 hover:bg-stone-100 transition-colors"
+                  className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-slate-700/80 hover:border-amber-500/50 bg-slate-800/80 hover:bg-slate-800 transition-colors"
                   title="Clique para gerenciar a conta, trocar de perfil ou sair"
                 >
                   <div
-                    className={`w-6 h-6 rounded-lg ${
-                      isProfessor ? 'bg-amber-900' : 'bg-emerald-700'
-                    } text-white flex items-center justify-center text-xs font-bold shrink-0`}
+                    className={`w-7 h-7 rounded-lg ${
+                      isProfessor ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white'
+                    } flex items-center justify-center text-xs font-bold shrink-0`}
                   >
                     {isProfessor ? (
-                      <GraduationCap className="w-3.5 h-3.5" />
+                      <GraduationCap className="w-4 h-4" />
                     ) : (
-                      <User className="w-3.5 h-3.5" />
+                      <User className="w-4 h-4" />
                     )}
                   </div>
                   <div className="hidden sm:block text-left">
-                    <span className="block text-xs font-bold text-stone-900 leading-tight truncate max-w-[120px]">
+                    <span className="block text-xs font-bold text-white leading-tight truncate max-w-[120px]">
                       {usuarioAtual.nome.split(' ')[0]}
                     </span>
-                    <span className="block text-[10px] text-stone-500 uppercase tracking-wider font-semibold">
+                    <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
                       {isProfessor ? 'Professor' : 'Aluno'} • Conta
                     </span>
                   </div>
@@ -203,17 +207,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Barra de Navegação por Abas (Personalizada por Perfil) */}
-        <nav className="flex space-x-1 sm:space-x-3 border-t border-stone-100 overflow-x-auto py-1 scrollbar-none">
+        {/* Barra de Navegação por Abas */}
+        <nav className="flex space-x-1 sm:space-x-2 border-t border-slate-800/80 overflow-x-auto py-1.5 scrollbar-none">
           {/* Se for Aluno: Exibe primeiro "Minhas Estatísticas & Livros" */}
           {usuarioAtual?.role === 'aluno' && (
             <button
               id="tab-minhas-estatisticas"
               onClick={() => setActiveTab('minhas-estatisticas')}
-              className={`flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 activeTab === 'minhas-estatisticas'
-                  ? 'bg-stone-900 text-white'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
               }`}
             >
               <TrendingUp className="w-4 h-4" />
@@ -225,31 +229,31 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="tab-acervo"
             onClick={() => setActiveTab('acervo')}
-            className={`flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               activeTab === 'acervo'
-                ? 'bg-stone-900 text-white'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
             }`}
           >
             <BookOpen className="w-4 h-4" />
             <span>Acervo de Livros</span>
             <span
               className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                activeTab === 'acervo' ? 'bg-stone-800 text-stone-200' : 'bg-stone-200 text-stone-600'
+                activeTab === 'acervo' ? 'bg-slate-950/30 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300'
               }`}
             >
               {totalLivros}
             </span>
           </button>
 
-          {/* Mural de Comentários & Moderação (Acessível por Todos) */}
+          {/* Mural de Comentários & Moderação */}
           <button
             id="tab-comentarios"
             onClick={() => setActiveTab('comentarios')}
-            className={`flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               activeTab === 'comentarios'
-                ? 'bg-stone-900 text-white'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
             }`}
           >
             <MessageSquare className="w-4 h-4" />
@@ -257,8 +261,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span
               className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                 activeTab === 'comentarios'
-                  ? 'bg-stone-800 text-stone-200'
-                  : 'bg-purple-100 text-purple-900'
+                  ? 'bg-slate-950/30 text-slate-950 font-bold'
+                  : 'bg-purple-900/50 text-purple-300 border border-purple-700/50'
               }`}
             >
               {totalComentarios}
@@ -271,24 +275,24 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="tab-emprestimos"
                 onClick={() => setActiveTab('emprestimos')}
-                className={`flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   activeTab === 'emprestimos'
-                    ? 'bg-stone-900 text-white'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
                 }`}
               >
                 <ArrowRightLeft className="w-4 h-4" />
                 <span>Empréstimos & Devoluções</span>
                 {totalAtrasados > 0 ? (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-600 text-white font-bold">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-600 text-white font-bold animate-pulse">
                     {totalAtrasados}
                   </span>
                 ) : (
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                       activeTab === 'emprestimos'
-                        ? 'bg-stone-800 text-stone-200'
-                        : 'bg-stone-200 text-stone-600'
+                        ? 'bg-slate-950/30 text-slate-950 font-bold'
+                        : 'bg-slate-800 text-slate-300'
                     }`}
                   >
                     {totalEmprestimosAtivos}
@@ -299,10 +303,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="tab-leitores"
                 onClick={() => setActiveTab('leitores')}
-                className={`flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   activeTab === 'leitores'
-                    ? 'bg-stone-900 text-white'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
                 }`}
               >
                 <Users className="w-4 h-4" />
@@ -312,10 +316,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="tab-relatorios"
                 onClick={() => setActiveTab('relatorios')}
-                className={`flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   activeTab === 'relatorios'
-                    ? 'bg-stone-900 text-white'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
                 }`}
               >
                 <BarChart3 className="w-4 h-4" />
@@ -325,10 +329,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="tab-configuracoes"
                 onClick={() => setActiveTab('configuracoes')}
-                className={`flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   activeTab === 'configuracoes'
-                    ? 'bg-stone-900 text-white'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
                 }`}
               >
                 <Settings className="w-4 h-4" />

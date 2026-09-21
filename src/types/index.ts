@@ -8,8 +8,8 @@ export interface Livro {
   capa_url?: string;
   total_exemplares: number;
   disponiveis: number;
-  ano_publicacao?: number;
-  paginas?: number;
+  ano_publicacao?: number | null;
+  paginas?: number | null;
   editora?: string;
   sinopse?: string;
   criado_em: string;
@@ -22,7 +22,7 @@ export interface Leitor {
   nome: string;
   matricula: string;
   telefone: string;
-  email: string;
+  email?: string;
   tipo: TipoLeitor;
   ativo: boolean;
   anonimizado?: boolean;

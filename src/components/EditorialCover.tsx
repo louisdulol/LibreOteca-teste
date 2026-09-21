@@ -6,7 +6,7 @@ interface EditorialCoverProps {
   autor: string;
   capaUrl?: string;
   categoria?: string;
-  ano?: number;
+  ano?: number | null;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }

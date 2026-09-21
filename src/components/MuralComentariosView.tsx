@@ -73,62 +73,57 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
   };
 
   const confirmarRemocao = () => {
-    if (!comentarioParaRemover) return;
-    StorageService.moderarComentario(comentarioParaRemover, 'removido_professor');
-    setFeedback('Comentário removido do mural da biblioteca.');
+    if (!comentarioParaRemover || !usuario) return;
+    StorageService.moderarComentario(comentarioParaRemover, 'remover', usuario.nome);
     setComentarioParaRemover(null);
+    setFeedback('Comentário removido do mural com sucesso.');
     onRefresh();
-    setTimeout(() => setFeedback(null), 3000);
+    setTimeout(() => setFeedback(null), 3500);
   };
 
   return (
     <div className="space-y-6">
-      {/* Top Banner Informativo */}
-      <div className="bg-white border border-stone-200/90 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* Header com Descrição e Badge de Proteção */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-serif font-bold text-stone-900">
-              Mural de Leitores & Resenhas
-            </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-100 text-purple-900 border border-purple-200">
-              Comentários de Alunos
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Veja o que outros alunos e leitores acharam das obras do acervo. Todos os comentários passam por filtro
-            automático de respeito pedagógico.
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white tracking-tight flex items-center gap-2.5">
+            <MessageSquare className="w-6 h-6 text-amber-400" />
+            <span>Mural de Opiniões & Resenhas</span>
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Espaço aberto para os alunos compartilharem reflexões, notas e impressões sobre as leituras do acervo.
           </p>
         </div>
 
         {/* Badge do Filtro Anti-Maldades */}
-        <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl text-xs font-medium">
-          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+        <div className="flex items-center gap-2 px-3.5 py-2 bg-emerald-950/40 border border-emerald-800/60 text-emerald-300 rounded-2xl text-xs font-medium">
+          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>Filtro de Respeito Escolar Ativo</span>
         </div>
       </div>
 
       {feedback && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-medium flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+        <div className="p-3 bg-emerald-950/50 border border-emerald-800 text-emerald-300 rounded-2xl text-xs font-medium flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{feedback}</span>
         </div>
       )}
 
       {/* Controles do Professor (Abas de Moderação) */}
       {isProfessor && (
-        <div className="bg-stone-50 border border-stone-200 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-[#131926] border border-slate-800 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-amber-800" />
-            <span className="text-xs font-bold text-stone-900">Painel de Moderação do Professor:</span>
+            <Shield className="w-4 h-4 text-amber-400" />
+            <span className="text-xs font-bold text-white">Painel de Moderação do Professor:</span>
           </div>
 
           <div className="flex gap-2">
             <button
               onClick={() => setModoAbaProfessor('aprovados')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                 modoAbaProfessor === 'aprovados'
-                  ? 'bg-stone-900 text-white shadow-2xs'
-                  : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+                  ? 'bg-amber-500 text-slate-950 shadow-md font-bold'
+                  : 'bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700'
               }`}
             >
               Comentários Aprovados ({todosComentarios.filter(c => c.status === 'aprovado').length})
@@ -136,10 +131,10 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
 
             <button
               onClick={() => setModoAbaProfessor('bloqueados_filtro')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors ${
                 modoAbaProfessor === 'bloqueados_filtro'
-                  ? 'bg-rose-800 text-white shadow-2xs'
-                  : 'bg-white text-rose-700 border border-rose-200 hover:bg-rose-50'
+                  ? 'bg-rose-950 text-rose-200 border border-rose-800 font-bold'
+                  : 'bg-slate-800 text-rose-400 border border-slate-700 hover:bg-slate-700'
               }`}
             >
               <ShieldAlert className="w-3.5 h-3.5" />
@@ -151,20 +146,20 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
 
       {/* Seção quando o professor escolhe ver tentativas bloqueadas pelo filtro */}
       {isProfessor && modoAbaProfessor === 'bloqueados_filtro' ? (
-        <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs space-y-4">
-          <div className="flex items-center gap-2 text-rose-800">
+        <div className="bg-[#131926] border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+          <div className="flex items-center gap-2 text-rose-400">
             <ShieldAlert className="w-5 h-5" />
-            <h3 className="font-serif font-bold text-base text-stone-900">
+            <h3 className="font-serif font-bold text-base text-white">
               Tentativas de Comentários Bloqueadas pelo Filtro Escolar ({tentativasBarradas.length})
             </h3>
           </div>
-          <p className="text-xs text-stone-600">
+          <p className="text-xs text-slate-400">
             Estes comentários foram barrados automaticamente antes de chegarem ao ar para proteger a comunidade
             escolar contra ofensas ou bullying.
           </p>
 
           {tentativasBarradas.length === 0 ? (
-            <div className="p-8 text-center text-xs text-stone-500 bg-stone-50 rounded-xl border border-dashed border-stone-200">
+            <div className="p-8 text-center text-xs text-slate-400 bg-slate-900/60 rounded-2xl border border-dashed border-slate-800">
               Nenhuma tentativa de comentário inadequado registrada até o momento. Comunidade exemplar!
             </div>
           ) : (
@@ -175,19 +170,19 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
                 return (
                   <div
                     key={tentativa.id}
-                    className="p-4 rounded-xl bg-rose-50/50 border border-rose-200 text-xs space-y-1.5"
+                    className="p-4 rounded-2xl bg-rose-950/20 border border-rose-900/50 text-xs space-y-1.5"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-rose-900 flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 text-rose-700" />
+                      <span className="font-bold text-rose-300 flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
                         Obra: {livro?.titulo || 'Livro do Acervo'}
                       </span>
-                      <span className="text-[11px] text-stone-500">
+                      <span className="text-[11px] text-slate-500">
                         {new Date(tentativa.criado_em).toLocaleString('pt-BR')}
                       </span>
                     </div>
-                    <p className="text-stone-700">{tentativa.detalhes}</p>
-                    <div className="pt-1 text-[11px] text-rose-700 font-medium">
+                    <p className="text-slate-300">{tentativa.detalhes}</p>
+                    <div className="pt-1 text-[11px] text-rose-400 font-medium">
                       Status: Bloqueado pelo Filtro Pedagógico do LibreOteca
                     </div>
                   </div>
@@ -200,28 +195,28 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
         /* Lista Normal de Comentários Aprovados */
         <div className="space-y-4">
           {/* Barra de Filtros */}
-          <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="bg-[#131926] p-4 rounded-3xl border border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="relative w-full sm:w-72">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Buscar por livro, aluno ou palavra..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full pl-10 pr-3 py-2 text-xs bg-slate-900 border border-slate-700/80 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-amber-500 text-white placeholder:text-slate-500"
               />
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Filter className="w-4 h-4 text-stone-500 shrink-0" />
+              <Filter className="w-4 h-4 text-slate-400 shrink-0" />
               <select
                 value={selectedBookFilter}
                 onChange={e => setSelectedBookFilter(e.target.value)}
-                className="w-full sm:w-60 px-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full sm:w-60 px-3 py-2 text-xs bg-slate-900 border border-slate-700/80 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-amber-500 text-white"
               >
                 <option value="todos">Todos os livros comentados</option>
                 {livros.map(l => (
-                  <option key={l.id} value={l.id}>
+                  <option key={l.id} value={l.id} className="bg-slate-900 text-white">
                     {l.titulo}
                   </option>
                 ))}
@@ -231,12 +226,12 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
 
           {/* Cards de Comentários */}
           {comentariosFiltrados.length === 0 ? (
-            <div className="p-12 text-center bg-white border border-dashed border-stone-200 rounded-2xl space-y-2">
-              <MessageSquare className="w-8 h-8 text-stone-300 mx-auto" />
-              <h4 className="font-serif font-bold text-stone-800 text-sm">
+            <div className="p-12 text-center bg-[#131926] border border-dashed border-slate-800 rounded-3xl space-y-2">
+              <MessageSquare className="w-8 h-8 text-slate-600 mx-auto" />
+              <h4 className="font-serif font-bold text-white text-sm">
                 Nenhum comentário encontrado para estes filtros.
               </h4>
-              <p className="text-xs text-stone-500 max-w-sm mx-auto">
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
                 Seja o primeiro a opinar! Abra qualquer livro do acervo e registre sua avaliação.
               </p>
             </div>
@@ -248,39 +243,39 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
                 return (
                   <div
                     key={com.id}
-                    className="p-5 bg-white border border-stone-200 rounded-2xl shadow-2xs hover:shadow-xs transition-shadow flex flex-col justify-between space-y-3"
+                    className="p-5 bg-[#131926] border border-slate-800 rounded-3xl shadow-sm hover:border-slate-700 transition-all flex flex-col justify-between space-y-3 group"
                   >
                     <div>
                       {/* Topo do Comentário */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-900 font-serif font-bold text-sm flex items-center justify-center shrink-0">
+                          <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 font-serif font-bold text-sm flex items-center justify-center shrink-0 border border-amber-500/30">
                             {com.autor_nome.charAt(0)}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <span className="font-semibold text-stone-900 text-xs sm:text-sm">
+                              <span className="font-semibold text-white text-xs sm:text-sm">
                                 {com.autor_nome}
                               </span>
-                              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-stone-100 text-stone-600 font-medium">
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700">
                                 {com.autor_tipo.toUpperCase()}
                               </span>
                             </div>
-                            <span className="text-[11px] text-stone-400">
+                            <span className="text-[11px] text-slate-500">
                               {new Date(com.criado_em).toLocaleDateString('pt-BR')}
                             </span>
                           </div>
                         </div>
 
                         {/* Estrelas */}
-                        <div className="flex items-center gap-0.5 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200/60">
+                        <div className="flex items-center gap-0.5 bg-slate-900/80 px-2 py-1 rounded-xl border border-slate-800">
                           {[1, 2, 3, 4, 5].map(st => (
                             <Star
                               key={st}
                               className={`w-3.5 h-3.5 ${
                                 st <= com.nota
-                                  ? 'text-amber-500 fill-amber-400'
-                                  : 'text-stone-300'
+                                    ? 'text-amber-400 fill-amber-400'
+                                    : 'text-slate-700'
                               }`}
                             />
                           ))}
@@ -289,43 +284,43 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
 
                       {/* Obra Relacionada */}
                       {livro && (
-                        <div className="mt-2.5 pt-2 border-t border-stone-100 flex items-center justify-between">
+                        <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between">
                           <button
                             type="button"
                             onClick={() => onVerDetalhesLivro(livro)}
-                            className="text-xs font-serif font-bold text-stone-800 hover:text-amber-900 hover:underline flex items-center gap-1.5"
+                            className="text-xs font-serif font-bold text-slate-200 hover:text-amber-400 hover:underline flex items-center gap-1.5"
                           >
-                            <BookOpen className="w-3.5 h-3.5 text-amber-800" />
+                            <BookOpen className="w-3.5 h-3.5 text-amber-400" />
                             <span className="line-clamp-1">{livro.titulo}</span>
                           </button>
-                          <span className="text-[10px] text-stone-400">{livro.categoria}</span>
+                          <span className="text-[10px] text-slate-500">{livro.categoria}</span>
                         </div>
                       )}
 
                       {/* Texto da Opinião */}
-                      <p className="text-xs sm:text-sm text-stone-700 leading-relaxed mt-2.5 italic">
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mt-2.5 italic">
                         "{com.texto}"
                       </p>
                     </div>
 
                     {/* Rodapé com Interação */}
-                    <div className="flex items-center justify-between pt-2.5 border-t border-stone-100 text-xs">
+                    <div className="flex items-center justify-between pt-2.5 border-t border-slate-800/80 text-xs">
                       <button
                         type="button"
                         onClick={() => handleCurtir(com.id)}
-                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-rose-700 hover:bg-rose-50 transition-colors"
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-rose-400 hover:bg-rose-950/40 transition-colors"
                         title="Curtir esta resenha"
                       >
                         <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
                         <span className="font-semibold">{com.curtidas || 0}</span>
-                        <span className="text-[11px] text-stone-500">curtidas</span>
+                        <span className="text-[11px] text-slate-400">curtidas</span>
                       </button>
 
                       {isProfessor && (
                         <button
                           type="button"
                           onClick={() => setComentarioParaRemover(com.id)}
-                          className="flex items-center gap-1 text-stone-400 hover:text-rose-700 transition-colors text-[11px]"
+                          className="flex items-center gap-1 text-slate-500 hover:text-rose-400 transition-colors text-[11px]"
                           title="Remover comentário impróprio"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -350,22 +345,22 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
           subtitle="Moderação realizada pelo Professor / Bibliotecário"
           maxWidth="sm"
         >
-          <div className="space-y-4 pt-1">
-            <p className="text-xs text-stone-600 leading-relaxed">
+          <div className="space-y-4 pt-1 text-slate-300">
+            <p className="text-xs leading-relaxed">
               Tem certeza de que deseja remover este comentário do mural público de alunos? O comentário não ficará mais visível aos leitores.
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setComentarioParaRemover(null)}
-                className="px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs text-stone-700 font-medium"
+                className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-medium"
               >
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={confirmarRemocao}
-                className="px-3.5 py-1.5 rounded-lg bg-rose-700 hover:bg-rose-800 text-xs text-white font-bold"
+                className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs text-white font-bold"
               >
                 Confirmar Remoção
               </button>

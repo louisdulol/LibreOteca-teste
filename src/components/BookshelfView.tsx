@@ -35,7 +35,7 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
 }) => {
   const isProfessor = usuarioAtual?.role === 'professor';
 
-  // Agrupa os livros em prateleiras temáticas inspiradas na Readowl
+  // Agrupa os livros em prateleiras temáticas
   const shelves = React.useMemo<ShelfSection[]>(() => {
     if (livros.length <= 6) {
       return [
@@ -49,7 +49,7 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
       ];
     }
 
-    // 1. Destaques e Mais Lidos (livros com mais exemplares ou com boas resenhas)
+    // 1. Destaques e Mais Lidos
     const destaques = livros.slice(0, 6);
 
     // 2. Literatura, Ficção e Poesia
@@ -103,8 +103,8 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
     if (ciencias.length > 0) {
       result.push({
         id: 'ciencias',
-        titulo: 'Conhecimento & Ciências',
-        subtitulo: 'Exploração do mundo, sociedade, ensaios e história',
+        titulo: 'Ciências & Humanidades',
+        subtitulo: 'Divulgação científica, história, ensaios e reflexão',
         badge: `${ciencias.length} títulos`,
         livros: ciencias,
       });
@@ -112,9 +112,9 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
 
     if (outros.length > 0) {
       result.push({
-        id: 'outros',
-        titulo: 'Novas Aquisições & Acervo Geral',
-        subtitulo: 'Mais volumes catalogados na estante',
+        id: 'diversos',
+        titulo: 'Novas Aquisições & Diversos',
+        subtitulo: 'Exploração livre do catálogo da biblioteca',
         badge: `${outros.length} títulos`,
         livros: outros,
       });
@@ -130,23 +130,23 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
           {/* Cabeçalho da Prateleira */}
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-6 px-1 gap-1">
             <div className="flex items-center gap-2.5">
-              <h3 className="text-xl sm:text-2xl font-serif font-bold text-stone-900 tracking-tight">
+              <h3 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-tight">
                 {shelf.titulo}
               </h3>
               {shelf.badge && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">
                   {shelf.badge}
                 </span>
               )}
             </div>
-            <p className="text-xs text-stone-500 font-medium">
+            <p className="text-xs text-slate-400 font-medium">
               {shelf.subtitulo}
             </p>
           </div>
 
-          {/* O Contêiner da Estante com os Livros Físicos em Fileira */}
-          <div className="relative bg-gradient-to-b from-[#FDFBF7] to-[#F5EFE6] rounded-2xl p-4 sm:p-6 border border-[#E8DFC8]/80 shadow-xs">
-            {/* Linha de Livros com scroll horizontal suave caso ultrapasse */}
+          {/* O Contêiner da Estante */}
+          <div className="relative bg-gradient-to-b from-[#131926] to-[#0c1018] rounded-3xl p-5 sm:p-7 border border-slate-800/80 shadow-2xl">
+            {/* Linha de Livros com scroll horizontal suave */}
             <div className="overflow-x-auto scrollbar-thin pb-4 pt-2">
               <div className="flex items-end gap-5 sm:gap-7 min-w-max px-2">
                 {shelf.livros.map(livro => {
@@ -157,17 +157,17 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
                       key={livro.id}
                       className="group flex flex-col items-center w-36 sm:w-40 md:w-44 select-none shrink-0"
                     >
-                      {/* O Volume Físico do Livro com Sombra de Prateleira e Efeito 3D */}
+                      {/* Capa do Livro na Prateleira */}
                       <div
                         onClick={() => onVerDetalhes(livro)}
-                        className="relative w-32 sm:w-36 md:w-38 h-48 sm:h-52 md:h-56 cursor-pointer transition-all duration-300 ease-out group-hover:-translate-y-3.5 group-hover:scale-[1.03] group-hover:-rotate-1"
+                        className="relative w-32 sm:w-36 md:w-38 h-48 sm:h-52 md:h-56 cursor-pointer transition-all duration-200 ease-out group-hover:-translate-y-2 group-hover:scale-[1.02]"
                         title={`Clique para ver detalhes de "${livro.titulo}"`}
                       >
-                        {/* Sombra de Contato Físico na Prateleira de Madeira */}
-                        <div className="absolute -bottom-2 inset-x-2 h-4 bg-stone-900/40 blur-md rounded-full group-hover:bg-stone-900/60 group-hover:blur-xl group-hover:scale-x-125 transition-all duration-300" />
+                        {/* Sombra de Contato na Prateleira */}
+                        <div className="absolute -bottom-2 inset-x-2 h-3 bg-black/80 blur-sm rounded-full transition-all duration-200" />
 
                         {/* Corpo do Livro com Capa */}
-                        <div className="relative w-full h-full rounded-r-md rounded-l-xs overflow-hidden shadow-[0_12px_22px_-4px_rgba(40,25,10,0.35)] group-hover:shadow-[0_24px_34px_-6px_rgba(40,25,10,0.5)] border border-stone-900/10 bg-stone-900">
+                        <div className="relative w-full h-full rounded-md overflow-hidden shadow-lg border border-slate-700/60 group-hover:border-amber-400/60 bg-[#0d121c]">
                           <EditorialCover
                             titulo={livro.titulo}
                             autor={livro.autor}
@@ -178,41 +178,35 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
                             className="w-full h-full object-cover"
                           />
 
-                          {/* Vinco / Dobra da Lombada Físico */}
-                          <div className="absolute left-0 inset-y-0 w-3 bg-gradient-to-r from-black/50 via-white/10 to-transparent pointer-events-none" />
-
-                          {/* Feixe de Luz / Brilho Suave ao passar o mouse */}
-                          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-
-                          {/* Borda direita simulando páginas de papel */}
-                          <div className="absolute right-0 inset-y-0 w-0.5 bg-gradient-to-b from-stone-200 via-stone-100 to-stone-300 opacity-90 pointer-events-none" />
+                          {/* Vinco sutil da Lombada */}
+                          <div className="absolute left-0 inset-y-0 w-2 bg-gradient-to-r from-black/40 to-transparent pointer-events-none" />
 
                           {/* Status de Disponibilidade em Badge Flutuante */}
                           <div className="absolute top-2 right-2 z-10">
                             {disponivel ? (
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950/85 text-emerald-200 backdrop-blur-xs border border-emerald-400/40 shadow-xs">
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950/90 text-emerald-300 backdrop-blur-xs border border-emerald-500/50 shadow-xs">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                                 {livro.disponiveis} disp.
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-950/85 text-rose-200 backdrop-blur-xs border border-rose-400/40 shadow-xs">
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-950/90 text-rose-300 backdrop-blur-xs border border-rose-500/50 shadow-xs">
                                 <Clock className="w-2.5 h-2.5 text-rose-300" />
-                                Emprestado
+                                Esgotado
                               </span>
                             )}
                           </div>
 
                           {/* Código da Prateleira */}
                           <div className="absolute bottom-2 left-2 z-10">
-                            <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-bold bg-black/70 text-amber-200 backdrop-blur-xs border border-white/10">
+                            <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-bold bg-black/80 text-amber-300 backdrop-blur-xs border border-white/10">
                               {livro.codigo_interno}
                             </span>
                           </div>
 
-                          {/* Botão Hover "Explorar" */}
+                          {/* Botão Hover "Abrir" */}
                           <div className="absolute inset-x-2 bottom-2 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-900/95 text-amber-100 shadow-md backdrop-blur-xs flex items-center gap-1">
-                              <span>Abrir</span>
+                            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950 shadow-lg backdrop-blur-xs flex items-center gap-1">
+                              <span>Abrir Ficha</span>
                               <span>→</span>
                             </span>
                           </div>
@@ -223,12 +217,12 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
                       <div className="mt-3 text-center w-full px-1">
                         <h4
                           onClick={() => onVerDetalhes(livro)}
-                          className="font-serif font-bold text-xs sm:text-sm text-stone-900 line-clamp-1 hover:text-amber-800 cursor-pointer transition-colors"
+                          className="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1 hover:text-amber-400 cursor-pointer transition-colors"
                           title={livro.titulo}
                         >
                           {livro.titulo}
                         </h4>
-                        <p className="text-[11px] text-stone-600 line-clamp-1 mt-0.5">
+                        <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
                           {livro.autor}
                         </p>
 
@@ -236,20 +230,20 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
                         <div className="mt-2 flex items-center justify-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => onVerDetalhes(livro)}
-                            className="px-2 py-1 rounded-lg text-[10px] font-bold bg-stone-100 hover:bg-stone-200 text-stone-800 transition-colors flex items-center gap-1"
+                            className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors flex items-center gap-1"
                           >
-                            <Eye className="w-2.5 h-2.5" />
-                            Detalhes
+                            <Eye className="w-2.5 h-2.5 text-amber-400" />
+                            <span>Detalhes</span>
                           </button>
 
                           {isProfessor && disponivel && (
                             <button
                               onClick={() => onEmprestar(livro)}
-                              className="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-800 hover:bg-amber-900 text-white transition-colors flex items-center gap-1 shadow-2xs"
+                              className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition-colors flex items-center gap-1 shadow-xs"
                               title="Registrar empréstimo para este livro"
                             >
                               <ArrowRightLeft className="w-2.5 h-2.5" />
-                              Emprestar
+                              <span>Emprestar</span>
                             </button>
                           )}
                         </div>
@@ -260,12 +254,12 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
               </div>
             </div>
 
-            {/* A Prateleira de Madeira Tridimensional Realista (Estilo Readowl) */}
+            {/* A Prateleira de Madeira Tridimensional Realista */}
             <div className="mt-1 relative w-full">
               {/* Plano Superior da Prateleira com reflexo de luz */}
-              <div className="h-3.5 w-full bg-gradient-to-r from-[#dfd0b5] via-[#f0e3cc] to-[#dfd0b5] rounded-t-sm shadow-inner border-t border-[#cebb99]" />
-              {/* Borda Frontal da Madeira Maciça com sombra projetada */}
-              <div className="h-3 w-full bg-gradient-to-b from-[#bda076] to-[#a4865a] shadow-[0_8px_18px_rgba(80,50,15,0.24)] rounded-b-md border-t border-[#e2d2b5]" />
+              <div className="h-3 w-full bg-gradient-to-r from-[#2a1d15] via-[#453123] to-[#2a1d15] rounded-t-sm shadow-inner border-t border-[#5c4331]" />
+              {/* Borda Frontal da Madeira Maciça */}
+              <div className="h-3.5 w-full bg-gradient-to-b from-[#241710] to-[#140c08] shadow-[0_10px_24px_rgba(0,0,0,0.8)] rounded-b-md border-t border-[#422c1e]" />
             </div>
           </div>
         </section>
