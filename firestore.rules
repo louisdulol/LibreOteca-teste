@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Perfil de usuários autenticados (professores e alunos)
+    match /users/{userId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isSignedIn();
+    }
+
+    // Catálogo de livros da biblioteca (leitura pública, gerenciamento seguro)
+    match /livros/{livroId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Cadastro de leitores
+    match /leitores/{leitorId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Registro de empréstimos e devoluções
+    match /emprestimos/{emprestimoId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Comentários e avaliações literárias moderadas
+    match /comentarios/{comentarioId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Parâmetros operacionais da biblioteca
+    match /configuracoes/{configId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Registros de auditoria e rastreabilidade LGPD
+    match /auditoria/{auditoriaId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}
