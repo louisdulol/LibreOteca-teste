@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Perfil de usuário da LibreOteca autenticado via Firebase Auth",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "uid": { "type": "string" },
+        "nome": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["professor", "aluno"] },
+        "matricula": { "type": "string" },
+        "turma": { "type": "string" },
+        "telefone": { "type": "string" },
+        "criado_em": { "type": "string" },
+        "avatar_cor": { "type": "string" }
+      },
+      "required": ["uid", "nome", "email", "role", "criado_em"]
+    },
+    "Livro": {
+      "title": "Livro",
+      "description": "Obra do acervo bibliográfico da biblioteca",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "codigo_interno": { "type": "string" },
+        "isbn": { "type": "string" },
+        "titulo": { "type": "string" },
+        "autor": { "type": "string" },
+        "categoria": { "type": "string" },
+        "capa_url": { "type": "string" },
+        "total_exemplares": { "type": "integer" },
+        "disponiveis": { "type": "integer" },
+        "ano_publicacao": { "type": "integer" },
+        "paginas": { "type": "integer" },
+        "editora": { "type": "string" },
+        "sinopse": { "type": "string" },
+        "criado_em": { "type": "string" }
+      },
+      "required": ["codigo_interno", "titulo", "autor", "categoria", "total_exemplares", "disponiveis", "criado_em"]
+    },
+    "Leitor": {
+      "title": "Leitor",
+      "description": "Registro cadastral de usuário leitor (aluno, professor ou comunidade)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "nome": { "type": "string" },
+        "matricula": { "type": "string" },
+        "telefone": { "type": "string" },
+        "email": { "type": "string" },
+        "tipo": { "type": "string", "enum": ["aluno", "professor", "comunidade", "funcionario"] },
+        "ativo": { "type": "boolean" },
+        "anonimizado": { "type": "boolean" },
+        "criado_em": { "type": "string" },
+        "observacoes": { "type": "string" }
+      },
+      "required": ["nome", "matricula", "tipo", "ativo", "criado_em"]
+    },
+    "Emprestimo": {
+      "title": "Emprestimo",
+      "description": "Registro de empréstimo e devolução de livro",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "livro_id": { "type": "string" },
+        "leitor_id": { "type": "string" },
+        "emprestado_em": { "type": "string" },
+        "devolucao_prevista": { "type": "string" },
+        "devolvido_em": { "type": ["string", "null"] },
+        "renovacoes": { "type": "integer" },
+        "observacao": { "type": "string" }
+      },
+      "required": ["livro_id", "leitor_id", "emprestado_em", "devolucao_prevista", "renovacoes"]
+    },
+    "ComentarioLivro": {
+      "title": "ComentarioLivro",
+      "description": "Avaliação e resenha literária feita por leitores",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "livro_id": { "type": "string" },
+        "leitor_id": { "type": "string" },
+        "autor_nome": { "type": "string" },
+        "autor_tipo": { "type": "string" },
+        "nota": { "type": "integer" },
+        "texto": { "type": "string" },
+        "criado_em": { "type": "string" },
+        "status": { "type": "string", "enum": ["aprovado", "bloqueado_filtro", "removido_professor"] },
+        "motivo_bloqueio": { "type": "string" },
+        "termo_bloqueado": { "type": "string" },
+        "curtidas": { "type": "integer" }
+      },
+      "required": ["livro_id", "leitor_id", "autor_nome", "nota", "texto", "criado_em", "status"]
+    },
+    "Configuracoes": {
+      "title": "Configuracoes",
+      "description": "Parâmetros gerais de operação da biblioteca",
+      "type": "object",
+      "properties": {
+        "nome_biblioteca": { "type": "string" },
+        "tipo_instituicao": { "type": "string" },
+        "prazo_padrao_dias": { "type": "integer" },
+        "limite_emprestimos_por_leitor": { "type": "integer" },
+        "bloquear_leitor_com_atraso": { "type": "boolean" },
+        "permitir_renovacao_com_atraso": { "type": "boolean" },
+        "codigo_mestre_professor": { "type": "string" }
+      },
+      "required": ["nome_biblioteca", "prazo_padrao_dias", "limite_emprestimos_por_leitor"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Documentos dos usuários cadastrados"
+    },
+    "/livros/{livroId}": {
+      "schema": "Livro",
+      "description": "Catálogo de livros"
+    },
+    "/leitores/{leitorId}": {
+      "schema": "Leitor",
+      "description": "Cadastro de leitores da biblioteca"
+    },
+    "/emprestimos/{emprestimoId}": {
+      "schema": "Emprestimo",
+      "description": "Movimentações de empréstimos"
+    },
+    "/comentarios/{comentarioId}": {
+      "schema": "ComentarioLivro",
+      "description": "Comentários e notas das obras"
+    },
+    "/configuracoes/{configId}": {
+      "schema": "Configuracoes",
+      "description": "Configurações da biblioteca"
+    }
+  }
+}
