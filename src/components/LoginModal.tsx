@@ -146,7 +146,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       if (codigoLimpo !== CODIGO_MESTRE_PROFESSOR_PADRAO.toUpperCase()) {
         setFeedback({
           type: 'error',
-          message: `Código de Acesso do Professor incorreto. Solicite o código da instituição (Padrão: ${CODIGO_MESTRE_PROFESSOR_PADRAO}) para criar uma conta de professor.`,
+          message: 'Código de Acesso do Professor incorreto. Solicite o código institucional à coordenação da sua escola para criar uma conta de professor.',
         });
         return;
       }
@@ -434,10 +434,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 </div>
                 <div className="relative">
                   <input
-                    type="text"
+                    type="password"
                     required
                     id="input-cad-codigo-professor"
-                    placeholder={`Digite o código da instituição (Padrão: ${CODIGO_MESTRE_PROFESSOR_PADRAO})`}
+                    placeholder="Digite o código institucional fornecido pela direção/coordenação"
                     value={cadCodigoProfessor}
                     onChange={e => setCadCodigoProfessor(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 bg-white border border-amber-300 rounded-lg text-xs font-mono font-bold text-amber-950 focus:outline-hidden focus:ring-2 focus:ring-amber-600"
@@ -542,7 +542,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     placeholder="Ex: 8º Ano B, 3º EM..."
                     value={cadTurma}
                     onChange={e => setCadTurma(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs font-mono text-stone-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               )}
