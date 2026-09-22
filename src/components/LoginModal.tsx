@@ -102,13 +102,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       }
 
       // Se falhou no Firebase, tenta no storage local offline de contingência
-      const usuarioLocal = StorageService.autenticarUsuario(loginEmail, loginSenha);
-      if (usuarioLocal) {
+      const resLocal = StorageService.loginConta(loginEmail, loginSenha);
+      if (resLocal.success && resLocal.usuario) {
         setFeedback({
           type: 'success',
-          message: `Bem-vindo(a) de volta, ${usuarioLocal.nome}! (Modo Offline)`,
+          message: resLocal.message || `Bem-vindo(a) de volta, ${resLocal.usuario.nome}!`,
         });
-        onLoginSuccess(usuarioLocal);
+        onLoginSuccess(resLocal.usuario);
         setTimeout(() => {
           onClose();
           resetForms();
@@ -251,41 +251,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       zIndex="z-[100]"
     >
       <div className="space-y-4">
-        {/* Status de sessão atual se houver */}
-        {usuarioAtual && (
-          <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <div
-                className={`w-9 h-9 rounded-xl ${
-                  usuarioAtual.role === 'professor' ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white'
-                } flex items-center justify-center font-bold text-sm shrink-0 shadow-sm`}
-              >
-                {usuarioAtual.role === 'professor' ? (
-                  <GraduationCap className="w-5 h-5" />
-                ) : (
-                  <BookOpen className="w-5 h-5" />
-                )}
-              </div>
-              <div>
-                <span className="text-xs font-bold text-slate-900 dark:text-white block leading-tight">
-                  Conectado como: {usuarioAtual.nome}
-                </span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  {usuarioAtual.email} • {usuarioAtual.role === 'professor' ? 'Professor(a) / Administrador' : 'Aluno(a)'}
-                </span>
-              </div>
-            </div>
-
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 transition-colors flex items-center gap-1.5 cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Sair</span>
-            </button>
-          </div>
-        )}
-
         {/* Badge do Banco de Dados Protegido na Nuvem */}
         <div className="px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-between text-xs shadow-xs">
           <div className="flex items-center gap-2">
@@ -298,78 +263,186 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           </span>
         </div>
 
-        {/* Abas: Entrar ou Criar Nova Conta */}
-        <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-          <button
-            type="button"
-            onClick={() => {
-              setTab('entrar');
-              setFeedback(null);
-            }}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              tab === 'entrar'
-                ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>Fazer Login</span>
-          </button>
+        {/* QUANDO JÁ ESTÁ CONECTADO: EXIBE PAINEL DE CONTA ATIVA */}
+        {usuarioAtual ? (
+          <div className="space-y-4 pt-1">
+            <div className="p-5 bg-gradient-to-b from-slate-50 to-slate-100/70 dark:from-slate-900 dark:to-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-4">
+              <div className="flex items-center gap-3.5">
+                <div
+                  className={`w-12 h-12 rounded-2xl ${
+                    usuarioAtual.role === 'professor' ? 'bg-amber-500 text-slate-950 shadow-amber-500/20' : 'bg-emerald-600 text-white shadow-emerald-500/20'
+                  } flex items-center justify-center font-bold text-lg shrink-0 shadow-md`}
+                >
+                  {usuarioAtual.role === 'professor' ? (
+                    <GraduationCap className="w-6 h-6" />
+                  ) : (
+                    <BookOpen className="w-6 h-6" />
+                  )}
+                </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              setTab('cadastrar');
-              setFeedback(null);
-            }}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              tab === 'cadastrar'
-                ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span>Criar Nova Conta</span>
-          </button>
-        </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                      {usuarioAtual.nome}
+                    </h3>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        usuarioAtual.role === 'professor'
+                          ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+                          : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                      }`}
+                    >
+                      {usuarioAtual.role === 'professor' ? 'Professor(a) / Administrador' : 'Aluno(a) / Leitor'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                    {usuarioAtual.email}
+                  </p>
+                </div>
+              </div>
 
-        {/* Mensagem de Feedback / Erro / Sucesso */}
-        {feedback && (
-          <div
-            className={`p-3 rounded-2xl border text-xs flex items-start gap-2 ${
-              feedback.type === 'success'
-                ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
-                : 'bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
-            }`}
-          >
-            {feedback.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-            )}
-            <span className="font-medium leading-relaxed">{feedback.message}</span>
+              {/* Informações detalhadas do perfil ativo */}
+              <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                <div className="p-2.5 bg-white dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] font-semibold text-slate-400 block uppercase tracking-wider">Identificação / Matrícula</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">{usuarioAtual.matricula || 'N/A'}</span>
+                </div>
+                <div className="p-2.5 bg-white dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] font-semibold text-slate-400 block uppercase tracking-wider">Nível de Permissão</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">
+                    {usuarioAtual.role === 'professor' ? 'Gestão Total (RBAC)' : 'Leitor Pessoal'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 bg-white/70 dark:bg-slate-950/40 rounded-xl border border-slate-200 dark:border-slate-800/80 text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                {usuarioAtual.role === 'professor' ? (
+                  <span>
+                    Sua conta tem autorização para gerenciar acervo, cadastrar alunos, efetuar empréstimos e acessar auditorias LGPD.
+                  </span>
+                ) : (
+                  <span>
+                    Sua conta de aluno permite consultar disponibilidade de livros, acompanhar seus empréstimos e publicar resenhas.
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Ações do usuário conectado */}
+            <div className="flex flex-col sm:flex-row gap-2 pt-1">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-2.5 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Continuar no Sistema</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="py-2.5 px-4 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sair / Trocar de Conta</span>
+              </button>
+            </div>
           </div>
-        )}
+        ) : (
+          /* QUANDO NÃO HÁ SESSÃO ATIVA: FORMULÁRIO DE LOGIN E CADASTRO */
+          <>
+            {/* Abas: Entrar ou Criar Nova Conta */}
+            <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setTab('entrar');
+                  setFeedback(null);
+                }}
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  tab === 'entrar'
+                    ? 'bg-amber-500 text-slate-950 shadow-md'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Fazer Login</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setTab('cadastrar');
+                  setFeedback(null);
+                }}
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  tab === 'cadastrar'
+                    ? 'bg-amber-500 text-slate-950 shadow-md'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Criar Nova Conta</span>
+              </button>
+            </div>
+
+            {/* Mensagem de Feedback / Erro / Sucesso */}
+            {feedback && (
+              <div
+                className={`p-3 rounded-2xl border text-xs flex items-start gap-2 ${
+                  feedback.type === 'success'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                    : 'bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+                }`}
+              >
+                {feedback.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                )}
+                <div className="flex-1">
+                  <span className="font-medium leading-relaxed block">{feedback.message}</span>
+                  {feedback.type === 'error' && tab === 'entrar' && feedback.message.includes('Nenhuma conta') && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTab('cadastrar');
+                        if (loginEmail) setCadEmail(loginEmail);
+                        setFeedback(null);
+                      }}
+                      className="mt-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      <span>Cadastrar esta conta agora na aba "Criar Nova Conta"</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
         {/* Formulário: ENTRAR */}
         {tab === 'entrar' && (
           <form onSubmit={handleLogin} className="space-y-4 pt-1">
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                E-mail Cadastrado <span className="text-rose-500">*</span>
+                E-mail ou Matrícula do Aluno / Professor <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
                 <input
-                  type="email"
+                  type="text"
                   required
                   id="input-login-email"
-                  placeholder="exemplo@escola.br"
+                  placeholder="ex: aluno@escola.br ou sua Matrícula (ex: ALU-1024)"
                   value={loginEmail}
                   onChange={e => setLoginEmail(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                 />
                 <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
               </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                Alunos podem entrar com seu <strong>e-mail</strong> ou com a <strong>matrícula</strong> fornecida pela escola.
+              </p>
             </div>
 
             <div>
@@ -605,6 +678,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <span>{isLoading ? 'Registrando no Banco de Dados...' : 'Criar Conta no Banco de Dados'}</span>
             </button>
           </form>
+        )}
+          </>
         )}
       </div>
     </Modal>

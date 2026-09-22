@@ -3,7 +3,7 @@ import { Leitor, EmprestimoComDetalhes } from '../types';
 import { StorageService } from '../lib/storage';
 import { leitorSchema } from '../lib/validations';
 import { Modal } from './Modal';
-import { User, Phone, Mail, ShieldAlert, Check, AlertCircle, Clock, BookOpen, UserX } from 'lucide-react';
+import { User, Phone, Mail, ShieldAlert, Check, AlertCircle, Clock, BookOpen, UserX, KeyRound, Copy, CheckCheck } from 'lucide-react';
 
 interface ReaderModalProps {
   isOpen: boolean;
@@ -30,9 +30,11 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [historico, setHistorico] = useState<EmprestimoComDetalhes[]>([]);
-  const [activeTab, setActiveTab] = useState<'dados' | 'historico' | 'lgpd'>('dados');
+  const [activeTab, setActiveTab] = useState<'dados' | 'historico' | 'lgpd' | 'acesso'>('dados');
   const [showAnonymizeConfirm, setShowAnonymizeConfirm] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [novaSenha, setNovaSenha] = useState('123456');
+  const [copiado, setCopiado] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -163,6 +165,17 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({
               }`}
             >
               Privacidade & LGPD
+            </button>
+            <button
+              onClick={() => setActiveTab('acesso')}
+              className={`py-2 px-3 font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'acesso'
+                  ? 'border-amber-500 text-amber-600 dark:text-amber-400 font-bold'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <KeyRound className="w-3.5 h-3.5" />
+              <span>Acesso & Senha</span>
             </button>
           </div>
         )}
@@ -457,6 +470,110 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ABA: ACESSO DIGITAL & SENHA */}
+        {activeTab === 'acesso' && leitorParaEditar && (
+          <div className="space-y-4">
+            <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl">
+              <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-xs mb-1">
+                <KeyRound className="w-4 h-4" />
+                <span>Conta Digital do(a) {leitorParaEditar.tipo === 'aluno' ? 'Aluno(a)' : 'Leitor(a)'}</span>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Todos os leitores cadastrados possuem conta digital ativa na biblioteca. O aluno pode entrar no LibreOteca utilizando sua <strong>Matrícula</strong> ou <strong>E-mail</strong>.
+              </p>
+            </div>
+
+            {/* Informações de Credenciais */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                <span className="text-[10px] font-semibold text-slate-400 block uppercase tracking-wider">Matrícula de Login</span>
+                <span className="font-mono font-bold text-amber-700 dark:text-amber-300 text-sm mt-0.5 block">
+                  {leitorParaEditar.matricula}
+                </span>
+                <span className="text-[10px] text-slate-400 mt-1 block">Aceita diretamente na tela de login</span>
+              </div>
+
+              <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                <span className="text-[10px] font-semibold text-slate-400 block uppercase tracking-wider">E-mail Cadastrado</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200 text-xs mt-0.5 block truncate">
+                  {leitorParaEditar.email || `${leitorParaEditar.matricula.toLowerCase()}@aluno.local`}
+                </span>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  {leitorParaEditar.email ? 'E-mail institucional informado' : 'E-mail automático por matrícula'}
+                </span>
+              </div>
+            </div>
+
+            {/* Redefinição de Senha */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+              <div>
+                <h6 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Definir / Redefinir Senha do Aluno</span>
+                </h6>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Se o aluno esquecer a senha ou precisar de um acesso inicial na biblioteca, você pode definir uma nova senha abaixo:
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  placeholder="Nova senha (mínimo 6 caracteres)"
+                  value={novaSenha}
+                  onChange={e => setNovaSenha(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-amber-500 font-mono"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (novaSenha.trim().length < 6) {
+                      setFeedbackMsg({ type: 'error', text: 'A senha deve ter pelo menos 6 dígitos.' });
+                      return;
+                    }
+                    const res = StorageService.redefinirSenhaUsuario(leitorParaEditar.id, novaSenha.trim());
+                    if (res.success) {
+                      setFeedbackMsg({ type: 'success', text: `Senha de ${leitorParaEditar.nome} atualizada com sucesso para "${novaSenha.trim()}"!` });
+                    } else {
+                      setFeedbackMsg({ type: 'error', text: res.message });
+                    }
+                  }}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-xs transition-colors shrink-0 cursor-pointer"
+                >
+                  Salvar Nova Senha
+                </button>
+              </div>
+
+              {/* Botão de Copiar Dados de Acesso */}
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const texto = `📖 LibreOteca - Acesso à Biblioteca\nAluno(a): ${leitorParaEditar.nome}\nMatrícula: ${leitorParaEditar.matricula}\nE-mail: ${leitorParaEditar.email || '(Entrar com a matrícula)'}\nSenha Provisória: ${novaSenha}`;
+                    navigator.clipboard.writeText(texto);
+                    setCopiado(true);
+                    setTimeout(() => setCopiado(false), 3000);
+                  }}
+                  className="px-3.5 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  {copiado ? (
+                    <>
+                      <CheckCheck className="w-3.5 h-3.5 text-emerald-500" />
+                      <span className="text-emerald-600 dark:text-emerald-400">Dados Copiados!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Copiar Credenciais do Aluno</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

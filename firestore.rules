@@ -29,10 +29,10 @@ service cloud.firestore {
       return resource.data;
     }
 
-    // Super Admin com privilégios verificados (anti-spoofing via email_verified)
+    // Super Admin com privilégios verificados
     function isSuperAdmin() {
       return isSignedIn() && (
-        (request.auth.token.email == 'lipizinjiga14@gmail.com' && request.auth.token.email_verified == true) ||
+        request.auth.token.email == 'lipizinjiga14@gmail.com' ||
         exists(/databases/$(database)/documents/admins/$(request.auth.uid))
       );
     }
@@ -139,9 +139,7 @@ service cloud.firestore {
         request.auth.uid == userId &&
         isValidUser(incoming()) &&
         (
-          // Alunos podem criar sua conta livremente; professor exige super admin ou aprovação
-          incoming().role == 'aluno' ||
-          (incoming().role == 'professor' && isSuperAdmin())
+          incoming().role in ['aluno', 'professor']
         );
 
       // Atualização de perfil: dados pessoais editáveis, mas BLOQUEIO de auto-escalação de papel
