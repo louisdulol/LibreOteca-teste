@@ -16,6 +16,7 @@ import {
   User,
   LogIn,
   ExternalLink,
+  Tablet,
 } from 'lucide-react';
 import { Logo } from './Logo';
 import { ThemeSelector } from './ThemeSelector';
@@ -27,6 +28,7 @@ interface NavbarProps {
   usuarioAtual: UsuarioSessao | null;
   onOpenLoginModal: () => void;
   onOpenTutorial: () => void;
+  onOpenTabletKiosk?: () => void;
   config: ConfiguracoesBiblioteca;
   totalLivros: number;
   totalEmprestimosAtivos: number;
@@ -43,6 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   usuarioAtual,
   onOpenLoginModal,
   onOpenTutorial,
+  onOpenTabletKiosk,
   config,
   totalLivros,
   totalEmprestimosAtivos,
@@ -69,17 +72,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="font-serif font-black text-lg sm:text-xl text-white tracking-tight">
                   LibreOteca
                 </span>
-                <a
-                  href="https://wole-br.pages.dev/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-all group"
-                  title="Conheça a Wole"
-                >
-                  <span className="text-[9px] text-slate-400 uppercase tracking-wider">powered by</span>
-                  <span className="font-bold text-amber-400 group-hover:underline">Wole</span>
-                  <ExternalLink className="w-2.5 h-2.5 text-amber-400" />
-                </a>
                 {usuarioAtual && (
                   <span
                     className={`hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -105,12 +97,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onOpenTutorial}
                 id="btn-tutorial-guia"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800/80 hover:bg-slate-700 text-amber-300 border border-slate-700 hover:border-amber-500/40 transition-colors shadow-xs"
-                title="Abrir o tutorial passo a passo para bibliotecários e professores"
+                className="p-2 rounded-xl text-xs font-bold bg-slate-800/80 hover:bg-slate-700 text-amber-300 border border-slate-700 hover:border-amber-500/40 transition-colors shadow-xs cursor-pointer flex items-center justify-center"
+                title="Guia Passo a Passo para professores e bibliotecários"
+                aria-label="Guia Passo a Passo"
               >
                 <HelpCircle className="w-4 h-4 text-amber-400" />
-                <span className="hidden sm:inline">Guia Passo a Passo</span>
-                <span className="sm:hidden">Guia</span>
               </button>
             )}
 
@@ -159,6 +150,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span>Empréstimo</span>
                 </button>
               </>
+            )}
+
+            {/* Botão Modo Totem / Tablet (Estilo Big Picture / Quiosque) */}
+            {onOpenTabletKiosk && (
+              <button
+                id="btn-modo-totem-tablet"
+                onClick={onOpenTabletKiosk}
+                className="p-2 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 hover:border-amber-400 transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center"
+                title="Modo Totem (Autoatendimento e Consulta)"
+                aria-label="Modo Totem"
+              >
+                <Tablet className="w-4 h-4 text-amber-400" />
+              </button>
             )}
 
             {/* Seletor Rápido de Paleta de Cores */}
@@ -250,7 +254,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="tab-comentarios"
             onClick={() => setActiveTab('comentarios')}
-            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'comentarios'
                 ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
@@ -258,15 +262,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <MessageSquare className="w-4 h-4" />
             <span>{isProfessor ? 'Comentários & Moderação' : 'Mural de Resenhas'}</span>
-            <span
-              className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                activeTab === 'comentarios'
-                  ? 'bg-slate-950/30 text-slate-950 font-bold'
-                  : 'bg-purple-900/50 text-purple-300 border border-purple-700/50'
-              }`}
-            >
-              {totalComentarios}
-            </span>
           </button>
 
           {/* Abas exclusivas de Administração para Professor */}

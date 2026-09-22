@@ -5,16 +5,16 @@
       "description": "Perfil de usuário da LibreOteca autenticado via Firebase Auth",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "uid": { "type": "string" },
-        "nome": { "type": "string" },
-        "email": { "type": "string" },
+        "id": { "type": "string", "maxLength": 128 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "nome": { "type": "string", "minLength": 2, "maxLength": 150 },
+        "email": { "type": "string", "maxLength": 150, "pattern": "^.+@.+\\..+$" },
         "role": { "type": "string", "enum": ["professor", "aluno"] },
-        "matricula": { "type": "string" },
-        "turma": { "type": "string" },
-        "telefone": { "type": "string" },
-        "criado_em": { "type": "string" },
-        "avatar_cor": { "type": "string" }
+        "matricula": { "type": "string", "maxLength": 50 },
+        "turma": { "type": "string", "maxLength": 50 },
+        "telefone": { "type": "string", "maxLength": 30 },
+        "criado_em": { "type": "string", "maxLength": 50 },
+        "avatar_cor": { "type": "string", "maxLength": 40 }
       },
       "required": ["uid", "nome", "email", "role", "criado_em"]
     },
@@ -23,38 +23,38 @@
       "description": "Obra do acervo bibliográfico da biblioteca",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "codigo_interno": { "type": "string" },
-        "isbn": { "type": "string" },
-        "titulo": { "type": "string" },
-        "autor": { "type": "string" },
-        "categoria": { "type": "string" },
-        "capa_url": { "type": "string" },
+        "id": { "type": "string", "maxLength": 128 },
+        "codigo_interno": { "type": "string", "minLength": 3, "maxLength": 50 },
+        "isbn": { "type": "string", "maxLength": 20 },
+        "titulo": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "autor": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "categoria": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "capa_url": { "type": "string", "maxLength": 500 },
         "total_exemplares": { "type": "integer" },
         "disponiveis": { "type": "integer" },
         "ano_publicacao": { "type": "integer" },
         "paginas": { "type": "integer" },
-        "editora": { "type": "string" },
-        "sinopse": { "type": "string" },
-        "criado_em": { "type": "string" }
+        "editora": { "type": "string", "maxLength": 100 },
+        "sinopse": { "type": "string", "maxLength": 2000 },
+        "criado_em": { "type": "string", "maxLength": 50 }
       },
       "required": ["codigo_interno", "titulo", "autor", "categoria", "total_exemplares", "disponiveis", "criado_em"]
     },
     "Leitor": {
       "title": "Leitor",
-      "description": "Registro cadastral de usuário leitor (aluno, professor ou comunidade)",
+      "description": "Registro cadastral de usuário leitor (aluno, professor ou comunidade) protegido por LGPD",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "nome": { "type": "string" },
-        "matricula": { "type": "string" },
-        "telefone": { "type": "string" },
-        "email": { "type": "string" },
+        "id": { "type": "string", "maxLength": 128 },
+        "nome": { "type": "string", "minLength": 2, "maxLength": 150 },
+        "matricula": { "type": "string", "minLength": 2, "maxLength": 50 },
+        "telefone": { "type": "string", "maxLength": 30 },
+        "email": { "type": "string", "maxLength": 150 },
         "tipo": { "type": "string", "enum": ["aluno", "professor", "comunidade", "funcionario"] },
         "ativo": { "type": "boolean" },
         "anonimizado": { "type": "boolean" },
-        "criado_em": { "type": "string" },
-        "observacoes": { "type": "string" }
+        "criado_em": { "type": "string", "maxLength": 50 },
+        "observacoes": { "type": "string", "maxLength": 500 }
       },
       "required": ["nome", "matricula", "tipo", "ativo", "criado_em"]
     },
@@ -63,33 +63,33 @@
       "description": "Registro de empréstimo e devolução de livro",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "livro_id": { "type": "string" },
-        "leitor_id": { "type": "string" },
-        "emprestado_em": { "type": "string" },
-        "devolucao_prevista": { "type": "string" },
-        "devolvido_em": { "type": ["string", "null"] },
+        "id": { "type": "string", "maxLength": 128 },
+        "livro_id": { "type": "string", "maxLength": 128 },
+        "leitor_id": { "type": "string", "maxLength": 128 },
+        "emprestado_em": { "type": "string", "maxLength": 30 },
+        "devolucao_prevista": { "type": "string", "maxLength": 30 },
+        "devolvido_em": { "type": "string", "maxLength": 30 },
         "renovacoes": { "type": "integer" },
-        "observacao": { "type": "string" }
+        "observacao": { "type": "string", "maxLength": 500 }
       },
       "required": ["livro_id", "leitor_id", "emprestado_em", "devolucao_prevista", "renovacoes"]
     },
     "ComentarioLivro": {
       "title": "ComentarioLivro",
-      "description": "Avaliação e resenha literária feita por leitores",
+      "description": "Avaliação e resenha literária moderada feita por leitores",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "livro_id": { "type": "string" },
-        "leitor_id": { "type": "string" },
-        "autor_nome": { "type": "string" },
-        "autor_tipo": { "type": "string" },
+        "id": { "type": "string", "maxLength": 128 },
+        "livro_id": { "type": "string", "maxLength": 128 },
+        "leitor_id": { "type": "string", "maxLength": 128 },
+        "autor_nome": { "type": "string", "maxLength": 150 },
+        "autor_tipo": { "type": "string", "maxLength": 50 },
         "nota": { "type": "integer" },
-        "texto": { "type": "string" },
-        "criado_em": { "type": "string" },
+        "texto": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "criado_em": { "type": "string", "maxLength": 50 },
         "status": { "type": "string", "enum": ["aprovado", "bloqueado_filtro", "removido_professor"] },
-        "motivo_bloqueio": { "type": "string" },
-        "termo_bloqueado": { "type": "string" },
+        "motivo_bloqueio": { "type": "string", "maxLength": 200 },
+        "termo_bloqueado": { "type": "string", "maxLength": 100 },
         "curtidas": { "type": "integer" }
       },
       "required": ["livro_id", "leitor_id", "autor_nome", "nota", "texto", "criado_em", "status"]
@@ -99,15 +99,31 @@
       "description": "Parâmetros gerais de operação da biblioteca",
       "type": "object",
       "properties": {
-        "nome_biblioteca": { "type": "string" },
-        "tipo_instituicao": { "type": "string" },
+        "nome_biblioteca": { "type": "string", "maxLength": 150 },
+        "tipo_instituicao": { "type": "string", "enum": ["escola", "publica", "comunitaria", "universitaria"] },
         "prazo_padrao_dias": { "type": "integer" },
         "limite_emprestimos_por_leitor": { "type": "integer" },
         "bloquear_leitor_com_atraso": { "type": "boolean" },
         "permitir_renovacao_com_atraso": { "type": "boolean" },
-        "codigo_mestre_professor": { "type": "string" }
+        "codigo_mestre_professor": { "type": "string", "maxLength": 100 }
       },
       "required": ["nome_biblioteca", "prazo_padrao_dias", "limite_emprestimos_por_leitor"]
+    },
+    "Auditoria": {
+      "title": "Auditoria",
+      "description": "Registro imutável de auditoria e rastreabilidade LGPD",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "usuario_id": { "type": "string", "maxLength": 128 },
+        "usuario_nome": { "type": "string", "maxLength": 150 },
+        "acao": { "type": "string", "maxLength": 100 },
+        "tabela_afetada": { "type": "string", "enum": ["livros", "leitores", "emprestimos", "configuracoes"] },
+        "registro_id": { "type": "string", "maxLength": 128 },
+        "detalhes": { "type": "string", "maxLength": 1000 },
+        "criado_em": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "usuario_id", "usuario_nome", "acao", "tabela_afetada", "detalhes", "criado_em"]
     }
   },
   "firestore": {
@@ -117,23 +133,27 @@
     },
     "/livros/{livroId}": {
       "schema": "Livro",
-      "description": "Catálogo de livros"
+      "description": "Catálogo de livros da biblioteca"
     },
     "/leitores/{leitorId}": {
       "schema": "Leitor",
-      "description": "Cadastro de leitores da biblioteca"
+      "description": "Cadastro de leitores da biblioteca protegido por LGPD"
     },
     "/emprestimos/{emprestimoId}": {
       "schema": "Emprestimo",
-      "description": "Movimentações de empréstimos"
+      "description": "Movimentações de empréstimos e devoluções"
     },
     "/comentarios/{comentarioId}": {
       "schema": "ComentarioLivro",
-      "description": "Comentários e notas das obras"
+      "description": "Comentários e resenhas das obras"
     },
     "/configuracoes/{configId}": {
       "schema": "Configuracoes",
-      "description": "Configurações da biblioteca"
+      "description": "Configurações institucionais da biblioteca"
+    },
+    "/auditoria/{auditoriaId}": {
+      "schema": "Auditoria",
+      "description": "Trilha de auditoria imutável LGPD"
     }
   }
 }

@@ -191,12 +191,12 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
     >
       <div className={`space-y-4 ${letraGrande ? 'text-base' : 'text-sm'}`}>
         {/* Barra superior de acessibilidade e ações */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-900 border border-slate-800 rounded-2xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg">
+            <span className="p-1.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-lg">
               <Smile className="w-4 h-4" />
             </span>
-            <span className="font-semibold text-slate-200 text-xs sm:text-sm">
+            <span className="font-semibold text-slate-800 dark:text-slate-200 text-xs sm:text-sm">
               Criado com carinho para quem cuida dos livros
             </span>
           </div>
@@ -204,10 +204,10 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
           <div className="flex items-center gap-2">
             <button
               onClick={() => setLetraGrande(!letraGrande)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors border ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors border cursor-pointer ${
                 letraGrande
                   ? 'bg-amber-500 text-slate-950 border-amber-400'
-                  : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
               }`}
               title="Aumentar tamanho do texto para leitura confortável"
             >
@@ -217,9 +217,9 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
 
             <button
               onClick={handlePrintGuia}
-              className="px-3 py-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs"
+              className="px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
             >
-              <Printer className="w-3.5 h-3.5 text-amber-400" />
+              <Printer className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               <span>Imprimir Guia em Papel</span>
             </button>
           </div>
@@ -234,23 +234,23 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
               <button
                 key={passo.numero}
                 onClick={() => setPassoAtivo(idx)}
-                className={`p-2.5 rounded-2xl border text-center flex flex-col items-center justify-center transition-all ${
+                className={`p-2.5 rounded-2xl border text-center flex flex-col items-center justify-center transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-amber-500/15 text-white border-amber-500/60 shadow-sm scale-102'
-                    : 'bg-slate-900/60 hover:bg-slate-900 text-slate-400 border-slate-800'
+                    ? 'bg-amber-50 dark:bg-amber-500/15 text-slate-900 dark:text-white border-amber-500 shadow-xs scale-102 font-bold'
+                    : 'bg-slate-50/70 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800'
                 }`}
               >
                 <div
                   className={`w-7 h-7 rounded-xl flex items-center justify-center mb-1.5 ${
-                    isSelected ? 'bg-amber-500 text-slate-950 shadow-sm' : 'bg-slate-800 text-slate-400'
+                    isSelected ? 'bg-amber-500 text-slate-950 shadow-xs' : 'bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
                 </div>
-                <span className="text-[11px] font-bold block truncate max-w-full text-white">
+                <span className="text-[11px] font-bold block truncate max-w-full text-slate-900 dark:text-white">
                   Passo {passo.numero}
                 </span>
-                <span className="text-[10px] text-slate-400 truncate max-w-full">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-full">
                   {passo.titulo.split(' ')[1] || 'Passo'}
                 </span>
               </button>
@@ -259,46 +259,46 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
         </div>
 
         {/* Cartão Central do Passo Ativo */}
-        <div className="p-5 sm:p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xs space-y-4">
+        <div className="p-5 sm:p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-4">
           <div className="flex items-start gap-4">
             <div className={`p-3 rounded-2xl shrink-0 ${atual.cor}`}>
               <IconeAtual className="w-8 h-8" />
             </div>
 
             <div className="flex-1">
-              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700 mb-1">
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 mb-1">
                 Passo {atual.numero} de {PASSOS.length}
               </span>
-              <h3 className={`font-serif font-bold text-white leading-tight ${letraGrande ? 'text-2xl' : 'text-xl'}`}>
+              <h3 className={`font-serif font-bold text-slate-900 dark:text-white leading-tight ${letraGrande ? 'text-2xl' : 'text-xl'}`}>
                 {atual.titulo}
               </h3>
-              <p className="text-slate-400 mt-1 text-xs">{atual.subtitulo}</p>
+              <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">{atual.subtitulo}</p>
             </div>
           </div>
 
           {/* Relação de Passos Numerados */}
-          <div className="space-y-2.5 pt-3 border-t border-slate-800">
+          <div className="space-y-2.5 pt-3 border-t border-slate-200 dark:border-slate-800">
             {atual.passos.map((instrucao, index) => (
               <div
                 key={index}
-                className="flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80"
+                className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 shadow-2xs"
               >
                 <div className="w-6 h-6 rounded-full bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                   {index + 1}
                 </div>
-                <p className="text-slate-200 font-medium leading-relaxed text-xs sm:text-sm">{instrucao}</p>
+                <p className="text-slate-800 dark:text-slate-200 font-medium leading-relaxed text-xs sm:text-sm">{instrucao}</p>
               </div>
             ))}
           </div>
 
           {/* Dica Prática */}
-          <div className="p-4 bg-emerald-950/40 border border-emerald-800/70 rounded-2xl flex items-start gap-3">
-            <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/70 rounded-2xl flex items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-emerald-300 block text-xs uppercase tracking-wider">
+              <span className="font-bold text-emerald-800 dark:text-emerald-300 block text-xs uppercase tracking-wider">
                 Dica importante para o seu dia a dia:
               </span>
-              <p className="text-slate-300 mt-0.5 leading-relaxed text-xs">{atual.dicaPratica}</p>
+              <p className="text-slate-700 dark:text-slate-300 mt-0.5 leading-relaxed text-xs">{atual.dicaPratica}</p>
             </div>
           </div>
         </div>
@@ -308,20 +308,20 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
           <button
             onClick={() => setPassoAtivo(prev => Math.max(0, prev - 1))}
             disabled={passoAtivo === 0}
-            className="px-4 py-2 border border-slate-700 hover:bg-slate-800 text-slate-300 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+            className="px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Passo Anterior</span>
           </button>
 
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             Passo {passoAtivo + 1} de {PASSOS.length}
           </span>
 
           {passoAtivo < PASSOS.length - 1 ? (
             <button
               onClick={() => setPassoAtivo(prev => Math.min(PASSOS.length - 1, prev + 1))}
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shadow-md"
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shadow-md cursor-pointer"
             >
               <span>Próximo Passo</span>
               <ChevronRight className="w-4 h-4" />
@@ -329,7 +329,7 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
           ) : (
             <button
               onClick={onClose}
-              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shadow-md"
+              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shadow-md cursor-pointer"
             >
               <span>Entendido! Concluir</span>
               <CheckCircle2 className="w-4 h-4" />

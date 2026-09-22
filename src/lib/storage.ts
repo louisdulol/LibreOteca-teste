@@ -187,6 +187,15 @@ const SEED_CONFIG: ConfiguracoesBiblioteca = {
   permitir_renovacao_com_atraso: false,
 };
 
+export function sanitizarAutor(autor?: string): string {
+  if (!autor) return 'Autor Desconhecido';
+  return autor
+    .split(',')
+    .map(s => s.trim())
+    .filter(s => s && !/^\d+$/.test(s))
+    .join(', ') || 'Autor Desconhecido';
+}
+
 function safeGet<T>(key: string, fallback: T): T {
   try {
     const item = localStorage.getItem(key);
@@ -202,6 +211,16 @@ function safeSet<T>(key: string, value: T): void {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
     console.error(`Erro gravando storage ${key}:`, e);
+    // Auto-recuperação de quota de armazenamento
+    try {
+      const auditoria = safeGet<any[]>(STORAGE_KEYS.AUDITORIA, []);
+      if (auditoria.length > 30) {
+        localStorage.setItem(STORAGE_KEYS.AUDITORIA, JSON.stringify(auditoria.slice(0, 30)));
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    } catch (e2) {
+      console.warn('Falha na recuperação de quota:', e2);
+    }
   }
 }
 
@@ -219,6 +238,7 @@ function verificarSenha(senhaDigitada: string, hashSalvo: string): boolean {
 }
 
 let isFirebaseSynced = false;
+let isRestrictedSynced = false;
 
 export const StorageService = {
   async inicializarFirebaseSync(): Promise<void> {
@@ -229,11 +249,7 @@ export const StorageService = {
       await testarConexaoFirestore();
 
       const cloudLivros = await fetchLivrosFirestore();
-      if (cloudLivros.length === 0) {
-        for (const livro of SEED_LIVROS) {
-          await saveLivroFirestore(livro);
-        }
-      } else {
+      if (cloudLivros.length > 0) {
         safeSet(STORAGE_KEYS.LIVROS, cloudLivros);
       }
 
@@ -243,14 +259,6 @@ export const StorageService = {
         }
       });
 
-      subscribeLeitores(leitores => {
-        safeSet(STORAGE_KEYS.LEITORES, leitores);
-      });
-
-      subscribeEmprestimos(emprestimos => {
-        safeSet(STORAGE_KEYS.EMPRESTIMOS, emprestimos);
-      });
-
       subscribeComentarios(comentarios => {
         safeSet(STORAGE_KEYS.COMENTARIOS, comentarios);
       });
@@ -258,12 +266,40 @@ export const StorageService = {
       const cloudConfig = await fetchConfiguracoesFirestore();
       if (cloudConfig) {
         safeSet(STORAGE_KEYS.CONFIGURACOES, cloudConfig);
-      } else {
-        await saveConfiguracoesFirestore(SEED_CONFIG);
+      }
+
+      const sessao = this.getSessaoUsuario();
+      if (sessao?.role === 'professor') {
+        this.sincronizarColecoesRestritas();
       }
     } catch (err) {
       console.warn('Operando com armazenamento local e resiliência offline:', err);
     }
+  },
+
+  sincronizarColecoesRestritas(): void {
+    if (isRestrictedSynced) return;
+    isRestrictedSynced = true;
+
+    fetchLeitoresFirestore()
+      .then(leitores => {
+        if (leitores && leitores.length > 0) safeSet(STORAGE_KEYS.LEITORES, leitores);
+      })
+      .catch(e => console.warn('Sync Leitores restrito:', e));
+
+    fetchEmprestimosFirestore()
+      .then(emprestimos => {
+        if (emprestimos && emprestimos.length > 0) safeSet(STORAGE_KEYS.EMPRESTIMOS, emprestimos);
+      })
+      .catch(e => console.warn('Sync Empréstimos restrito:', e));
+
+    subscribeLeitores(leitores => {
+      safeSet(STORAGE_KEYS.LEITORES, leitores);
+    });
+
+    subscribeEmprestimos(emprestimos => {
+      safeSet(STORAGE_KEYS.EMPRESTIMOS, emprestimos);
+    });
   },
 
   // LIVROS
@@ -271,9 +307,9 @@ export const StorageService = {
     const data = safeGet<Livro[] | null>(STORAGE_KEYS.LIVROS, null);
     if (!data) {
       safeSet(STORAGE_KEYS.LIVROS, SEED_LIVROS);
-      return SEED_LIVROS;
+      return SEED_LIVROS.map(l => ({ ...l, autor: sanitizarAutor(l.autor) }));
     }
-    return data;
+    return data.map(l => ({ ...l, autor: sanitizarAutor(l.autor) }));
   },
 
   getLivroById(id: string): Livro | undefined {
@@ -284,12 +320,15 @@ export const StorageService = {
     const livros = this.getLivros();
     let saved: Livro;
 
+    const autorLimpo = sanitizarAutor(livro.autor);
+
     if (livro.id) {
       const index = livros.findIndex(l => l.id === livro.id);
       if (index === -1) throw new Error('Livro não encontrado');
       saved = {
         ...livros[index],
         ...livro,
+        autor: autorLimpo,
         id: livro.id,
       };
       livros[index] = saved;
@@ -297,6 +336,7 @@ export const StorageService = {
     } else {
       saved = {
         ...livro,
+        autor: autorLimpo,
         id: crypto.randomUUID(),
         criado_em: new Date().toISOString(),
       };
@@ -777,6 +817,9 @@ export const StorageService = {
 
   setSessaoUsuario(usuario: UsuarioSessao | null): void {
     safeSet(STORAGE_KEYS.AUTH_SESSAO, usuario);
+    if (usuario?.role === 'professor') {
+      this.sincronizarColecoesRestritas();
+    }
   },
 
   logout(): void {
@@ -784,6 +827,7 @@ export const StorageService = {
     if (atual) {
       this.addAuditoria('LOGOUT_USUARIO', 'configuracoes', atual.id, `Usuário desconectou: ${atual.nome}`);
     }
+    isRestrictedSynced = false;
     this.setSessaoUsuario(null);
   },
 
@@ -970,13 +1014,38 @@ export const StorageService = {
     return this.adicionarComentario(dados);
   },
 
-  moderarComentario(id: string, novoStatus: 'aprovado' | 'removido_professor' | 'remover', usuarioNome?: string): void {
+  getComentariosAprovados(): ComentarioLivro[] {
+    return this.getComentarios().filter(c => c.status === 'aprovado');
+  },
+
+  excluirComentario(id: string, usuarioNome?: string): void {
     const comentarios = this.getComentarios();
     const index = comentarios.findIndex(c => c.id === id);
     if (index === -1) return;
 
-    const statusFinal = novoStatus === 'remover' ? 'removido_professor' : novoStatus;
-    comentarios[index].status = statusFinal;
+    const [removido] = comentarios.splice(index, 1);
+    safeSet(STORAGE_KEYS.COMENTARIOS, comentarios);
+    deleteComentarioFirestore(id).catch(e => console.warn('Sync Delete Comentario Firestore:', e));
+
+    this.addAuditoria(
+      'EXCLUIR_COMENTARIO',
+      'livros',
+      id,
+      `Comentário de "${removido.autor_nome}" excluído do sistema por ${usuarioNome || 'professor'}`
+    );
+  },
+
+  moderarComentario(id: string, novoStatus: 'aprovado' | 'removido_professor' | 'remover', usuarioNome?: string): void {
+    if (novoStatus === 'remover') {
+      this.excluirComentario(id, usuarioNome);
+      return;
+    }
+
+    const comentarios = this.getComentarios();
+    const index = comentarios.findIndex(c => c.id === id);
+    if (index === -1) return;
+
+    comentarios[index].status = novoStatus;
     safeSet(STORAGE_KEYS.COMENTARIOS, comentarios);
     saveComentarioFirestore(comentarios[index]).catch(e => console.warn('Sync Moderar Firestore:', e));
 
@@ -984,8 +1053,94 @@ export const StorageService = {
       'MODERACAO_COMENTARIO',
       'livros',
       id,
-      `Comentário moderado por ${usuarioNome || 'professor'}: status alterado para "${statusFinal}"`
+      `Comentário moderado por ${usuarioNome || 'professor'}: status alterado para "${novoStatus}"`
     );
+  },
+
+  otimizarERepararBanco(): {
+    livrosAjustados: number;
+    auditoriasPodadas: number;
+    comentariosValidados: number;
+    bytesLiberados: number;
+  } {
+    const bytesAntes = JSON.stringify(localStorage).length;
+    let livrosAjustados = 0;
+    let auditoriasPodadas = 0;
+
+    // 1. Validar e reparar integridade de estoque dos livros com base nos empréstimos ativos
+    const livros = this.getLivros();
+    const emprestimos = this.getEmprestimos();
+    const ativosPorLivro = new Map<string, number>();
+
+    emprestimos.forEach(emp => {
+      if (emp.devolvido_em === null) {
+        ativosPorLivro.set(emp.livro_id, (ativosPorLivro.get(emp.livro_id) || 0) + 1);
+      }
+    });
+
+    livros.forEach(livro => {
+      const emprestados = ativosPorLivro.get(livro.id) || 0;
+      const disponiveisCalculados = Math.max(0, livro.total_exemplares - emprestados);
+      const autorLimpo = sanitizarAutor(livro.autor);
+      let modificado = false;
+
+      if (livro.disponiveis !== disponiveisCalculados) {
+        livro.disponiveis = disponiveisCalculados;
+        modificado = true;
+      }
+      if (livro.autor !== autorLimpo) {
+        livro.autor = autorLimpo;
+        modificado = true;
+      }
+
+      if (modificado) {
+        livrosAjustados++;
+      }
+    });
+
+    if (livrosAjustados > 0) {
+      safeSet(STORAGE_KEYS.LIVROS, livros);
+      livros.forEach(l => saveLivroFirestore(l).catch(() => {}));
+    }
+
+    // 2. Podar logs de auditoria excedentes (manter os 100 mais recentes)
+    const auditoria = this.getAuditoria();
+    if (auditoria.length > 100) {
+      auditoriasPodadas = auditoria.length - 100;
+      safeSet(STORAGE_KEYS.AUDITORIA, auditoria.slice(0, 100));
+    }
+
+    // 3. Limpar comentários removidos, nulos ou corruptos
+    const todosComentarios = this.getComentarios();
+    todosComentarios.forEach(c => {
+      if (c.status === 'removido_professor') {
+        deleteComentarioFirestore(c.id).catch(() => {});
+      }
+    });
+
+    const comentariosValidos = todosComentarios.filter(
+      c => c && c.id && c.texto && c.autor_nome && c.status !== 'removido_professor'
+    );
+    safeSet(STORAGE_KEYS.COMENTARIOS, comentariosValidos);
+
+    const comentariosAprovados = comentariosValidos.filter(c => c.status === 'aprovado');
+
+    const bytesDepois = JSON.stringify(localStorage).length;
+    const bytesLiberados = Math.max(0, bytesAntes - bytesDepois);
+
+    this.addAuditoria(
+      'OTIMIZACAO_SISTEMA',
+      'configuracoes',
+      'sistema',
+      `Otimização de integridade executada: ${livrosAjustados} livros ajustados, ${auditoriasPodadas} logs podados.`
+    );
+
+    return {
+      livrosAjustados,
+      auditoriasPodadas,
+      comentariosValidados: comentariosAprovados.length,
+      bytesLiberados,
+    };
   },
 
   curtirComentario(id: string): void {

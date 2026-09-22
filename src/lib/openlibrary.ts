@@ -22,6 +22,24 @@ export function cleanIsbn(isbn: string): string {
 }
 
 /**
+ * Sanitiza o nome do autor removendo resquícios de índices numéricos como ", 0"
+ */
+export function cleanAuthorName(authorStr?: string | string[]): string {
+  if (!authorStr) return 'Autor Desconhecido';
+  if (Array.isArray(authorStr)) {
+    const valid = authorStr
+      .map(s => String(s).trim())
+      .filter(s => s && !/^\d+$/.test(s));
+    return valid.length > 0 ? valid.slice(0, 3).join(', ') : 'Autor Desconhecido';
+  }
+  return authorStr
+    .split(',')
+    .map(s => s.trim())
+    .filter(s => s && !/^\d+$/.test(s))
+    .join(', ') || 'Autor Desconhecido';
+}
+
+/**
  * Normaliza categorias/assuntos comuns do Open Library para categorias em português
  */
 export function normalizeCategory(subjects?: string[]): string {
@@ -91,7 +109,7 @@ export async function fetchBookByISBN(isbnInput: string): Promise<OpenLibraryBoo
 
       if (book) {
         const autor = book.authors && book.authors.length > 0
-          ? book.authors.map((a: { name: string }) => a.name).join(', ')
+          ? cleanAuthorName(book.authors.map((a: { name: string }) => a.name))
           : 'Autor Desconhecido';
 
         const capaUrl = book.cover?.large || book.cover?.medium || book.cover?.small || `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`;
@@ -133,7 +151,7 @@ export async function fetchBookByISBN(isbnInput: string): Promise<OpenLibraryBoo
         const rawTitle = doc.title || 'Sem título';
         return {
           titulo: traduzirTituloParaPortugues(normalizarCaixaTitulo(rawTitle)),
-          autor: doc.author_name ? doc.author_name.join(', ') : 'Autor Desconhecido',
+          autor: cleanAuthorName(doc.author_name),
           isbn,
           capa_url: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg` : `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`,
           categoria: normalizeCategory(doc.subject),
@@ -186,7 +204,7 @@ export async function searchOpenLibrary(query: string): Promise<OpenLibraryBookD
 
       return {
         titulo: tituloPt,
-        autor: doc.author_name ? doc.author_name.slice(0, 3).join(', ') : 'Autor Desconhecido',
+        autor: cleanAuthorName(doc.author_name),
         isbn: primeIsbn,
         capa_url: capaUrl,
         categoria: normalizeCategory(doc.subject),

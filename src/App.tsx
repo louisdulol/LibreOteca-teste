@@ -19,6 +19,7 @@ import { ReaderModal } from './components/ReaderModal';
 import { LoginModal } from './components/LoginModal';
 import { TutorialProfessoresModal } from './components/TutorialProfessoresModal';
 import { DatabaseStatusModal } from './components/DatabaseStatusModal';
+import { TabletKioskView } from './components/TabletKioskView';
 import {
   ShieldCheck,
   HelpCircle,
@@ -52,6 +53,7 @@ export default function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [isDbStatusOpen, setIsDbStatusOpen] = useState(false);
+  const [isTabletKioskOpen, setIsTabletKioskOpen] = useState(false);
 
   const [isBookFormOpen, setIsBookFormOpen] = useState(false);
   const [bookToEdit, setBookToEdit] = useState<Livro | null>(null);
@@ -74,12 +76,12 @@ export default function App() {
     const todosLeitores = StorageService.getLeitores();
     const todosEmprestimos = StorageService.getEmprestimosComDetalhes();
     const configs = StorageService.getConfiguracoes();
-    const comentarios = StorageService.getComentarios();
+    const comentariosAprovados = StorageService.getComentariosAprovados();
 
     setLivros(todosLivros);
     setLeitores(todosLeitores);
     setConfig(configs);
-    setTotalComentarios(comentarios.length);
+    setTotalComentarios(comentariosAprovados.length);
 
     const ativos = todosEmprestimos.filter(e => e.devolvido_em === null);
     const atrasados = todosEmprestimos.filter(e => e.atrasado);
@@ -90,6 +92,7 @@ export default function App() {
 
   useEffect(() => {
     ThemeService.initTheme();
+    StorageService.otimizarERepararBanco();
     carregarDados();
     StorageService.inicializarFirebaseSync().then(() => {
       carregarDados();
@@ -209,6 +212,7 @@ export default function App() {
         usuarioAtual={usuarioAtual}
         onOpenLoginModal={() => setIsLoginModalOpen(true)}
         onOpenTutorial={() => setIsTutorialOpen(true)}
+        onOpenTabletKiosk={() => setIsTabletKioskOpen(true)}
         config={config}
         totalLivros={livros.length}
         totalEmprestimosAtivos={totalEmprestimosAtivos}
@@ -262,6 +266,7 @@ export default function App() {
             onEmprestarLivro={handleEmprestarLivro}
             onEditarLivro={handleEditarLivro}
             onVerDetalhes={handleVerDetalhesLivro}
+            onOpenTabletKiosk={() => setIsTabletKioskOpen(true)}
           />
         )}
 
@@ -416,6 +421,16 @@ export default function App() {
         onClose={() => setIsLoginModalOpen(false)}
         usuarioAtual={usuarioAtual}
         onLoginSuccess={handleLoginSuccess}
+      />
+
+      {/* Modo Totem / Tablet Estilo Steam Big Picture para entrada da Biblioteca */}
+      <TabletKioskView
+        isOpen={isTabletKioskOpen}
+        onClose={() => setIsTabletKioskOpen(false)}
+        livros={livros}
+        usuarioAtual={usuarioAtual}
+        onEmprestarLivro={handleEmprestarLivro}
+        nomeBiblioteca={config.nome_biblioteca}
       />
     </div>
   );

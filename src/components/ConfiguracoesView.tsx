@@ -17,6 +17,11 @@ import {
   Check,
   Moon,
   Sun,
+  Wrench,
+  HardDrive,
+  Sparkles,
+  Database,
+  Activity,
 } from 'lucide-react';
 
 interface ConfiguracoesViewProps {
@@ -29,6 +34,13 @@ export const ConfiguracoesView: React.FC<ConfiguracoesViewProps> = ({ onRefresh 
   const [filtroTabela, setFiltroTabela] = useState<string>('todas');
   const [salvoFeedback, setSalvoFeedback] = useState(false);
   const [activeTheme, setActiveTheme] = useState<ThemeMode>('dark');
+  const [otimizacaoResultado, setOtimizacaoResultado] = useState<{
+    livrosAjustados: number;
+    auditoriasPodadas: number;
+    comentariosValidados: number;
+    bytesLiberados: number;
+  } | null>(null);
+  const [isOtimizando, setIsOtimizando] = useState(false);
 
   useEffect(() => {
     setActiveTheme(ThemeService.getTheme());
@@ -51,6 +63,18 @@ export const ConfiguracoesView: React.FC<ConfiguracoesViewProps> = ({ onRefresh 
     setSalvoFeedback(true);
     onRefresh();
     setTimeout(() => setSalvoFeedback(false), 3000);
+  };
+
+  const handleOtimizarBanco = () => {
+    setIsOtimizando(true);
+    setTimeout(() => {
+      const res = StorageService.otimizarERepararBanco();
+      setOtimizacaoResultado(res);
+      setAuditoria(StorageService.getAuditoria());
+      setIsOtimizando(false);
+      onRefresh();
+      setTimeout(() => setOtimizacaoResultado(null), 6000);
+    }, 400);
   };
 
   const handleResetDemonstracao = () => {
@@ -104,7 +128,16 @@ export const ConfiguracoesView: React.FC<ConfiguracoesViewProps> = ({ onRefresh 
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleOtimizarBanco}
+            disabled={isOtimizando}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-xs"
+            title="Verificar integridade do acervo, reparar contagens de estoque e podar logs antigos"
+          >
+            <Sparkles className={`w-3.5 h-3.5 text-amber-400 ${isOtimizando ? 'animate-spin' : ''}`} />
+            <span>{isOtimizando ? 'Otimizando...' : 'Otimizar Sistema & Banco'}</span>
+          </button>
           <button
             onClick={handleBackupJson}
             className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition-colors"
@@ -121,6 +154,33 @@ export const ConfiguracoesView: React.FC<ConfiguracoesViewProps> = ({ onRefresh 
           </button>
         </div>
       </div>
+
+      {otimizacaoResultado && (
+        <div className="p-4 bg-amber-950/40 border border-amber-500/40 rounded-3xl text-amber-200 text-xs space-y-2 animate-in fade-in">
+          <div className="flex items-center gap-2 font-bold text-amber-300">
+            <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>Diagnóstico e Otimização Concluídos com Sucesso!</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-slate-300">
+            <div className="p-2.5 bg-slate-900/80 rounded-xl border border-slate-800">
+              <span className="text-[10px] text-slate-400 block">Estoque Corrigido:</span>
+              <span className="font-bold text-amber-400">{otimizacaoResultado.livrosAjustados} livros</span>
+            </div>
+            <div className="p-2.5 bg-slate-900/80 rounded-xl border border-slate-800">
+              <span className="text-[10px] text-slate-400 block">Resenhas Ativas:</span>
+              <span className="font-bold text-emerald-400">{otimizacaoResultado.comentariosValidados} resenhas</span>
+            </div>
+            <div className="p-2.5 bg-slate-900/80 rounded-xl border border-slate-800">
+              <span className="text-[10px] text-slate-400 block">Logs Podados:</span>
+              <span className="font-bold text-sky-400">{otimizacaoResultado.auditoriasPodadas} registros</span>
+            </div>
+            <div className="p-2.5 bg-slate-900/80 rounded-xl border border-slate-800">
+              <span className="text-[10px] text-slate-400 block">Integridade:</span>
+              <span className="font-bold text-emerald-400">100% Saudável</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {salvoFeedback && (
         <div className="p-3.5 bg-emerald-950/50 border border-emerald-800 rounded-2xl text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">

@@ -253,7 +253,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       <div className="space-y-4">
         {/* Status de sessão atual se houver */}
         {usuarioAtual && (
-          <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between gap-3">
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div
                 className={`w-9 h-9 rounded-xl ${
@@ -267,10 +267,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 )}
               </div>
               <div>
-                <span className="text-xs font-bold text-white block leading-tight">
+                <span className="text-xs font-bold text-slate-900 dark:text-white block leading-tight">
                   Conectado como: {usuarioAtual.nome}
                 </span>
-                <span className="text-[11px] text-slate-400 font-medium">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                   {usuarioAtual.email} • {usuarioAtual.role === 'professor' ? 'Professor(a) / Administrador' : 'Aluno(a)'}
                 </span>
               </div>
@@ -278,7 +278,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
             <button
               onClick={handleLogout}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-800 transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sair</span>
@@ -287,29 +287,29 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         )}
 
         {/* Badge do Banco de Dados Protegido na Nuvem */}
-        <div className="px-3.5 py-2.5 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-between text-xs shadow-xs">
+        <div className="px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-between text-xs shadow-xs">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-amber-400" />
-            <span className="font-semibold text-white">Banco de Dados Protegido (Firebase Firestore & Auth)</span>
+            <Shield className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+            <span className="font-semibold text-slate-900 dark:text-white">Banco de Dados Protegido (Firebase Firestore & Auth)</span>
           </div>
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
             Ativo & Seguro
           </span>
         </div>
 
         {/* Abas: Entrar ou Criar Nova Conta */}
-        <div className="flex p-1 bg-slate-900 rounded-2xl border border-slate-800">
+        <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
           <button
             type="button"
             onClick={() => {
               setTab('entrar');
               setFeedback(null);
             }}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               tab === 'entrar'
                 ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <LogIn className="w-3.5 h-3.5" />
@@ -322,10 +322,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               setTab('cadastrar');
               setFeedback(null);
             }}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               tab === 'cadastrar'
                 ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <UserPlus className="w-3.5 h-3.5" />
@@ -338,14 +338,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <div
             className={`p-3 rounded-2xl border text-xs flex items-start gap-2 ${
               feedback.type === 'success'
-                ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300'
-                : 'bg-rose-950/60 border-rose-800 text-rose-300'
+                ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                : 'bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
             }`}
           >
             {feedback.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
             )}
             <span className="font-medium leading-relaxed">{feedback.message}</span>
           </div>
@@ -355,8 +355,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {tab === 'entrar' && (
           <form onSubmit={handleLogin} className="space-y-4 pt-1">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                E-mail Cadastrado <span className="text-rose-400">*</span>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                E-mail Cadastrado <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -366,15 +366,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   placeholder="exemplo@escola.br"
                   value={loginEmail}
                   onChange={e => setLoginEmail(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                  className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                 />
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
+                <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Senha de Acesso <span className="text-rose-400">*</span>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Senha de Acesso <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -384,13 +384,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   placeholder="Sua senha secreta"
                   value={loginSenha}
                   onChange={e => setLoginSenha(e.target.value)}
-                  className="w-full pl-9 pr-10 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                  className="w-full pl-9 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                 />
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
+                <Lock className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
                 <button
                   type="button"
                   onClick={() => setMostrarSenhaLogin(!mostrarSenhaLogin)}
-                  className="absolute right-3 top-2.5 text-slate-400 hover:text-white"
+                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
                   tabIndex={-1}
                 >
                   {mostrarSenhaLogin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -402,7 +402,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               type="submit"
               id="btn-submeter-login"
               disabled={isLoading}
-              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               <LogIn className="w-4 h-4" />
               <span>{isLoading ? 'Autenticando no Banco de Dados...' : 'Entrar no LibreOteca'}</span>
@@ -415,28 +415,28 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <form onSubmit={handleCadastro} className="space-y-3.5 pt-1">
             {/* Escolha do Perfil */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Tipo de Perfil / Usuário <span className="text-rose-400">*</span>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Tipo de Perfil / Usuário <span className="text-rose-500">*</span>
               </label>
               <div className="grid grid-cols-2 gap-2.5">
                 <button
                   type="button"
                   id="btn-role-professor"
                   onClick={() => setCadRole('professor')}
-                  className={`p-3 rounded-2xl border text-left flex items-start gap-2.5 transition-all ${
+                  className={`p-3 rounded-2xl border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
                     cadRole === 'professor'
-                      ? 'border-amber-500 bg-amber-500/15 ring-2 ring-amber-500/30'
-                      : 'border-slate-800 hover:border-slate-700 bg-slate-900/60'
+                      ? 'border-amber-500 bg-amber-50 dark:bg-amber-500/15 ring-2 ring-amber-500/30'
+                      : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60'
                   }`}
                 >
                   <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0">
                     <GraduationCap className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-white block leading-tight">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white block leading-tight">
                       Professor(a) / Adm
                     </span>
-                    <span className="text-[10px] text-slate-400 leading-tight block mt-0.5">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight block mt-0.5">
                       Requer Código de Autorização institucional.
                     </span>
                   </div>
@@ -446,20 +446,20 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   type="button"
                   id="btn-role-aluno"
                   onClick={() => setCadRole('aluno')}
-                  className={`p-3 rounded-2xl border text-left flex items-start gap-2.5 transition-all ${
+                  className={`p-3 rounded-2xl border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
                     cadRole === 'aluno'
-                      ? 'border-emerald-500 bg-emerald-500/15 ring-2 ring-emerald-500/30'
-                      : 'border-slate-800 hover:border-slate-700 bg-slate-900/60'
+                      ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/15 ring-2 ring-emerald-500/30'
+                      : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60'
                   }`}
                 >
                   <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
                     <BookOpen className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-white block leading-tight">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white block leading-tight">
                       Aluno(a) / Leitor
                     </span>
-                    <span className="text-[10px] text-slate-400 leading-tight block mt-0.5">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight block mt-0.5">
                       Acesso livre para empréstimos, consultas e resenhas.
                     </span>
                   </div>
@@ -469,13 +469,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
             {/* SE FOR PROFESSOR: CAMPO OBRIGATÓRIO DO CÓDIGO INSTITUCIONAL (IMPOSSIBILITA ALUNOS DE CRIAR CONTA DE PROFESSOR) */}
             {cadRole === 'professor' && (
-              <div className="p-3.5 bg-amber-950/25 border-2 border-amber-500/40 rounded-2xl space-y-1.5 animate-in fade-in duration-200">
+              <div className="p-3.5 bg-amber-50 dark:bg-amber-950/25 border-2 border-amber-300 dark:border-amber-500/40 rounded-2xl space-y-1.5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                    <KeyRound className="w-4 h-4 text-amber-400" />
-                    <span>Código de Acesso do Professor <span className="text-rose-400">*</span></span>
+                  <label className="block text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                    <KeyRound className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <span>Código de Acesso do Professor <span className="text-rose-500">*</span></span>
                   </label>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold border border-amber-300 dark:border-amber-500/30">
                     Obrigatório
                   </span>
                 </div>
@@ -487,11 +487,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     placeholder="Digite o código institucional fornecido pela direção/coordenação"
                     value={cadCodigoProfessor}
                     onChange={e => setCadCodigoProfessor(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-amber-500/50 rounded-xl text-xs font-mono font-bold text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                    className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-amber-400 dark:border-amber-500/50 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                   />
-                  <ShieldAlert className="w-4 h-4 text-amber-400 absolute left-3 top-2.5 pointer-events-none" />
+                  <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 absolute left-3 top-2.5 pointer-events-none" />
                 </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
                   🔒 Para proteger o sistema contra acessos indevidos, apenas quem possui o código institucional autorizado pode criar uma conta de Professor/Administrador.
                 </p>
               </div>
@@ -499,8 +499,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
             {/* Nome Completo */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Nome Completo <span className="text-rose-400">*</span>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Nome Completo <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -510,17 +510,17 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   placeholder="Ex: Carlos Eduardo de Oliveira"
                   value={cadNome}
                   onChange={e => setCadNome(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                  className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                 />
-                <User className="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
+                <User className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
               </div>
             </div>
 
             {/* E-mail e Senha */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  E-mail <span className="text-rose-400">*</span>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  E-mail <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -530,15 +530,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     placeholder="exemplo@escola.br"
                     value={cadEmail}
                     onChange={e => setCadEmail(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                   />
-                  <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
+                  <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Senha (mínimo 6 dígitos) <span className="text-rose-400">*</span>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Senha (mínimo 6 dígitos) <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -549,13 +549,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     placeholder="Mínimo 6 caracteres"
                     value={cadSenha}
                     onChange={e => setCadSenha(e.target.value)}
-                    className="w-full pl-9 pr-10 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                    className="w-full pl-9 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                   />
-                  <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
+                  <Lock className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
                   <button
                     type="button"
                     onClick={() => setMostrarSenhaCad(!mostrarSenhaCad)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-white"
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
                     tabIndex={-1}
                   >
                     {mostrarSenhaCad ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -567,7 +567,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             {/* Matrícula e Turma */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                   Matrícula / Código Escolar (Opcional)
                 </label>
                 <input
@@ -575,13 +575,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   placeholder="Gerado automaticamente se vazio"
                   value={cadMatricula}
                   onChange={e => setCadMatricula(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs font-mono text-white placeholder:text-slate-600 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
               {cadRole === 'aluno' && (
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                     Turma / Série (Opcional)
                   </label>
                   <input
@@ -589,7 +589,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     placeholder="Ex: 8º Ano B, 3º EM..."
                     value={cadTurma}
                     onChange={e => setCadTurma(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-600 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               )}
@@ -599,7 +599,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               type="submit"
               id="btn-submeter-cadastro"
               disabled={isLoading}
-              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               <UserPlus className="w-4 h-4" />
               <span>{isLoading ? 'Registrando no Banco de Dados...' : 'Criar Conta no Banco de Dados'}</span>

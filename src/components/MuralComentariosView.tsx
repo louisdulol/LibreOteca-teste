@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   BookOpen,
+  X,
 } from 'lucide-react';
 
 interface MuralComentariosViewProps {
@@ -203,8 +204,19 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
                 placeholder="Buscar por livro, aluno ou palavra..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 text-xs bg-slate-900 border border-slate-700/80 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-amber-500 text-white placeholder:text-slate-500"
+                className="w-full pl-10 pr-9 py-2 text-xs bg-slate-900 border border-slate-700/80 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-amber-500 text-white placeholder:text-slate-500"
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Limpar busca"
+                  aria-label="Limpar busca"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">

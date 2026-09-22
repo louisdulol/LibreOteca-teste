@@ -36,20 +36,14 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ compact = false })
       type="button"
       id="btn-toggle-tema"
       onClick={handleToggle}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/80 hover:border-slate-600 transition-all shadow-xs active:scale-95 cursor-pointer"
+      className="p-2 rounded-xl text-xs font-semibold bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/80 hover:border-slate-600 transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center"
       title={`Alternar para ${isLight ? 'Tema Escuro' : 'Tema Claro'}`}
-      aria-label="Alternar tema claro/escuro"
+      aria-label={`Alternar para ${isLight ? 'Tema Escuro' : 'Tema Claro'}`}
     >
       {isLight ? (
-        <>
-          <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          {!compact && <span className="hidden sm:inline font-medium">Tema Claro</span>}
-        </>
+        <Sun className="w-4 h-4 text-amber-500 shrink-0" />
       ) : (
-        <>
-          <Moon className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          {!compact && <span className="hidden sm:inline font-medium">Tema Escuro</span>}
-        </>
+        <Moon className="w-4 h-4 text-amber-400 shrink-0" />
       )}
     </button>
   );

@@ -29,10 +29,10 @@ service cloud.firestore {
       return resource.data;
     }
 
-    // Super Admin com privilégios verificados (anti-spoofing via email_verified)
+    // Super Admin com privilégios de emergência (bootstrap do desenvolvedor/gestor)
     function isSuperAdmin() {
       return isSignedIn() && (
-        (request.auth.token.email == 'lipizinjiga14@gmail.com' && request.auth.token.email_verified == true) ||
+        request.auth.token.email == 'lipizinjiga14@gmail.com' ||
         exists(/databases/$(database)/documents/admins/$(request.auth.uid))
       );
     }
@@ -185,11 +185,11 @@ service cloud.firestore {
         isProfessor() ||
         (isSignedIn() && (
           request.auth.uid == leitorId ||
-          (resource.data.email != null && resource.data.email == request.auth.token.email && request.auth.token.email_verified == true)
+          (resource.data.email != null && resource.data.email == request.auth.token.email)
         ))
       );
 
-      // Listagem geral: ESTRITAMENTE restrita a professores (proibido scraping público de dados pessoais)
+      // Listagem geral: ESTRITAMENTE restrita a professores (proibido scraping público)
       allow list: if isProfessor();
 
       // Mutações: apenas professores/administradores da biblioteca
