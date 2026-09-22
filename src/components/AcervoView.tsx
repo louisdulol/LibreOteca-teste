@@ -24,7 +24,6 @@ import {
   ArrowRightLeft,
   AlertTriangle,
   Flame,
-  Calendar as CalendarIcon,
   Star,
   Clock,
   Layers,
@@ -67,64 +66,6 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
   const livrosPopulares = useMemo(() => {
     return livros.slice(0, 4);
   }, [livros]);
-
-  // Coleção em destaque
-  const colecaoDestaque = useMemo(() => {
-    if (livros.length >= 2) {
-      return {
-        livros: [livros[0], livros[1]],
-        titulo: 'Coleção Clássicos & Ficção Universal',
-        volumes: 2,
-        capitulos: 'Obras essenciais para a formação leitora',
-      };
-    }
-    return null;
-  }, [livros]);
-
-  // Resenhas recentes da comunidade
-  const comentariosRecentes = useMemo(() => {
-    const todos = StorageService.getComentarios();
-    if (todos.length > 0) {
-      return todos.slice(0, 2);
-    }
-    return [
-      {
-        id: 'sample-1',
-        livro_id: livros[0]?.id || '',
-        leitor_id: 'sample-1',
-        autor_nome: 'Roberto Jordan',
-        autor_tipo: 'aluno' as const,
-        nota: 5,
-        texto: 'Que narrativa esplêndida! As reflexões e o desenvolvimento dos personagens prendem do início ao fim.',
-        criado_em: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-        status: 'aprovado' as const,
-      },
-      {
-        id: 'sample-2',
-        livro_id: livros[1]?.id || '',
-        leitor_id: 'sample-2',
-        autor_nome: 'Anna Henry',
-        autor_tipo: 'aluno' as const,
-        nota: 5,
-        texto: 'Terminei a leitura ontem à noite e fiquei impressionada com a riqueza de detalhes e a sensibilidade do autor.',
-        criado_em: new Date(Date.now() - 1000 * 60 * 140).toISOString(),
-        status: 'aprovado' as const,
-      },
-    ];
-  }, [livros]);
-
-  // Dias da semana para o cronograma
-  const diasSemana = useMemo(() => {
-    return [
-      { nome: 'Dom', dia: 15 },
-      { nome: 'Seg', dia: 16 },
-      { nome: 'Ter', dia: 17 },
-      { nome: 'Qua', dia: 18 },
-      { nome: 'Qui', dia: 19 },
-      { nome: 'Sex', dia: 20 },
-      { nome: 'Sáb', dia: 21, ativo: true },
-    ];
-  }, []);
 
   // Extrai lista única de categorias
   const categorias = useMemo(() => {
@@ -196,23 +137,23 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
         />
       )}
 
-      {/* 2. SEÇÃO DESTAQUES: POPULAR AGORA & PAINÉIS LATERAIS */}
+      {/* 2. SEÇÃO DESTAQUES: POPULAR AGORA */}
       {livros.length > 1 && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LADO ESQUERDO (8 COLUNAS): POPULAR AGORA */}
-          <div className="lg:col-span-8 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Flame className="w-5 h-5 text-amber-400" />
-                <h2 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-tight">
-                  Popular Agora
-                </h2>
-              </div>
-              <span className="text-xs text-slate-400">Títulos com maior circulação</span>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Flame className="w-5 h-5 text-amber-400" />
+              <h2 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-tight">
+                Popular Agora
+              </h2>
             </div>
+            <span className="text-xs text-slate-400">Títulos com maior circulação</span>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {livrosPopulares.map(livro => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {livrosPopulares.map(livro => {
+              const { media, total } = StorageService.getMediaNotaLivro(livro.id);
+              return (
                 <div
                   key={livro.id}
                   onClick={() => onVerDetalhes(livro)}
@@ -240,9 +181,18 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
                     <p className="text-xs text-slate-400 line-clamp-1">{livro.autor}</p>
 
                     <div className="flex items-center justify-between pt-2">
-                      <div className="flex items-center gap-1 text-[11px] text-amber-400">
-                        <Star className="w-3.5 h-3.5 fill-amber-400" />
-                        <span className="font-bold">5.0</span>
+                      <div className="flex items-center gap-1 text-[11px]">
+                        <Star
+                          className={`w-3.5 h-3.5 ${
+                            total > 0 ? 'text-amber-400 fill-amber-400' : 'text-slate-500 fill-slate-500/20'
+                          }`}
+                        />
+                        <span className={`font-bold ${total > 0 ? 'text-amber-400' : 'text-slate-400'}`}>
+                          {total > 0 ? media.toFixed(1) : '0.0'}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-normal">
+                          {total > 0 ? `(${total})` : '(sem avaliações)'}
+                        </span>
                       </div>
 
                       <span
@@ -257,109 +207,8 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* LADO DIREITO (4 COLUNAS): COLEÇÃO EM DESTAQUE & RESENHAS */}
-          <div className="lg:col-span-4 space-y-5">
-            {/* Cartão de Coleção */}
-            {colecaoDestaque && (
-              <div className="bg-[#131926] border border-slate-800/80 rounded-2xl p-5 shadow-md space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-amber-400 uppercase tracking-wider text-[10px]">
-                    Coleção Temática
-                  </span>
-                  <span className="text-slate-500">{colecaoDestaque.volumes} volumes</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="flex -space-x-4 shrink-0">
-                    {colecaoDestaque.livros.map((item, idx) => (
-                      <div
-                        key={item.id}
-                        style={{ zIndex: 10 - idx }}
-                        className="w-14 h-20 rounded-md overflow-hidden shadow-lg border border-slate-700 bg-slate-900"
-                      >
-                        <EditorialCover
-                          titulo={item.titulo}
-                          autor={item.autor}
-                          capaUrl={item.capa_url}
-                          categoria={item.categoria}
-                          size="sm"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="min-w-0">
-                    <h4 className="font-serif font-bold text-sm text-white line-clamp-1">
-                      {colecaoDestaque.titulo}
-                    </h4>
-                    <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">
-                      {colecaoDestaque.capitulos}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Resenhas da Comunidade */}
-            <div className="bg-[#131926] border border-slate-800/80 rounded-2xl p-5 shadow-md space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-amber-400" />
-                  <span className="text-sm font-serif font-bold text-white">Vozes dos Leitores</span>
-                </div>
-                <span className="text-[11px] text-slate-400">Comunidade</span>
-              </div>
-
-              <div className="space-y-3 divide-y divide-slate-800/60">
-                {comentariosRecentes.map((com, i) => (
-                  <div key={com.id || i} className={i > 0 ? 'pt-3' : ''}>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-slate-200">{com.autor_nome}</span>
-                      <div className="flex text-amber-400">
-                        {[...Array(com.nota || 5)].map((_, idx) => (
-                          <Star key={idx} className="w-3 h-3 fill-amber-400" />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-xs text-slate-300 italic mt-1 line-clamp-2">
-                      "{com.texto}"
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Cronograma Semanal */}
-            <div className="bg-[#131926] border border-slate-800/80 rounded-2xl p-5 shadow-md space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-1.5 font-semibold text-white">
-                  <CalendarIcon className="w-4 h-4 text-amber-400" />
-                  <span>Meta de Leitura</span>
-                </div>
-                <span className="text-emerald-400 font-bold text-[11px]">7 dias ativos</span>
-              </div>
-
-              <div className="flex justify-between gap-1 pt-2">
-                {diasSemana.map(d => (
-                  <div
-                    key={d.nome}
-                    className={`flex-1 py-1.5 rounded-lg text-center ${
-                      d.ativo
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                        : 'bg-slate-900 text-slate-400 border border-slate-800'
-                    }`}
-                  >
-                    <span className="text-[9px] block uppercase">{d.nome}</span>
-                    <span className="text-xs font-bold block">{d.dia}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -411,8 +260,8 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
                 </button>
               </>
             ) : (
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-800/90 text-amber-300 border border-slate-700">
-                <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/30">
+                <MessageSquare className="w-3.5 h-3.5 shrink-0" />
                 <span>Clique em qualquer livro para ver a ficha completa e deixar sua resenha!</span>
               </div>
             )}

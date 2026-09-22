@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Livro } from '../types';
+import { StorageService } from '../lib/storage';
 import { EditorialCover } from './EditorialCover';
 import {
   BookOpen,
@@ -202,27 +203,43 @@ export const InteractiveOpeningBook: React.FC<InteractiveOpeningBookProps> = ({
                         `Uma obra magistral da literatura que transporta o leitor através de reflexões profundas sobre a condição humana, o tempo e os dilemas que moldam nossa jornada coletiva. Indispensável para enriquecer o repertório cultural de estudantes e educadores.`}
                     </p>
 
-                    <div className="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="flex text-amber-400">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
-                          ))}
-                        </div>
-                        <span className="text-xs font-bold text-white">5.0</span>
-                        <span className="text-[11px] text-slate-400">• Avaliação dos Leitores</span>
-                      </div>
+                    {(() => {
+                      const { media, total } = StorageService.getMediaNotaLivro(livro.id);
+                      return (
+                        <div className="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="flex text-amber-400">
+                              {[1, 2, 3, 4, 5].map(i => (
+                                <Star
+                                  key={i}
+                                  className={`w-3.5 h-3.5 ${
+                                    total > 0 && i <= Math.round(media)
+                                      ? 'fill-amber-400 text-amber-400'
+                                      : 'text-slate-600 fill-slate-700/30'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs font-bold text-white">
+                              {total > 0 ? media.toFixed(1) : '0.0'}
+                            </span>
+                            <span className="text-[11px] text-slate-400">
+                              • {total > 0 ? `${total} avaliação(ões)` : 'Sem avaliações'}
+                            </span>
+                          </div>
 
-                      <span
-                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                          disponivel
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                            : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                        }`}
-                      >
-                        {disponivel ? `${livro.disponiveis} na estante` : 'Esgotado'}
-                      </span>
-                    </div>
+                          <span
+                            className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                              disponivel
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                            }`}
+                          >
+                            {disponivel ? `${livro.disponiveis} na estante` : 'Esgotado'}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 ) : (
                   <div className="space-y-3.5 text-xs text-slate-300">

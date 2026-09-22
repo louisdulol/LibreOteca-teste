@@ -145,7 +145,7 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
           </div>
 
           {/* O Contêiner da Estante */}
-          <div className="relative bg-gradient-to-b from-[#131926] to-[#0c1018] rounded-3xl p-5 sm:p-7 border border-slate-800/80 shadow-2xl">
+          <div className="relative bg-[#131926] rounded-3xl p-5 sm:p-7 border border-slate-800 shadow-xl">
             {/* Linha de Livros com scroll horizontal suave */}
             <div className="overflow-x-auto scrollbar-thin pb-4 pt-2">
               <div className="flex items-end gap-5 sm:gap-7 min-w-max px-2">
@@ -164,7 +164,7 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
                         title={`Clique para ver detalhes de "${livro.titulo}"`}
                       >
                         {/* Sombra de Contato na Prateleira */}
-                        <div className="absolute -bottom-2 inset-x-2 h-3 bg-black/80 blur-sm rounded-full transition-all duration-200" />
+                        <div className="absolute -bottom-2 inset-x-2 h-3 bg-black/60 blur-sm rounded-full transition-all duration-200" />
 
                         {/* Corpo do Livro com Capa */}
                         <div className="relative w-full h-full rounded-md overflow-hidden shadow-lg border border-slate-700/60 group-hover:border-amber-400/60 bg-[#0d121c]">
@@ -217,7 +217,7 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
                       <div className="mt-3 text-center w-full px-1">
                         <h4
                           onClick={() => onVerDetalhes(livro)}
-                          className="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1 hover:text-amber-400 cursor-pointer transition-colors"
+                          className="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1 hover:text-amber-500 cursor-pointer transition-colors"
                           title={livro.titulo}
                         >
                           {livro.titulo}
@@ -232,14 +232,14 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
                             onClick={() => onVerDetalhes(livro)}
                             className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors flex items-center gap-1"
                           >
-                            <Eye className="w-2.5 h-2.5 text-amber-400" />
+                            <Eye className="w-2.5 h-2.5 text-amber-500" />
                             <span>Detalhes</span>
                           </button>
 
                           {isProfessor && disponivel && (
                             <button
                               onClick={() => onEmprestar(livro)}
-                              className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition-colors flex items-center gap-1 shadow-xs"
+                              className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 transition-colors flex items-center gap-1 shadow-xs"
                               title="Registrar empréstimo para este livro"
                             >
                               <ArrowRightLeft className="w-2.5 h-2.5" />

@@ -3,10 +3,8 @@ import { ConfiguracoesBiblioteca, AuditoriaRegistro } from '../types';
 import { StorageService } from '../lib/storage';
 import {
   ThemeService,
-  PALETAS_ESCURAS,
-  PALETAS_CLARAS,
-  ThemePaletteId,
-  ThemePalette,
+  TEMAS,
+  ThemeMode,
 } from '../lib/theme';
 import {
   Settings,
@@ -30,7 +28,7 @@ export const ConfiguracoesView: React.FC<ConfiguracoesViewProps> = ({ onRefresh 
   const [auditoria, setAuditoria] = useState<AuditoriaRegistro[]>(StorageService.getAuditoria());
   const [filtroTabela, setFiltroTabela] = useState<string>('todas');
   const [salvoFeedback, setSalvoFeedback] = useState(false);
-  const [activeTheme, setActiveTheme] = useState<ThemePaletteId>('obsidian');
+  const [activeTheme, setActiveTheme] = useState<ThemeMode>('dark');
 
   useEffect(() => {
     setActiveTheme(ThemeService.getTheme());
@@ -41,7 +39,7 @@ export const ConfiguracoesView: React.FC<ConfiguracoesViewProps> = ({ onRefresh 
     return () => window.removeEventListener('libreoteca-theme-changed', handleThemeChange);
   }, []);
 
-  const handleSelectTheme = (id: ThemePaletteId) => {
+  const handleSelectTheme = (id: ThemeMode) => {
     ThemeService.setTheme(id);
     setActiveTheme(id);
   };
@@ -131,16 +129,16 @@ export const ConfiguracoesView: React.FC<ConfiguracoesViewProps> = ({ onRefresh 
         </div>
       )}
 
-      {/* Seção de Temas (Escuro e Claro) */}
-      <div className="p-6 bg-[#131926] rounded-3xl border border-slate-800 shadow-sm space-y-6">
+      {/* Seção de Tema (Escuro / Claro) */}
+      <div className="p-6 bg-[#131926] rounded-3xl border border-slate-800 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
           <div>
             <h3 className="text-base font-serif font-bold text-white flex items-center gap-2">
               <Palette className="w-4 h-4 text-amber-400" />
-              <span>Tema de Cores</span>
+              <span>Aparência</span>
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Escolha entre as opções de tema escuro ou tema claro para a interface
+              Escolha entre o Modo Escuro ou Modo Claro
             </p>
           </div>
           <span className="text-[11px] text-amber-400 font-semibold px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 self-start sm:self-auto">
@@ -148,118 +146,74 @@ export const ConfiguracoesView: React.FC<ConfiguracoesViewProps> = ({ onRefresh 
           </span>
         </div>
 
-        {/* Temas Escuros */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Moon className="w-4 h-4 text-slate-400" />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-              Temas Escuros
-            </h4>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            {PALETAS_ESCURAS.map(paleta => {
-              const isSelected = paleta.id === activeTheme;
-              return (
-                <button
-                  key={paleta.id}
-                  type="button"
-                  onClick={() => handleSelectTheme(paleta.id)}
-                  className={`p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${
-                    isSelected
-                      ? 'border-amber-500 bg-slate-800/90 shadow-md ring-1 ring-amber-500/40'
-                      : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 hover:bg-slate-800/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full mb-3">
-                    {/* Amostra Visual Dupla */}
-                    <div className="w-8 h-8 rounded-lg border border-slate-700 shadow-inner relative overflow-hidden shrink-0">
-                      <div
-                        className="absolute inset-0"
-                        style={{ backgroundColor: paleta.corBase }}
-                      />
-                      <div
-                        className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-md"
-                        style={{ backgroundColor: paleta.corAcento }}
-                      />
-                    </div>
-
-                    {isSelected && (
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-amber-400">
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      </span>
-                    )}
-                  </div>
-
-                  <div>
-                    <span className="text-xs font-bold text-white block">
-                      {paleta.nome}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Cartão Tema Escuro */}
+          <button
+            type="button"
+            onClick={() => handleSelectTheme('dark')}
+            className={`p-5 rounded-2xl border text-left transition-all flex items-start justify-between cursor-pointer ${
+              activeTheme === 'dark'
+                ? 'border-amber-500 bg-slate-800/90 shadow-md ring-1 ring-amber-500/40'
+                : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 hover:bg-slate-800/40'
+            }`}
+          >
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-700 flex items-center justify-center shrink-0">
+                <Moon className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Tema Escuro</span>
+                  {activeTheme === 'dark' && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-semibold border border-amber-500/30">
+                      Ativo
                     </span>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
-                      {isSelected ? 'Ativo no momento' : 'Clique para usar'}
+                  )}
+                </h4>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  Fundo escuro com alto contraste e acentos em âmbar, ideal para leitura noturna e foco.
+                </p>
+              </div>
+            </div>
+
+            {activeTheme === 'dark' && (
+              <Check className="w-4 h-4 text-amber-400 stroke-[3] shrink-0 ml-2" />
+            )}
+          </button>
+
+          {/* Cartão Tema Claro */}
+          <button
+            type="button"
+            onClick={() => handleSelectTheme('light')}
+            className={`p-5 rounded-2xl border text-left transition-all flex items-start justify-between cursor-pointer ${
+              activeTheme === 'light'
+                ? 'border-amber-500 bg-slate-800/90 shadow-md ring-1 ring-amber-500/40'
+                : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 hover:bg-slate-800/40'
+            }`}
+          >
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-white border border-slate-300 flex items-center justify-center shrink-0">
+                <Sun className="w-5 h-5 text-amber-500" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Tema Claro</span>
+                  {activeTheme === 'light' && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-semibold border border-amber-500/30">
+                      Ativo
                     </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                  )}
+                </h4>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  Fundo claro e limpo, ideal para ambientes bem iluminados e uso durante o dia.
+                </p>
+              </div>
+            </div>
 
-        {/* Temas Claros */}
-        <div className="pt-2 border-t border-slate-800/80">
-          <div className="flex items-center gap-2 mb-3">
-            <Sun className="w-4 h-4 text-amber-400" />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-              Temas Claros
-            </h4>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {PALETAS_CLARAS.map(paleta => {
-              const isSelected = paleta.id === activeTheme;
-              return (
-                <button
-                  key={paleta.id}
-                  type="button"
-                  onClick={() => handleSelectTheme(paleta.id)}
-                  className={`p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${
-                    isSelected
-                      ? 'border-amber-500 bg-slate-800/90 shadow-md ring-1 ring-amber-500/40'
-                      : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 hover:bg-slate-800/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full mb-3">
-                    {/* Amostra Visual Dupla */}
-                    <div className="w-8 h-8 rounded-lg border border-slate-700 shadow-inner relative overflow-hidden shrink-0">
-                      <div
-                        className="absolute inset-0"
-                        style={{ backgroundColor: paleta.corBase }}
-                      />
-                      <div
-                        className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-md"
-                        style={{ backgroundColor: paleta.corAcento }}
-                      />
-                    </div>
-
-                    {isSelected && (
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-amber-400">
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      </span>
-                    )}
-                  </div>
-
-                  <div>
-                    <span className="text-xs font-bold text-white block">
-                      {paleta.nome}
-                    </span>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
-                      {isSelected ? 'Ativo no momento' : 'Clique para usar'}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+            {activeTheme === 'light' && (
+              <Check className="w-4 h-4 text-amber-400 stroke-[3] shrink-0 ml-2" />
+            )}
+          </button>
         </div>
       </div>
 

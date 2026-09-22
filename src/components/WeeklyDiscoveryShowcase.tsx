@@ -1,5 +1,6 @@
 import React from 'react';
 import { Livro } from '../types';
+import { StorageService } from '../lib/storage';
 import { InteractiveOpeningBook } from './InteractiveOpeningBook';
 import {
   Sparkles,
@@ -29,7 +30,7 @@ export const WeeklyDiscoveryShowcase: React.FC<WeeklyDiscoveryShowcaseProps> = (
   const disponivel = livroDestaque.disponiveis > 0;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#131a29] via-[#0f1522] to-[#0a0d16] border border-slate-800/90 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl">
+    <section className="relative overflow-hidden bg-[#131926] border border-slate-800 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xl">
       {/* Luz ambiente sutil decorativa de fundo */}
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-sky-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -56,22 +57,38 @@ export const WeeklyDiscoveryShowcase: React.FC<WeeklyDiscoveryShowcaseProps> = (
           </div>
 
           {/* Avaliação e Estatística */}
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/90 rounded-xl border border-slate-800">
-              <div className="flex text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
-                ))}
-              </div>
-              <span className="font-bold text-white ml-1">5.0</span>
-              <span className="text-slate-500">• Resenhas verificadas</span>
-            </div>
+          {(() => {
+            const { media, total } = StorageService.getMediaNotaLivro(livroDestaque.id);
+            return (
+              <div className="flex flex-wrap items-center gap-4 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <div className="flex text-amber-500">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          total > 0 && i <= Math.round(media)
+                            ? 'fill-amber-400 text-amber-500'
+                            : 'text-slate-600 fill-slate-700/30'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="font-bold text-white ml-1">
+                    {total > 0 ? media.toFixed(1) : '0.0'}
+                  </span>
+                  <span className="text-slate-400 font-medium">
+                    • {total > 0 ? `${total} resenha(s) verificada(s)` : 'Sem avaliações'}
+                  </span>
+                </div>
 
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/90 rounded-xl border border-slate-800 text-slate-300">
-              <Layers className="w-3.5 h-3.5 text-sky-400" />
-              <span>{livroDestaque.total_exemplares} exemplares no acervo</span>
-            </div>
-          </div>
+                <div className="flex items-center gap-1.5 text-slate-300 font-medium">
+                  <Layers className="w-4 h-4 text-sky-400" />
+                  <span>{livroDestaque.total_exemplares} exemplares no acervo</span>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Sinopse / Citação Editorial */}
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-serif line-clamp-4 max-w-xl">

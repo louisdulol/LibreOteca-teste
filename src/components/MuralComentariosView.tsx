@@ -268,14 +268,14 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
                         </div>
 
                         {/* Estrelas */}
-                        <div className="flex items-center gap-0.5 bg-slate-900/80 px-2 py-1 rounded-xl border border-slate-800">
+                        <div className="flex items-center gap-0.5">
                           {[1, 2, 3, 4, 5].map(st => (
                             <Star
                               key={st}
                               className={`w-3.5 h-3.5 ${
                                 st <= com.nota
-                                    ? 'text-amber-400 fill-amber-400'
-                                    : 'text-slate-700'
+                                  ? 'text-amber-500 fill-amber-400'
+                                  : 'text-slate-300 dark:text-slate-700'
                               }`}
                             />
                           ))}

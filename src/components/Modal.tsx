@@ -74,25 +74,25 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <div
       id="modal-backdrop"
-      className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150`}
+      className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150`}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className={`w-full ${maxWidthClasses[maxWidth]} bg-[#131926] text-slate-100 rounded-3xl shadow-2xl border border-slate-800 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200`}
+        className={`w-full ${maxWidthClasses[maxWidth]} bg-white dark:bg-[#131926] text-slate-900 dark:text-slate-100 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200`}
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-start justify-between px-6 py-4.5 border-b border-slate-800 bg-[#0f1420]/90">
+        <div className="flex items-start justify-between px-6 py-4.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#0f1420]/90">
           <div>
-            <h3 className="text-xl font-serif font-bold text-white tracking-tight">{title}</h3>
-            {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
+            <h3 className="text-xl font-serif font-bold text-slate-900 dark:text-white tracking-tight">{title}</h3>
+            {subtitle && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
           </div>
           <button
             id="modal-close-button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors focus:outline-hidden"
+            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-slate-800 rounded-xl transition-colors focus:outline-hidden cursor-pointer"
             aria-label="Fechar"
           >
             <X className="w-5 h-5" />
@@ -103,4 +103,3 @@ export const Modal: React.FC<ModalProps> = ({
     </div>
   );
 };
-

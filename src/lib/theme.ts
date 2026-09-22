@@ -1,165 +1,61 @@
-export type ThemePaletteId =
-  // Temas Escuros
-  | 'dark-default'
-  | 'dark-blue'
-  | 'dark-green'
-  | 'dark-purple'
-  | 'dark-sepia'
-  // Temas Claros
-  | 'light-default'
-  | 'light-blue'
-  | 'light-green'
-  | 'light-sepia'
-  // Compatibilidade
-  | 'obsidian'
-  | 'midnight'
-  | 'forest'
-  | 'sepia'
-  | 'amethyst'
-  | 'titanium';
+export type ThemeMode = 'dark' | 'light';
 
-export interface ThemePalette {
-  id: ThemePaletteId;
-  modo: 'escuro' | 'claro';
+export interface ThemeOption {
+  id: ThemeMode;
   nome: string;
-  corBase: string;
-  corCard: string;
-  corAcento: string;
+  descricao: string;
 }
 
-export const PALETAS_ESCURAS: ThemePalette[] = [
+export const TEMAS: ThemeOption[] = [
   {
-    id: 'dark-default',
-    modo: 'escuro',
-    nome: 'Escuro Padrão',
-    corBase: '#0b0e14',
-    corCard: '#131926',
-    corAcento: '#f59e0b',
+    id: 'dark',
+    nome: 'Tema Escuro',
+    descricao: 'Fundo escuro profundo com alto contraste e acentos âmbar',
   },
   {
-    id: 'dark-blue',
-    modo: 'escuro',
-    nome: 'Azul Escuro',
-    corBase: '#060b17',
-    corCard: '#0d162a',
-    corAcento: '#38bdf8',
-  },
-  {
-    id: 'dark-green',
-    modo: 'escuro',
-    nome: 'Verde Escuro',
-    corBase: '#06120e',
-    corCard: '#0b2018',
-    corAcento: '#10b981',
-  },
-  {
-    id: 'dark-purple',
-    modo: 'escuro',
-    nome: 'Roxo Escuro',
-    corBase: '#0e0918',
-    corCard: '#181128',
-    corAcento: '#a855f7',
-  },
-  {
-    id: 'dark-sepia',
-    modo: 'escuro',
-    nome: 'Sépia Escuro',
-    corBase: '#14100d',
-    corCard: '#201915',
-    corAcento: '#ea580c',
+    id: 'light',
+    nome: 'Tema Claro',
+    descricao: 'Fundo claro e limpo para leitura diurna',
   },
 ];
 
-export const PALETAS_CLARAS: ThemePalette[] = [
-  {
-    id: 'light-default',
-    modo: 'claro',
-    nome: 'Claro Padrão',
-    corBase: '#f8fafc',
-    corCard: '#ffffff',
-    corAcento: '#d97706',
-  },
-  {
-    id: 'light-blue',
-    modo: 'claro',
-    nome: 'Azul Claro',
-    corBase: '#f0f7ff',
-    corCard: '#ffffff',
-    corAcento: '#0284c7',
-  },
-  {
-    id: 'light-green',
-    modo: 'claro',
-    nome: 'Verde Claro',
-    corBase: '#f0fdf4',
-    corCard: '#ffffff',
-    corAcento: '#059669',
-  },
-  {
-    id: 'light-sepia',
-    modo: 'claro',
-    nome: 'Sépia Claro',
-    corBase: '#fbf7ee',
-    corCard: '#ffffff',
-    corAcento: '#c2410c',
-  },
-];
-
-export const TODAS_PALETAS: ThemePalette[] = [
-  ...PALETAS_ESCURAS,
-  ...PALETAS_CLARAS,
-];
-
-// Alias para retrocompatibilidade
-export const PALETAS_DISPONIVEIS = TODAS_PALETAS;
-
-const THEME_STORAGE_KEY = 'libreoteca_active_theme';
+const THEME_STORAGE_KEY = 'libreoteca_theme_mode';
 
 export const ThemeService = {
-  getTheme(): ThemePaletteId {
+  getTheme(): ThemeMode {
     try {
-      const saved = localStorage.getItem(THEME_STORAGE_KEY) as ThemePaletteId | null;
-      if (saved) {
-        if (saved === 'obsidian' || saved === 'titanium') return 'dark-default';
-        if (saved === 'midnight') return 'dark-blue';
-        if (saved === 'forest') return 'dark-green';
-        if (saved === 'amethyst') return 'dark-purple';
-        if (saved === 'sepia') return 'dark-sepia';
-        if (TODAS_PALETAS.some(p => p.id === saved)) {
-          return saved;
-        }
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      if (saved === 'light' || saved === 'dark') {
+        return saved;
       }
-    } catch {
-      // Fallback
-    }
-    return 'dark-default';
+    } catch {}
+    return 'dark';
   },
 
-  setTheme(themeId: ThemePaletteId): void {
-    const canonicalId: ThemePaletteId =
-      themeId === 'obsidian' || themeId === 'titanium'
-        ? 'dark-default'
-        : themeId === 'midnight'
-        ? 'dark-blue'
-        : themeId === 'forest'
-        ? 'dark-green'
-        : themeId === 'amethyst'
-        ? 'dark-purple'
-        : themeId === 'sepia'
-        ? 'dark-sepia'
-        : themeId;
-
+  setTheme(mode: ThemeMode): void {
     try {
-      localStorage.setItem(THEME_STORAGE_KEY, canonicalId);
+      localStorage.setItem(THEME_STORAGE_KEY, mode);
     } catch {}
 
-    const isLight = canonicalId.startsWith('light-');
-    document.documentElement.setAttribute('data-theme', canonicalId);
-    document.documentElement.setAttribute('data-mode', isLight ? 'light' : 'dark');
-    window.dispatchEvent(new CustomEvent('libreoteca-theme-changed', { detail: canonicalId }));
+    document.documentElement.setAttribute('data-theme', mode);
+    document.documentElement.setAttribute('data-mode', mode);
+    if (mode === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
+    window.dispatchEvent(new CustomEvent('libreoteca-theme-changed', { detail: mode }));
   },
 
-  initTheme(): ThemePaletteId {
+  toggleTheme(): ThemeMode {
+    const next = this.getTheme() === 'dark' ? 'light' : 'dark';
+    this.setTheme(next);
+    return next;
+  },
+
+  initTheme(): ThemeMode {
     const current = this.getTheme();
     this.setTheme(current);
     return current;
