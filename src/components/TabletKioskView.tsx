@@ -8,20 +8,15 @@ import {
   Tablet,
   Maximize2,
   Minimize2,
-  Sparkles,
   BookOpen,
   CheckCircle2,
   Star,
   MapPin,
   Clock,
-  ArrowLeft,
-  ChevronRight,
   Sun,
   Moon,
   Info,
-  Layers,
   ArrowRightLeft,
-  QrCode,
   Tag,
 } from 'lucide-react';
 import { ThemeService } from '../lib/theme';
@@ -74,19 +69,41 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
     setCurrentTheme(theme === 'light' ? 'light' : 'dark');
   }, [isOpen]);
 
-  // Bloquear scroll do body quando totem aberto
+  // Bloquear scroll do body e html quando totem aberto e suporte a ESC
   useEffect(() => {
     if (isOpen) {
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      const originalBodyOverflow = document.body.style.overflow;
+
+      document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
+
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 300);
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          if (selectedLivro) {
+            setSelectedLivro(null);
+          } else {
+            onClose();
+          }
+        }
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.style.overflow = originalBodyOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
+      };
     } else {
-      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
       setSelectedLivro(null);
       setSearchTerm('');
     }
-  }, [isOpen]);
+  }, [isOpen, selectedLivro, onClose]);
 
   // Categorias únicas
   const categorias = useMemo(() => {
@@ -145,34 +162,34 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
   return (
     <div
       id="tablet-kiosk-container"
-      className="fixed inset-0 z-[100] bg-slate-100 dark:bg-[#0b0e14] text-slate-900 dark:text-white flex flex-col overflow-hidden animate-in fade-in duration-200 select-none transition-colors"
+      className="fixed inset-0 z-[100] bg-slate-100 dark:bg-[#0b0e14] text-slate-900 dark:text-white flex flex-col overflow-hidden animate-in fade-in duration-200 select-none transition-colors w-full max-w-full"
     >
-      {/* 1. CABEÇALHO DO TOTEM (ESTILO CONSOLE / BIG PICTURE) */}
-      <header className="shrink-0 bg-white dark:bg-[#0f1420] border-b border-slate-200 dark:border-slate-800 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4">
+      {/* 1. CABEÇALHO DO TOTEM (ESTILO CONSOLE / BIG PICTURE COM BOTÃO SAIR SEMPRE VISÍVEL) */}
+      <header className="shrink-0 bg-white dark:bg-[#0f1420] border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 md:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 w-full max-w-full">
         {/* Lado Esquerdo: Identificação do Totem */}
-        <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold shadow-lg shadow-amber-500/20">
-            <Tablet className="w-5 h-5" />
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold shadow-md shadow-amber-500/20 shrink-0">
+            <Tablet className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-serif font-black text-slate-900 dark:text-white tracking-tight leading-none">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <h1 className="text-sm sm:text-base md:text-lg font-serif font-black text-slate-900 dark:text-white tracking-tight leading-none truncate">
                 Totem da Biblioteca
               </h1>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+              <span className="hidden xs:inline-block px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 shrink-0">
                 Autoatendimento
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-[200px] sm:max-w-md">
-              {nomeBiblioteca} • Toque no livro para ver localização na estante
+            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-[150px] sm:max-w-md">
+              {nomeBiblioteca} • Toque no livro para localização
             </p>
           </div>
         </div>
 
-        {/* Lado Direito: Relógio e Controles do Totem */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Lado Direito: Relógio e Controles com Botão Sair Sempre Acessível */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {horaAtual && (
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono font-bold text-amber-700 dark:text-amber-300">
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono font-bold text-amber-700 dark:text-amber-300">
               <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               <span>{horaAtual}</span>
             </div>
@@ -181,8 +198,9 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
           {/* Alternar Tema */}
           <button
             onClick={handleToggleTheme}
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+            className="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer shrink-0"
             title="Alternar Tema Claro / Escuro"
+            aria-label="Alternar Tema"
           >
             {currentTheme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-sky-600" />}
           </button>
@@ -190,37 +208,39 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
           {/* Fullscreen */}
           <button
             onClick={toggleFullscreen}
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+            className="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer shrink-0"
             title="Alternar Tela Cheia"
+            aria-label="Tela Cheia"
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
 
-          {/* Fechar / Sair do Modo Totem */}
+          {/* Fechar / Sair do Modo Totem - NUNCA ESCONDIDO */}
           <button
             id="btn-sair-totem"
             onClick={onClose}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer"
+            className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer shrink-0"
+            title="Sair do Modo Totem e voltar para a Biblioteca"
           >
-            <X className="w-4 h-4" />
-            <span className="hidden sm:inline">Sair do Totem</span>
+            <X className="w-4 h-4 shrink-0" />
+            <span>Sair</span>
           </button>
         </div>
       </header>
 
       {/* 2. ÁREA DE BUSCA & FILTROS GIGANTES DE FÁCIL TOQUE */}
-      <div className="shrink-0 bg-white/90 dark:bg-[#0f1420]/80 border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-8 py-4 space-y-3 backdrop-blur-md">
+      <div className="shrink-0 bg-white/90 dark:bg-[#0f1420]/80 border-b border-slate-200 dark:border-slate-800/80 px-3 sm:px-6 md:px-8 py-3 sm:py-3.5 space-y-2.5 backdrop-blur-md w-full max-w-full overflow-hidden">
         {/* Barra de Busca Gigante para Tablet */}
-        <div className="relative max-w-4xl mx-auto">
-          <Search className="w-6 h-6 text-amber-500 dark:text-amber-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="relative max-w-4xl mx-auto w-full">
+          <Search className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 dark:text-amber-400 absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             ref={searchInputRef}
             type="text"
             id="input-busca-totem"
-            placeholder="Digite o nome do livro, autor ou código de prateleira (ex: LO-000001)..."
+            placeholder="Digite o nome do livro, autor ou código de prateleira..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-13 pr-12 py-3.5 sm:py-4 bg-slate-50 dark:bg-[#131926] border-2 border-slate-200 dark:border-slate-700/80 focus:border-amber-500 rounded-2xl text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden shadow-inner transition-all"
+            className="w-full pl-11 sm:pl-13 pr-10 sm:pr-12 py-2.5 sm:py-3 bg-slate-50 dark:bg-[#131926] border-2 border-slate-200 dark:border-slate-700/80 focus:border-amber-500 rounded-xl sm:rounded-2xl text-xs sm:text-base text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden shadow-inner transition-all"
           />
           {searchTerm && (
             <button
@@ -228,45 +248,48 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
                 setSearchTerm('');
                 searchInputRef.current?.focus();
               }}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl bg-slate-200 dark:bg-slate-800/80 cursor-pointer"
+              className="absolute right-2.5 sm:right-3.5 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg sm:rounded-xl bg-slate-200 dark:bg-slate-800/80 cursor-pointer"
+              title="Limpar busca"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           )}
         </div>
 
-        {/* Pílulas de Categoria & Filtro de Disponibilidade */}
-        <div className="max-w-4xl mx-auto flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {/* Pílulas de Categoria & Filtro de Disponibilidade com Rolagem Horizontal Suave */}
+        <div className="max-w-4xl mx-auto flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 pt-0.5 px-0.5 scrollbar-none w-full">
           <button
             onClick={() => setApenasDisponiveis(!apenasDisponiveis)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold shrink-0 transition-all flex items-center gap-1.5 cursor-pointer ${
               apenasDisponiveis
                 ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
                 : 'bg-white dark:bg-[#131926] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Apenas Disponíveis na Estante</span>
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+            <span className="sm:hidden">Disponíveis</span>
+            <span className="hidden sm:inline">Apenas Disponíveis na Estante</span>
           </button>
 
-          <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 shrink-0 mx-1" />
+          <div className="w-px h-5 sm:h-6 bg-slate-200 dark:bg-slate-800 shrink-0 mx-0.5" />
 
           <button
             onClick={() => setSelectedCategoria('todas')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
               selectedCategoria === 'todas'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
                 : 'bg-white dark:bg-[#131926] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            Todas as Categorias ({livros.length})
+            <span className="sm:hidden">Todas ({livros.length})</span>
+            <span className="hidden sm:inline">Todas as Categorias ({livros.length})</span>
           </button>
 
           {categorias.map(cat => (
             <button
               key={cat}
               onClick={() => setSelectedCategoria(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
                 selectedCategoria === cat
                   ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
                   : 'bg-white dark:bg-[#131926] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -278,9 +301,9 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
         </div>
       </div>
 
-      {/* 3. CATÁLOGO / GRADE DE LIVROS (ESTILO STEAM BIG PICTURE) */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-8">
-        <div className="max-w-7xl mx-auto">
+      {/* 3. CATÁLOGO / GRADE DE LIVROS COM MARGENS EQUILIBRADAS E SEM VAZAMENTO */}
+      <main className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 md:px-8 py-3.5 sm:py-6 w-full max-w-full">
+        <div className="max-w-7xl mx-auto w-full">
           {livrosFiltrados.length === 0 ? (
             <div className="py-20 text-center space-y-4">
               <div className="w-16 h-16 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 flex items-center justify-center mx-auto shadow-xs">
@@ -302,7 +325,7 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 w-full">
               {livrosFiltrados.map(livro => {
                 const { media, total } = StorageService.getMediaNotaLivro(livro.id);
                 const disponivel = livro.disponiveis > 0;
@@ -311,7 +334,7 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
                   <div
                     key={livro.id}
                     onClick={() => setSelectedLivro(livro)}
-                    className="group relative flex flex-col bg-white dark:bg-[#131926] border-2 border-slate-200 dark:border-slate-800/80 hover:border-amber-500 dark:hover:border-amber-500 rounded-2xl overflow-hidden shadow-md hover:shadow-xl dark:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-black/60 transition-all duration-200 cursor-pointer active:scale-95"
+                    className="group relative flex flex-col bg-white dark:bg-[#131926] border-2 border-slate-200 dark:border-slate-800/80 hover:border-amber-500 dark:hover:border-amber-500 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl dark:shadow-md dark:hover:shadow-2xl dark:hover:shadow-black/60 transition-all duration-200 cursor-pointer active:scale-95"
                   >
                     {/* Capa */}
                     <div className="relative aspect-2/3 w-full bg-slate-100 dark:bg-[#0d121c] overflow-hidden">
@@ -327,7 +350,7 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
 
                       {/* Código de Prateleira Dourado */}
                       <div className="absolute top-2 left-2 z-10">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-black bg-black/85 text-amber-300 border border-amber-500/40 shadow-md">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-mono font-black bg-black/85 text-amber-300 border border-amber-500/40 shadow-md">
                           <Tag className="w-2.5 h-2.5" />
                           <span>{livro.codigo_interno}</span>
                         </span>
@@ -336,7 +359,7 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
                       {/* Status de Disponibilidade */}
                       <div className="absolute bottom-2 inset-x-2 z-10">
                         <span
-                          className={`w-full text-center block px-2 py-1 rounded-lg text-[10px] font-bold backdrop-blur-md shadow-md ${
+                          className={`w-full text-center block px-1.5 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold backdrop-blur-md shadow-md truncate ${
                             disponivel
                               ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/50'
                               : 'bg-rose-950/90 text-rose-300 border border-rose-500/50'
@@ -348,7 +371,7 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
                     </div>
 
                     {/* Metadados do Livro */}
-                    <div className="p-3 flex-1 flex flex-col justify-between space-y-1">
+                    <div className="p-2.5 sm:p-3 flex-1 flex flex-col justify-between space-y-1">
                       <div>
                         <span className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 block truncate uppercase tracking-wider">
                           {livro.categoria}
@@ -356,11 +379,13 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
                         <h4 className="font-serif font-bold text-xs sm:text-sm text-slate-900 dark:text-white line-clamp-2 leading-tight group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
                           {livro.titulo}
                         </h4>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{sanitizarAutor(livro.autor)}</p>
+                        <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                          {sanitizarAutor(livro.autor)}
+                        </p>
                       </div>
 
                       {/* Avaliação */}
-                      <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[10px]">
+                      <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 dark:border-slate-800/80 text-[10px]">
                         <div className="flex items-center gap-1 text-amber-500 dark:text-amber-400 font-bold">
                           <Star className={`w-3 h-3 ${total > 0 ? 'fill-amber-400' : 'text-slate-300 dark:text-slate-600'}`} />
                           <span>{total > 0 ? media.toFixed(1) : '0.0'}</span>
@@ -374,35 +399,36 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
             </div>
           )}
         </div>
-      </div>
+      </main>
 
       {/* 4. MODAL / DETALHE DO LIVRO PARA O TOTEM (COM GUIA DE LOCALIZAÇÃO NA PRATELEIRA) */}
       {selectedLivro && (
         <div
-          className="fixed inset-0 z-[110] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-150"
+          className="fixed inset-0 z-[110] bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150 w-full"
           onClick={e => {
             if (e.target === e.currentTarget) setSelectedLivro(null);
           }}
         >
-          <div className="w-full max-w-2xl bg-white dark:bg-[#131926] border-2 border-amber-500/60 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200 text-slate-900 dark:text-white">
+          <div className="w-full max-w-2xl bg-white dark:bg-[#131926] border-2 border-amber-500/60 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200 text-slate-900 dark:text-white">
             {/* Topo do Modal */}
-            <div className="px-6 py-4 bg-slate-50 dark:bg-[#0f1420] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-[#0f1420] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-amber-500 dark:text-amber-400" />
-                <span className="font-serif font-bold text-base text-slate-900 dark:text-white">Localização & Ficha da Obra</span>
+                <span className="font-serif font-bold text-sm sm:text-base text-slate-900 dark:text-white">Localização & Ficha da Obra</span>
               </div>
               <button
                 onClick={() => setSelectedLivro(null)}
-                className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl bg-slate-200/70 dark:bg-slate-800/80 transition-colors cursor-pointer"
+                className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl bg-slate-200/70 dark:bg-slate-800/80 transition-colors cursor-pointer"
+                title="Fechar"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Conteúdo da Ficha */}
-            <div className="p-6 overflow-y-auto space-y-6">
-              <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-                <div className="w-36 h-52 shrink-0 rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-950">
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center sm:items-start">
+                <div className="w-32 sm:w-36 h-44 sm:h-52 shrink-0 rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-950">
                   <EditorialCover
                     titulo={selectedLivro.titulo}
                     autor={selectedLivro.autor}
@@ -414,16 +440,16 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
                   />
                 </div>
 
-                <div className="flex-1 space-y-3 text-center sm:text-left">
-                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 inline-block">
+                <div className="flex-1 space-y-2 sm:space-y-3 text-center sm:text-left min-w-0">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 inline-block">
                     {selectedLivro.categoria}
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-serif font-black text-slate-900 dark:text-white leading-tight">
+                  <h3 className="text-lg sm:text-2xl font-serif font-black text-slate-900 dark:text-white leading-tight">
                     {selectedLivro.titulo}
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">por {sanitizarAutor(selectedLivro.autor)}</p>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">por {sanitizarAutor(selectedLivro.autor)}</p>
 
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 pt-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-4 pt-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
                     {selectedLivro.ano_publicacao && <span>Ano: {selectedLivro.ano_publicacao}</span>}
                     {selectedLivro.paginas && <span>• {selectedLivro.paginas} páginas</span>}
                     {selectedLivro.isbn && <span>• ISBN: {selectedLivro.isbn}</span>}
@@ -432,28 +458,28 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
               </div>
 
               {/* CARTÃO GIGANTE DE LOCALIZAÇÃO DO EXEMPLAR */}
-              <div className="p-5 bg-amber-500/10 border-2 border-amber-500/40 rounded-2xl space-y-3">
-                <div className="flex items-center justify-between">
+              <div className="p-4 sm:p-5 bg-amber-500/10 border-2 border-amber-500/40 rounded-2xl space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300 font-bold text-xs uppercase tracking-wider">
                     <Tag className="w-4 h-4 text-amber-500 dark:text-amber-400" />
                     <span>Código da Prateleira / Etiqueta</span>
                   </div>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                       selectedLivro.disponiveis > 0
                         ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/40'
                         : 'bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/40'
                     }`}
                   >
                     {selectedLivro.disponiveis > 0
-                      ? `${selectedLivro.disponiveis} exemplares disponíveis`
+                      ? `${selectedLivro.disponiveis} disponíveis`
                       : 'Esgotado no momento'}
                   </span>
                 </div>
 
                 {/* Código Gigante para Leitura Fácil */}
                 <div className="text-center py-3 bg-white dark:bg-black/40 rounded-xl border border-amber-500/30 shadow-inner">
-                  <span className="text-3xl sm:text-4xl font-mono font-black text-amber-600 dark:text-amber-300 tracking-wider">
+                  <span className="text-2xl sm:text-4xl font-mono font-black text-amber-600 dark:text-amber-300 tracking-wider">
                     {selectedLivro.codigo_interno}
                   </span>
                 </div>
@@ -461,14 +487,14 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
                 <div className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-slate-300">
                   <Info className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" />
                   <p>
-                    <strong>Como retirar:</strong> Anote este código ou mostre esta tela ao bibliotecário/professor no balcão de atendimento para registrar seu empréstimo em instantes!
+                    <strong>Como retirar:</strong> Anote este código ou mostre esta tela ao atendente no balcão da biblioteca para retirar seu exemplar!
                   </p>
                 </div>
               </div>
 
               {/* Sinopse */}
               {selectedLivro.sinopse && (
-                <div className="p-4 bg-slate-50 dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+                <div className="p-3.5 sm:p-4 bg-slate-50 dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs space-y-1">
                   <span className="font-bold text-slate-900 dark:text-white block">Sinopse da Obra:</span>
                   <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{selectedLivro.sinopse}</p>
                 </div>
@@ -476,10 +502,10 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
             </div>
 
             {/* Rodapé de Ações */}
-            <div className="px-6 py-4 bg-slate-50 dark:bg-[#0f1420] border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-[#0f1420] border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
               <button
                 onClick={() => setSelectedLivro(null)}
-                className="px-5 py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                className="px-4 py-2 sm:px-5 sm:py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
               >
                 Voltar à Lista
               </button>
@@ -493,10 +519,10 @@ export const TabletKioskView: React.FC<TabletKioskViewProps> = ({
                     onEmprestarLivro(l);
                   }}
                   disabled={selectedLivro.disponiveis <= 0}
-                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
+                  className="px-4 py-2 sm:px-5 sm:py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
                 >
                   <ArrowRightLeft className="w-4 h-4" />
-                  <span>Emprestar Agora (Professor)</span>
+                  <span>Emprestar Agora</span>
                 </button>
               )}
             </div>

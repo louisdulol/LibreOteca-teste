@@ -118,12 +118,12 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full min-w-0 overflow-hidden">
       {/* Header com Ações Rápidas */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full max-w-full">
         <div>
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white tracking-tight flex items-center gap-2.5">
-            <ArrowRightLeft className="w-6 h-6 text-amber-400" />
+            <ArrowRightLeft className="w-6 h-6 text-amber-400 shrink-0" />
             <span>Circulação & Empréstimos</span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
@@ -131,7 +131,7 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => StorageService.exportarEmprestimosCsv()}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
@@ -193,7 +193,7 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
       )}
 
       {/* Filtros e Busca */}
-      <div className="bg-[#131926] p-4 rounded-3xl border border-slate-800 shadow-sm space-y-3">
+      <div className="bg-[#131926] p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border border-slate-800 shadow-sm space-y-3">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
@@ -304,14 +304,14 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
               <div
                 key={emp.id}
                 id={`loan-card-${emp.id}`}
-                className={`p-4 bg-[#131926] rounded-2xl border transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                className={`p-4 bg-[#131926] rounded-2xl border transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full max-w-full min-w-0 overflow-hidden ${
                   emp.atrasado
                     ? 'border-rose-800/80 bg-rose-950/15 shadow-sm'
                     : 'border-slate-800 hover:border-slate-700'
                 }`}
               >
                 {/* Informações do Livro & Leitor */}
-                <div className="flex items-start sm:items-center gap-3.5">
+                <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
                   {emp.livro?.capa_url ? (
                     <img
                       src={emp.livro.capa_url}
@@ -328,12 +328,12 @@ export const EmprestimosView: React.FC<EmprestimosViewProps> = ({
                     </div>
                   )}
 
-                  <div className="space-y-1">
+                  <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 border border-slate-700">
+                      <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 border border-slate-700 shrink-0">
                         {emp.livro?.codigo_interno || 'LO-000000'}
                       </span>
-                      <h4 className="text-sm font-serif font-bold text-white line-clamp-1">
+                      <h4 className="text-sm font-serif font-bold text-white truncate max-w-full">
                         {emp.livro?.titulo || 'Livro Removido'}
                       </h4>
                     </div>

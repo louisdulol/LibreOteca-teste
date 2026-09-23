@@ -46,7 +46,7 @@ export const InteractiveOpeningBook: React.FC<InteractiveOpeningBookProps> = ({
             <div className="absolute -bottom-4 inset-x-4 h-6 bg-black/80 blur-lg rounded-full group-hover:bg-black/95 group-hover:blur-xl transition-all" />
 
             {/* Volume do Livro Fechado */}
-            <div className="relative w-56 sm:w-64 md:w-72 h-80 sm:h-92 md:h-96 rounded-r-xl rounded-l-xs overflow-hidden shadow-2xl border border-slate-700/80 bg-[#0d121c] flex flex-col">
+            <div className="relative w-48 sm:w-64 md:w-72 h-72 sm:h-92 md:h-96 rounded-r-xl rounded-l-xs overflow-hidden shadow-2xl border border-slate-700/80 bg-[#0d121c] flex flex-col">
               {/* Capa */}
               <EditorialCover
                 titulo={livro.titulo}
@@ -114,10 +114,10 @@ export const InteractiveOpeningBook: React.FC<InteractiveOpeningBookProps> = ({
         </div>
       ) : (
         /* ESTADO: LIVRO ABERTO (DUAL PAGE SPREAD REALISTA COM SUPORTE A TEMA CLARO E ESCURO) */
-        <div className="w-full max-w-2xl animate-in zoom-in-95 duration-200">
-          <div className="relative bg-slate-50 dark:bg-[#0f1523] border border-slate-200 dark:border-slate-700/80 rounded-3xl shadow-2xl p-4 sm:p-5 flex flex-col space-y-4 text-slate-900 dark:text-white transition-colors">
+        <div className="w-full max-w-full sm:max-w-2xl animate-in zoom-in-95 duration-200 min-w-0">
+          <div className="relative bg-slate-50 dark:bg-[#0f1523] border border-slate-200 dark:border-slate-700/80 rounded-2xl sm:rounded-3xl shadow-2xl p-3.5 sm:p-5 flex flex-col space-y-3 sm:space-y-4 text-slate-900 dark:text-white transition-colors w-full max-w-full min-w-0 overflow-hidden">
             {/* Faixa Superior com Controles de Folheamento */}
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2.5 text-xs">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-bold flex items-center gap-1.5 text-[11px]">
                   <BookMarked className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />

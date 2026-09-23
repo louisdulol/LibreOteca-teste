@@ -45,7 +45,7 @@ export const BookCard: React.FC<BookCardProps> = ({
       {/* Top Banner / Capa com o EditorialCover */}
       <div
         onClick={() => onVerDetalhes(livro)}
-        className="relative h-56 w-full bg-[#0d121c] overflow-hidden cursor-pointer flex items-center justify-center group-hover:brightness-105 transition-all"
+        className="relative h-44 sm:h-56 w-full bg-[#0d121c] overflow-hidden cursor-pointer flex items-center justify-center group-hover:brightness-105 transition-all"
       >
         <EditorialCover
           titulo={livro.titulo}
@@ -54,35 +54,35 @@ export const BookCard: React.FC<BookCardProps> = ({
           categoria={livro.categoria}
           ano={livro.ano_publicacao}
           size="md"
-          className="h-56 w-full"
+          className="h-44 sm:h-56 w-full"
         />
 
         {/* Badge do código interno no canto superior esquerdo */}
-        <div className="absolute top-2.5 left-2.5 z-20">
-          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-black/80 text-amber-300 backdrop-blur-xs border border-white/10 shadow-xs">
+        <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-20">
+          <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-mono font-bold bg-black/80 text-amber-300 backdrop-blur-xs border border-white/10 shadow-xs">
             {livro.codigo_interno}
           </span>
         </div>
 
         {/* Badge da categoria no canto superior direito */}
-        <div className="absolute top-2.5 right-2.5 z-20">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-900/90 text-slate-200 border border-slate-700/50 backdrop-blur-xs shadow-xs">
+        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-slate-900/90 text-slate-200 border border-slate-700/50 backdrop-blur-xs shadow-xs">
             {livro.categoria}
           </span>
         </div>
       </div>
 
       {/* Conteúdo textual */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between">
         <div>
           <h4
             onClick={() => onVerDetalhes(livro)}
-            className="text-base font-serif font-bold text-white line-clamp-1 hover:text-amber-400 cursor-pointer transition-colors"
+            className="text-sm sm:text-base font-serif font-bold text-white line-clamp-1 hover:text-amber-400 cursor-pointer transition-colors"
             title={livro.titulo}
           >
             {livro.titulo}
           </h4>
-          <p className="text-xs text-slate-400 font-medium mt-0.5 line-clamp-1">{livro.autor}</p>
+          <p className="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5 line-clamp-1">{livro.autor}</p>
 
           <div className="flex items-center gap-2 mt-1.5 text-[11px] text-slate-400 font-mono">
             {livro.ano_publicacao && <span>{livro.ano_publicacao}</span>}

@@ -42,9 +42,9 @@ export const MinhasEstatisticasAlunoView: React.FC<MinhasEstatisticasAlunoViewPr
   return (
     <div className="space-y-6">
       {/* Header do Perfil do Aluno */}
-      <div className="bg-[#131926] border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-[#131926] border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-serif text-2xl font-bold shadow-lg shadow-emerald-950/50">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-serif text-xl sm:text-2xl font-bold shadow-lg shadow-emerald-950/50 shrink-0">
             {usuario.nome.charAt(0)}
           </div>
           <div>
@@ -65,7 +65,7 @@ export const MinhasEstatisticasAlunoView: React.FC<MinhasEstatisticasAlunoViewPr
 
         <button
           onClick={onExplorarAcervo}
-          className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shadow-md active:scale-95"
+          className="w-full sm:w-auto px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
         >
           <BookOpen className="w-4 h-4" />
           <span>Explorar Acervo & Comentar</span>

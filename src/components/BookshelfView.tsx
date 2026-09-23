@@ -145,22 +145,22 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
           </div>
 
           {/* O Contêiner da Estante */}
-          <div className="relative bg-[#131926] rounded-3xl p-5 sm:p-7 border border-slate-800 shadow-xl">
+          <div className="relative bg-[#131926] rounded-2xl sm:rounded-3xl p-3 sm:p-5 md:p-7 border border-slate-800 shadow-xl w-full max-w-full overflow-hidden">
             {/* Linha de Livros com scroll horizontal suave */}
-            <div className="overflow-x-auto scrollbar-thin pb-4 pt-2">
-              <div className="flex items-end gap-5 sm:gap-7 min-w-max px-2">
+            <div className="overflow-x-auto scrollbar-thin pb-4 pt-2 w-full max-w-full">
+              <div className="flex items-end gap-4 sm:gap-7 min-w-max px-1 sm:px-2">
                 {shelf.livros.map(livro => {
                   const disponivel = livro.disponiveis > 0;
 
                   return (
                     <div
                       key={livro.id}
-                      className="group flex flex-col items-center w-36 sm:w-40 md:w-44 select-none shrink-0"
+                      className="group flex flex-col items-center w-32 sm:w-40 md:w-44 select-none shrink-0"
                     >
                       {/* Capa do Livro na Prateleira */}
                       <div
                         onClick={() => onVerDetalhes(livro)}
-                        className="relative w-32 sm:w-36 md:w-38 h-48 sm:h-52 md:h-56 cursor-pointer transition-all duration-200 ease-out group-hover:-translate-y-2 group-hover:scale-[1.02]"
+                        className="relative w-28 sm:w-36 md:w-38 h-42 sm:h-52 md:h-56 cursor-pointer transition-all duration-200 ease-out group-hover:-translate-y-2 group-hover:scale-[1.02]"
                         title={`Clique para ver detalhes de "${livro.titulo}"`}
                       >
                         {/* Sombra de Contato na Prateleira */}

@@ -72,12 +72,12 @@ export const RelatoriosView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full min-w-0 overflow-hidden">
       {/* Top Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#131926] p-6 rounded-3xl border border-slate-800 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#131926] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800 shadow-sm w-full max-w-full overflow-hidden">
         <div>
           <h2 className="text-2xl font-serif font-bold text-white tracking-tight flex items-center gap-2.5">
-            <BarChart3 className="w-6 h-6 text-amber-400" />
+            <BarChart3 className="w-6 h-6 text-amber-400 shrink-0" />
             <span>Relatórios & Estatísticas</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">

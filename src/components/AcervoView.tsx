@@ -220,7 +220,7 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
       {/* 3. SEÇÃO PRINCIPAL: CATÁLOGO COMPLETO, BUSCA, FILTROS E ESTANTES */}
       <div id="secao-catalogo-completo" className="pt-2 space-y-6">
         {/* Barra de Ações & Estatísticas do Catálogo */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#131926] p-5 sm:p-6 rounded-3xl border border-slate-800/80 shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#131926] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800/80 shadow-xl">
           <div>
             <h2 className="text-2xl font-serif font-bold text-white tracking-tight flex items-center gap-2.5">
               <BookOpen className="w-6 h-6 text-amber-400" />
@@ -303,102 +303,106 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
         )}
 
         {/* Barra de Filtros e Busca */}
-        <div className="bg-[#131926] p-4 sm:p-5 rounded-2xl border border-slate-800/80 shadow-md space-y-3">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
-              <input
-                type="text"
-                id="input-busca-acervo"
-                placeholder="Buscar por título, autor, ISBN, código de prateleira..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-9 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-              />
-              {searchTerm && (
+        <div className="bg-[#131926] p-3.5 sm:p-5 rounded-2xl border border-slate-800/80 shadow-md space-y-3 w-full max-w-full overflow-hidden">
+          {/* Campo de Busca Superior */}
+          <div className="relative w-full">
+            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+            <input
+              type="text"
+              id="input-busca-acervo"
+              placeholder="Buscar por título, autor, ISBN, código de prateleira..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-9 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-2.5 p-0.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Limpar busca"
+                aria-label="Limpar busca"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Linha de Controles & Filtros responsiva com quebra inteligente */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+              {/* Filtro de Categoria */}
+              <select
+                id="select-categoria-acervo"
+                value={selectedCategoria}
+                onChange={e => setSelectedCategoria(e.target.value)}
+                className="px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-amber-500 max-w-[180px] sm:max-w-[220px]"
+              >
+                <option value="todas">Todas as Categorias ({livros.length})</option>
+                {categorias.map(cat => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+
+              {/* Filtro de Disponibilidade */}
+              <div className="inline-flex rounded-xl border border-slate-700/80 p-0.5 bg-slate-900 shrink-0">
+                <button
+                  onClick={() => setFiltroDisponibilidade('todos')}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                    filtroDisponibilidade === 'todos'
+                      ? 'bg-slate-800 text-white shadow-xs'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Todos
+                </button>
+                <button
+                  onClick={() => setFiltroDisponibilidade('disponiveis')}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                    filtroDisponibilidade === 'disponiveis'
+                      ? 'bg-emerald-500/20 text-emerald-300 shadow-xs border border-emerald-500/30'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Disponíveis
+                </button>
+                <button
+                  onClick={() => setFiltroDisponibilidade('esgotados')}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                    filtroDisponibilidade === 'esgotados'
+                      ? 'bg-rose-500/20 text-rose-300 shadow-xs border border-rose-500/30'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Esgotados
+                </button>
+              </div>
+
+              {/* Botão Reset de Filtros se algum estiver ativo */}
+              {(searchTerm || selectedCategoria !== 'todas' || filtroDisponibilidade !== 'todos') && (
                 <button
                   type="button"
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-2.5 p-0.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-                  title="Limpar busca"
-                  aria-label="Limpar busca"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedCategoria('todas');
+                    setFiltroDisponibilidade('todos');
+                  }}
+                  className="px-2.5 py-1 text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all flex items-center gap-1 shrink-0 cursor-pointer"
+                  title="Resetar todos os filtros de busca"
                 >
                   <X className="w-3.5 h-3.5" />
+                  <span>Limpar</span>
                 </button>
               )}
             </div>
 
-            {/* Filtro de Categoria */}
-            <select
-              id="select-categoria-acervo"
-              value={selectedCategoria}
-              onChange={e => setSelectedCategoria(e.target.value)}
-              className="px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
-            >
-              <option value="todas">Todas as Categorias ({livros.length})</option>
-              {categorias.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-
-            {/* Filtro de Disponibilidade */}
-            <div className="inline-flex rounded-xl border border-slate-700/80 p-0.5 bg-slate-900">
-              <button
-                onClick={() => setFiltroDisponibilidade('todos')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
-                  filtroDisponibilidade === 'todos'
-                    ? 'bg-slate-800 text-white shadow-xs'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Todos
-              </button>
-              <button
-                onClick={() => setFiltroDisponibilidade('disponiveis')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
-                  filtroDisponibilidade === 'disponiveis'
-                    ? 'bg-emerald-500/20 text-emerald-300 shadow-xs border border-emerald-500/30'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Disponíveis
-              </button>
-              <button
-                onClick={() => setFiltroDisponibilidade('esgotados')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
-                  filtroDisponibilidade === 'esgotados'
-                    ? 'bg-rose-500/20 text-rose-300 shadow-xs border border-rose-500/30'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Esgotados
-              </button>
-            </div>
-
-            {/* Botão Reset de Filtros se algum estiver ativo */}
-            {(searchTerm || selectedCategoria !== 'todas' || filtroDisponibilidade !== 'todos') && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedCategoria('todas');
-                  setFiltroDisponibilidade('todos');
-                }}
-                className="px-3 py-2 text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-                title="Resetar todos os filtros de busca"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Limpar Filtros</span>
-              </button>
-            )}
-
             {/* Alternador de Visualização: Estante / Grade / Tabela */}
-            <div className="hidden sm:inline-flex rounded-xl border border-slate-700/80 p-0.5 bg-slate-900 shrink-0">
+            <div className="inline-flex rounded-xl border border-slate-700/80 p-0.5 bg-slate-900 shrink-0">
               <button
                 onClick={() => setViewMode('prateleiras')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === 'prateleiras'
                     ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-white'
@@ -410,7 +414,7 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === 'grid'
                     ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-white'
@@ -422,7 +426,7 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
               </button>
               <button
                 onClick={() => setViewMode('table')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === 'table'
                     ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-white'
@@ -481,7 +485,7 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
           />
         ) : viewMode === 'grid' ? (
           /* Visualização em Grade */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {livrosFiltrados.map(livro => (
               <BookCard
                 key={livro.id}

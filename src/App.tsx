@@ -20,6 +20,7 @@ import { LoginModal } from './components/LoginModal';
 import { TutorialProfessoresModal } from './components/TutorialProfessoresModal';
 import { DatabaseStatusModal } from './components/DatabaseStatusModal';
 import { TabletKioskView } from './components/TabletKioskView';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import {
   ShieldCheck,
   HelpCircle,
@@ -204,9 +205,15 @@ export default function App() {
   const isProfessor = usuarioAtual?.role === 'professor';
 
   return (
-    <div className="min-h-screen bg-[#0b0e14] text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
-      {/* Header com Navegação, Perfil e Ações Rápidas */}
-      <Navbar
+    <div
+      className={`min-h-screen bg-[#0b0e14] text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950 w-full max-w-full ${
+        isTabletKioskOpen ? 'h-screen overflow-hidden' : 'overflow-x-hidden'
+      }`}
+    >
+      {/* Container Principal do Modo Normal (ocultado durante o Totem para eliminar a barra de rolagem duplicada) */}
+      <div className={isTabletKioskOpen ? 'hidden' : 'flex flex-col flex-1 min-w-0 w-full'}>
+        {/* Header com Navegação, Perfil e Ações Rápidas */}
+        <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         usuarioAtual={usuarioAtual}
@@ -245,7 +252,7 @@ export default function App() {
       )}
 
       {/* Conteúdo Principal de cada Aba */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3.5 sm:py-6 lg:py-8 pb-20 md:pb-8 min-w-0">
         {/* Aba Exclusiva do Aluno: Minhas Estatísticas & Leituras */}
         {usuarioAtual?.role === 'aluno' && activeTab === 'minhas-estatisticas' && (
           <MinhasEstatisticasAlunoView
@@ -305,7 +312,7 @@ export default function App() {
       </main>
 
       {/* Rodapé Informativo */}
-      <footer className="bg-[#0f1420] border-t border-slate-800/80 py-6 text-xs text-slate-400">
+      <footer className="bg-[#0f1420] border-t border-slate-800/80 py-6 mb-16 md:mb-0 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-slate-400">
             <span className="font-serif font-bold text-white text-sm">LibreOteca</span>
@@ -339,6 +346,24 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Barra de Navegação Inferior Exclusiva para Celular e Tablet (Acessibilidade Móvel) */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        usuarioAtual={usuarioAtual}
+        onOpenLoginModal={() => setIsLoginModalOpen(true)}
+        onOpenTutorial={() => setIsTutorialOpen(true)}
+        onOpenTabletKiosk={() => setIsTabletKioskOpen(true)}
+        totalLivros={livros.length}
+        totalEmprestimosAtivos={totalEmprestimosAtivos}
+        totalAtrasados={totalAtrasados}
+        totalComentarios={totalComentarios}
+        onNovoEmprestimo={handleNovoEmprestimoGeral}
+        onNovoLivro={handleOpenNovoLivro}
+        onExplorarOpenLibrary={() => setIsOpenLibraryExplorerOpen(true)}
+      />
+      </div>
 
       {/* MODAIS GLOBAIS */}
 

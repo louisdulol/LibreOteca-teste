@@ -91,12 +91,12 @@ export const LeitoresView: React.FC<LeitoresViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full min-w-0 overflow-hidden">
       {/* Top Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#131926] p-6 rounded-3xl border border-slate-800 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#131926] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800 shadow-sm w-full max-w-full overflow-hidden">
         <div>
           <h2 className="text-2xl font-serif font-bold text-white tracking-tight flex items-center gap-2.5">
-            <Users className="w-6 h-6 text-amber-400" />
+            <Users className="w-6 h-6 text-amber-400 shrink-0" />
             <span>Gestão de Leitores & LGPD</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
@@ -124,7 +124,7 @@ export const LeitoresView: React.FC<LeitoresViewProps> = ({
       </div>
 
       {/* Filtros e Busca */}
-      <div className="bg-[#131926] p-4 rounded-3xl border border-slate-800 shadow-sm space-y-3">
+      <div className="bg-[#131926] p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border border-slate-800 shadow-sm space-y-3">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
@@ -215,25 +215,25 @@ export const LeitoresView: React.FC<LeitoresViewProps> = ({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 w-full max-w-full">
           {leitoresFiltrados.map(leitor => {
             const pend = pendenciasPorLeitor.get(leitor.id) || { totalAbertos: 0, totalAtrasados: 0 };
             return (
               <div
                 key={leitor.id}
-                className={`p-5 bg-[#131926] rounded-2xl border transition-all duration-200 flex flex-col justify-between space-y-3 ${
+                className={`p-4 sm:p-5 bg-[#131926] rounded-2xl border transition-all duration-200 flex flex-col justify-between space-y-3 w-full max-w-full min-w-0 overflow-hidden ${
                   pend.totalAtrasados > 0
                     ? 'border-rose-800/80 bg-rose-950/15'
                     : 'border-slate-800 hover:border-slate-700'
                 }`}
               >
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-2">
+                <div className="min-w-0">
+                  <div className="flex items-start justify-between gap-2 min-w-0">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 min-w-0">
                         <h4
                           onClick={() => onEditarLeitor(leitor)}
-                          className="text-sm font-bold text-white line-clamp-1 hover:text-amber-400 cursor-pointer"
+                          className="text-sm font-bold text-white truncate hover:text-amber-400 cursor-pointer"
                         >
                           {leitor.nome}
                         </h4>
