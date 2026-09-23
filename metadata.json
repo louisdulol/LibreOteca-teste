@@ -1,6 +1,6 @@
 {
   "name": "LibreOteca",
-  "description": "Sistema de gestão e busca de acervo para bibliotecas públicas e escolares com integração à Open Library",
+  "description": "Sistema de Gestão para bibliotecas em geral, automatizando acervo, empréstimos, leitores e relatórios",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

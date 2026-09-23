@@ -7,7 +7,6 @@ import {
   BarChart3,
   Settings,
   Sparkles,
-  HelpCircle,
   GraduationCap,
   MessageSquare,
   TrendingUp,
@@ -89,20 +88,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Botões Centrais e Direita */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Botão de Ajuda & Tutorial para Professores */}
-            {isProfessor && (
-              <button
-                onClick={onOpenTutorial}
-                id="btn-tutorial-guia"
-                className="p-1.5 sm:p-2 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-300 border border-slate-200 dark:border-slate-700 hover:border-amber-500/40 transition-colors shadow-xs cursor-pointer flex items-center justify-center"
-                title="Guia Passo a Passo para professores e bibliotecários"
-                aria-label="Guia Passo a Passo"
-              >
-                <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600 dark:text-amber-400" />
-              </button>
-            )}
-
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Controles exclusivos para Professor */}
             {isProfessor && (
               <>
@@ -138,11 +124,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span>Novo Livro</span>
                 </button>
 
-                {/* Botão Novo Empréstimo */}
+                {/* Botão Novo Empréstimo (oculto no mobile para evitar sobreposição, acessível pelo menu Mais) */}
                 <button
                   id="btn-novo-emprestimo-topo"
                   onClick={onNovoEmprestimo}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xs transition-all active:scale-95"
+                  className="hidden md:flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xs transition-all active:scale-95 shrink-0"
                 >
                   <ArrowRightLeft className="w-3.5 h-3.5" />
                   <span>Empréstimo</span>

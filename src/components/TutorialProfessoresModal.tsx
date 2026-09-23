@@ -171,7 +171,7 @@ export const TutorialProfessoresModal: React.FC<TutorialProfessoresModalProps> =
           `
           ).join('')}
           <div class="footer">
-            LibreOteca • Sistema Livre para Bibliotecas Públicas e Escolares • Imprimido em ${new Date().toLocaleDateString('pt-BR')}
+            LibreOteca • Sistema de Gestão para Bibliotecas • Imprimido em ${new Date().toLocaleDateString('pt-BR')}
           </div>
           <script>window.onload = function() { window.print(); }</script>
         </body>

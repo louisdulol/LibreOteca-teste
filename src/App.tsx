@@ -273,7 +273,6 @@ export default function App() {
             onEmprestarLivro={handleEmprestarLivro}
             onEditarLivro={handleEditarLivro}
             onVerDetalhes={handleVerDetalhesLivro}
-            onOpenTabletKiosk={() => setIsTabletKioskOpen(true)}
           />
         )}
 
@@ -317,7 +316,7 @@ export default function App() {
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-slate-400">
             <span className="font-serif font-bold text-white text-sm">LibreOteca</span>
             <span>•</span>
-            <span>Sistema Livre de Gestão para Bibliotecas Escolares e Comunitárias</span>
+            <span>Sistema de Gestão para Bibliotecas</span>
             <span>•</span>
             <a
               href="https://wole-br.pages.dev/"
@@ -332,7 +331,7 @@ export default function App() {
           <div className="flex items-center gap-4 text-[11px]">
             <span className="flex items-center gap-1 text-slate-400">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              LGPD & Filtro Anti-Bullying Ativo
+              Conformidade LGPD
             </span>
             {isProfessor && (
               <button

@@ -60,18 +60,9 @@ export const DatabaseStatusModal: React.FC<DatabaseStatusModalProps> = ({
     }
   };
 
-  const handleDownloadSql = () => {
-    const sql = StorageService.gerarSqlSupabase();
-    const blob = new Blob([sql], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'libreoteca_supabase_migration.sql';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    setFeedback('Script SQL para Supabase gerado e baixado com sucesso!');
+  const handleDownloadBackupJson = () => {
+    StorageService.exportarBackupCompletoJson();
+    setFeedback('Backup estruturado JSON (Firestore) baixado com sucesso!');
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -202,11 +193,11 @@ export const DatabaseStatusModal: React.FC<DatabaseStatusModalProps> = ({
             </button>
 
             <button
-              onClick={handleDownloadSql}
+              onClick={handleDownloadBackupJson}
               className="px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
             >
-              <FileCode className="w-4 h-4 text-amber-500 dark:text-amber-400" />
-              <span>Exportar Schema SQL</span>
+              <FileCode className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+              <span>Exportar Backup (JSON)</span>
             </button>
 
             <button

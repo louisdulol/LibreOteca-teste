@@ -92,14 +92,8 @@ export const MuralComentariosView: React.FC<MuralComentariosViewProps> = ({
             <span>Mural de Opiniões & Resenhas</span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Espaço aberto para os alunos compartilharem reflexões, notas e impressões sobre as leituras do acervo.
+            Espaço aberto para os leitores compartilharem reflexões, notas e impressões sobre os livros do acervo.
           </p>
-        </div>
-
-        {/* Badge do Filtro Anti-Maldades */}
-        <div className="flex items-center gap-2 px-3.5 py-2 bg-emerald-950/40 border border-emerald-800/60 text-emerald-300 rounded-2xl text-xs font-medium">
-          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>Filtro de Respeito Escolar Ativo</span>
         </div>
       </div>
 

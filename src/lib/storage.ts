@@ -1460,6 +1460,33 @@ export const StorageService = {
     downloadCsv('leitores_libreoteca.csv', headers, rows);
   },
 
+  exportarBackupCompletoJson(): void {
+    const backup = {
+      sistema: 'LibreOteca - Sistema de Gestão para Bibliotecas',
+      versao: '2.0',
+      data_exportacao: new Date().toISOString(),
+      banco_dados: 'Google Cloud Firestore',
+      dados: {
+        configuracoes: this.getConfiguracoes(),
+        livros: this.getLivros(),
+        leitores: this.getLeitores(),
+        emprestimos: this.getEmprestimos(),
+        comentarios: this.getComentarios(),
+        auditoria: this.getAuditoria(),
+      },
+    };
+    const jsonStr = JSON.stringify(backup, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_libreoteca_firestore_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
   gerarSqlSupabase(): string {
     return `-- ==========================================================
 -- SCRIPT DE MIGRATION LIBREOTECA (Supabase / PostgreSQL)

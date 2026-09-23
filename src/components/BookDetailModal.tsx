@@ -285,18 +285,13 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           </div>
         )}
 
-        {/* SEÇÃO DE COMENTÁRIOS E RESENHAS DOS ALUNOS */}
+        {/* SEÇÃO DE COMENTÁRIOS E RESENHAS */}
         <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
           <div className="flex items-center justify-between">
             <h5 className="text-sm font-serif font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-amber-500" />
               <span>Opiniões & Comentários ({comentarios.length})</span>
             </h5>
-
-            <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/60 font-medium">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Filtro Anti-Bullying Ativo</span>
-            </div>
           </div>
 
           {/* Feedback de envio de comentário */}

@@ -41,7 +41,6 @@ interface AcervoViewProps {
   onEmprestarLivro: (livro: Livro) => void;
   onEditarLivro: (livro: Livro) => void;
   onVerDetalhes: (livro: Livro) => void;
-  onOpenTabletKiosk?: () => void;
 }
 
 export const AcervoView: React.FC<AcervoViewProps> = ({
@@ -53,7 +52,6 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
   onEmprestarLivro,
   onEditarLivro,
   onVerDetalhes,
-  onOpenTabletKiosk,
 }) => {
   const isProfessor = usuarioAtual?.role === 'professor';
 
@@ -232,19 +230,6 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* Botão Modo Totem Tablet para consulta rápida */}
-            {onOpenTabletKiosk && (
-              <button
-                id="btn-abrir-totem-acervo"
-                onClick={onOpenTabletKiosk}
-                className="p-2.5 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 hover:border-amber-400 transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center"
-                title="Modo Totem (Autoatendimento e Consulta)"
-                aria-label="Modo Totem"
-              >
-                <Tablet className="w-4 h-4 text-amber-400" />
-              </button>
-            )}
-
             {isProfessor ? (
               <>
                 <button
@@ -328,29 +313,49 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
             )}
           </div>
 
-          {/* Linha de Controles & Filtros responsiva com quebra inteligente */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5">
-            <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
-              {/* Filtro de Categoria */}
-              <select
-                id="select-categoria-acervo"
-                value={selectedCategoria}
-                onChange={e => setSelectedCategoria(e.target.value)}
-                className="px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-amber-500 max-w-[180px] sm:max-w-[220px]"
-              >
-                <option value="todas">Todas as Categorias ({livros.length})</option>
-                {categorias.map(cat => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+          {/* Linha de Controles & Filtros responsiva com quebra inteligente e sem sobreposição */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 w-full">
+            {/* Categoria e Filtro de Disponibilidade */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full lg:w-auto">
+              {/* Filtro de Categoria com Botão Limpar */}
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <select
+                  id="select-categoria-acervo"
+                  value={selectedCategoria}
+                  onChange={e => setSelectedCategoria(e.target.value)}
+                  className="flex-1 sm:flex-initial px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-amber-500 sm:max-w-[220px]"
+                >
+                  <option value="todas">Todas as Categorias ({livros.length})</option>
+                  {categorias.map(cat => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Botão Reset de Filtros se algum estiver ativo */}
+                {(searchTerm || selectedCategoria !== 'todas' || filtroDisponibilidade !== 'todos') && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSelectedCategoria('todas');
+                      setFiltroDisponibilidade('todos');
+                    }}
+                    className="px-2.5 py-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all flex items-center gap-1 shrink-0 cursor-pointer"
+                    title="Resetar todos os filtros de busca"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Limpar</span>
+                  </button>
+                )}
+              </div>
 
               {/* Filtro de Disponibilidade */}
-              <div className="inline-flex rounded-xl border border-slate-700/80 p-0.5 bg-slate-900 shrink-0">
+              <div className="inline-flex w-full sm:w-auto rounded-xl border border-slate-700/80 p-0.5 bg-slate-900 shrink-0">
                 <button
                   onClick={() => setFiltroDisponibilidade('todos')}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                  className={`flex-1 sm:flex-initial px-3 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer text-center ${
                     filtroDisponibilidade === 'todos'
                       ? 'bg-slate-800 text-white shadow-xs'
                       : 'text-slate-400 hover:text-white'
@@ -360,7 +365,7 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
                 </button>
                 <button
                   onClick={() => setFiltroDisponibilidade('disponiveis')}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                  className={`flex-1 sm:flex-initial px-3 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer text-center ${
                     filtroDisponibilidade === 'disponiveis'
                       ? 'bg-emerald-500/20 text-emerald-300 shadow-xs border border-emerald-500/30'
                       : 'text-slate-400 hover:text-white'
@@ -370,7 +375,7 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
                 </button>
                 <button
                   onClick={() => setFiltroDisponibilidade('esgotados')}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                  className={`flex-1 sm:flex-initial px-3 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer text-center ${
                     filtroDisponibilidade === 'esgotados'
                       ? 'bg-rose-500/20 text-rose-300 shadow-xs border border-rose-500/30'
                       : 'text-slate-400 hover:text-white'
@@ -379,30 +384,13 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
                   Esgotados
                 </button>
               </div>
-
-              {/* Botão Reset de Filtros se algum estiver ativo */}
-              {(searchTerm || selectedCategoria !== 'todas' || filtroDisponibilidade !== 'todos') && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setSelectedCategoria('todas');
-                    setFiltroDisponibilidade('todos');
-                  }}
-                  className="px-2.5 py-1 text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all flex items-center gap-1 shrink-0 cursor-pointer"
-                  title="Resetar todos os filtros de busca"
-                >
-                  <X className="w-3.5 h-3.5" />
-                  <span>Limpar</span>
-                </button>
-              )}
             </div>
 
             {/* Alternador de Visualização: Estante / Grade / Tabela */}
-            <div className="inline-flex rounded-xl border border-slate-700/80 p-0.5 bg-slate-900 shrink-0">
+            <div className="inline-flex w-full lg:w-auto rounded-xl border border-slate-700/80 p-0.5 bg-slate-900 shrink-0">
               <button
                 onClick={() => setViewMode('prateleiras')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex-1 lg:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewMode === 'prateleiras'
                     ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-white'
@@ -414,7 +402,7 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex-1 lg:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewMode === 'grid'
                     ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-white'
@@ -426,7 +414,7 @@ export const AcervoView: React.FC<AcervoViewProps> = ({
               </button>
               <button
                 onClick={() => setViewMode('table')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex-1 lg:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewMode === 'table'
                     ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-white'
