@@ -305,7 +305,7 @@ export async function cadastrarContaFirebase(
 
     // 3. Gravação do Perfil no Firestore na coleção /users/{uid}
     const userDocRef = doc(db, 'users', uid);
-    const profileData: ContaUsuario = {
+    const profileData: ContaUsuario & { codigo_convite?: string } = {
       id: uid,
       nome: nome.trim(),
       email: emailLimpo,
@@ -316,6 +316,7 @@ export async function cadastrarContaFirebase(
       telefone: telefone?.trim() || undefined,
       criado_em: agora,
       avatar_cor: avatarCor,
+      codigo_convite: role === 'professor' ? (codigoAcessoProfessor || '').trim() : undefined,
     };
 
     const sanitizedProfile = sanitizeFirestoreData(profileData);

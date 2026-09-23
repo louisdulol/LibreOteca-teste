@@ -25,6 +25,8 @@ import {
   deleteEmprestimoFirestore,
   fetchEmprestimosFirestore,
   subscribeEmprestimos,
+  realizarEmprestimoTransacionalFirestore,
+  realizarDevolucaoTransacionalFirestore,
   saveComentarioFirestore,
   deleteComentarioFirestore,
   fetchComentariosFirestore,
@@ -269,6 +271,9 @@ export const StorageService = {
         safeSet(STORAGE_KEYS.LIVROS, cloudLivros);
       }
 
+      const sessao = this.getSessaoUsuario();
+      const isProfessor = sessao?.role === 'professor';
+
       subscribeLivros(livros => {
         if (livros.length > 0) {
           safeSet(STORAGE_KEYS.LIVROS, livros);
@@ -277,16 +282,20 @@ export const StorageService = {
 
       subscribeComentarios(comentarios => {
         safeSet(STORAGE_KEYS.COMENTARIOS, comentarios);
-      });
+      }, isProfessor);
 
       const cloudConfig = await fetchConfiguracoesFirestore();
       if (cloudConfig) {
         safeSet(STORAGE_KEYS.CONFIGURACOES, cloudConfig);
       }
 
-      const sessao = this.getSessaoUsuario();
-      if (sessao?.role === 'professor') {
+      if (isProfessor) {
         this.sincronizarColecoesRestritas();
+      } else if (sessao?.leitor_id || sessao?.id) {
+        // Aluno autenticado: subscreve apenas seus próprios empréstimos
+        subscribeEmprestimos(emprestimos => {
+          safeSet(STORAGE_KEYS.EMPRESTIMOS, emprestimos);
+        }, { isProfessor: false, leitorId: sessao.leitor_id || sessao.id });
       }
     } catch (err) {
       console.warn('Operando com armazenamento local e resiliência offline:', err);
@@ -315,7 +324,7 @@ export const StorageService = {
 
     subscribeEmprestimos(emprestimos => {
       safeSet(STORAGE_KEYS.EMPRESTIMOS, emprestimos);
-    });
+    }, { isProfessor: true });
   },
 
   // LIVROS
@@ -606,12 +615,18 @@ export const StorageService = {
 
     livros[livroIndex].disponiveis -= 1;
     safeSet(STORAGE_KEYS.LIVROS, livros);
-    saveLivroFirestore(livros[livroIndex]).catch(e => console.warn('Sync Livro Firestore:', e));
 
     const emprestimos = this.getEmprestimos();
     emprestimos.unshift(novoEmprestimo);
     safeSet(STORAGE_KEYS.EMPRESTIMOS, emprestimos);
-    saveEmprestimoFirestore(novoEmprestimo).catch(e => console.warn('Sync Emprestimo Firestore:', e));
+
+    // Concorrência protegida: transação atômica no Firestore
+    realizarEmprestimoTransacionalFirestore(novoEmprestimo, dados.livro_id).catch(e => {
+      console.warn('Sync Emprestimo Transacional Firestore:', e);
+      // Fallback em caso de erro transacional
+      saveLivroFirestore(livros[livroIndex]).catch(() => {});
+      saveEmprestimoFirestore(novoEmprestimo).catch(() => {});
+    });
 
     const leitor = this.getLeitorById(dados.leitor_id);
     this.addAuditoria('CRIAR_EMPRESTIMO', 'emprestimos', novoEmprestimo.id, `Empréstimo registrado: Livro "${livros[livroIndex].titulo}" para ${leitor?.nome || 'Leitor'}`);
@@ -633,17 +648,23 @@ export const StorageService = {
       return { success: false, message: 'Este empréstimo já foi dado como devolvido anteriormente.' };
     }
 
-    emp.devolvido_em = new Date().toISOString().split('T')[0];
+    const hoje = new Date().toISOString().split('T')[0];
+    emp.devolvido_em = hoje;
     safeSet(STORAGE_KEYS.EMPRESTIMOS, emprestimos);
-    saveEmprestimoFirestore(emp).catch(e => console.warn('Sync Devolver Firestore:', e));
 
     const livros = this.getLivros();
     const livro = livros.find(l => l.id === emp.livro_id);
     if (livro) {
       livro.disponiveis = Math.min(livro.total_exemplares, livro.disponiveis + 1);
       safeSet(STORAGE_KEYS.LIVROS, livros);
-      saveLivroFirestore(livro).catch(e => console.warn('Sync Livro Dev Firestore:', e));
     }
+
+    // Devolução atômica no Firestore: fecha empréstimo e incrementa acervo simultaneamente
+    realizarDevolucaoTransacionalFirestore(emp.id, emp.livro_id, hoje).catch(e => {
+      console.warn('Sync Devolução Transacional Firestore:', e);
+      saveEmprestimoFirestore(emp).catch(() => {});
+      if (livro) saveLivroFirestore(livro).catch(() => {});
+    });
 
     const leitor = this.getLeitorById(emp.leitor_id);
     this.addAuditoria('DEVOLVER_EMPRESTIMO', 'emprestimos', emp.id, `Devolução registrada: Livro "${livro?.titulo || 'Desconhecido'}" devolvido por ${leitor?.nome || 'Leitor'}`);

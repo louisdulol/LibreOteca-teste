@@ -29,19 +29,15 @@ service cloud.firestore {
       return resource.data;
     }
 
-    // Super Admin com privilégios verificados
+    // Super Admin com privilégios verificados exclusivamente via coleção confiável /admins
     function isSuperAdmin() {
-      return isSignedIn() && (
-        request.auth.token.email == 'lipizinjiga14@gmail.com' ||
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-      );
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // Verificação de papel de Professor / Bibliotecário no documento confiável do Firestore
+    // Verificação de papel de Professor / Bibliotecário com leitura única otimizada
     function isProfessor() {
       return isSuperAdmin() || (
         isSignedIn() &&
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'professor'
       );
     }
@@ -52,12 +48,13 @@ service cloud.firestore {
 
     function isValidUser(data) {
       return data.keys().hasAll(['id', 'nome', 'email', 'role', 'criado_em']) &&
-        data.keys().hasOnly(['id', 'uid', 'nome', 'email', 'role', 'matricula', 'turma', 'telefone', 'criado_em', 'avatar_cor', 'senhaHash']) &&
+        data.keys().hasOnly(['id', 'uid', 'nome', 'email', 'role', 'matricula', 'turma', 'telefone', 'criado_em', 'avatar_cor', 'senhaHash', 'codigo_convite']) &&
         data.id is string && data.id.size() <= 128 &&
         data.nome is string && data.nome.size() >= 2 && data.nome.size() <= 150 &&
         data.email is string && data.email.size() <= 150 &&
         data.role in ['professor', 'aluno'] &&
-        data.criado_em is string && data.criado_em.size() <= 50;
+        data.criado_em is string && data.criado_em.size() <= 50 &&
+        (!('codigo_convite' in data) || (data.codigo_convite is string && data.codigo_convite.size() <= 100));
     }
 
     function isValidLivro(data) {
@@ -133,13 +130,23 @@ service cloud.firestore {
       // Listagem completa de usuários restrita a professores/administradores
       allow list: if isProfessor();
 
-      // Criação de perfil: próprio usuário cadastrando-se
+      // Criação de perfil: alunos livremente; professor exige código mestre ou autorização de super admin
       allow create: if isValidId(userId) &&
         isSignedIn() &&
         request.auth.uid == userId &&
         isValidUser(incoming()) &&
         (
-          incoming().role in ['aluno', 'professor']
+          incoming().role == 'aluno' ||
+          (
+            incoming().role == 'professor' && (
+              isSuperAdmin() ||
+              (
+                exists(/databases/$(database)/documents/configuracoes/geral) &&
+                incoming().get('codigo_convite', '') == get(/databases/$(database)/documents/configuracoes/geral).data.get('codigo_mestre_professor', '') &&
+                incoming().get('codigo_convite', '') != ''
+              )
+            )
+          )
         );
 
       // Atualização de perfil: dados pessoais editáveis, mas BLOQUEIO de auto-escalação de papel
@@ -299,9 +306,9 @@ service cloud.firestore {
       // Consulta restrita a professores/administradores
       allow read: if isValidId(auditoriaId) && isProfessor();
 
-      // Registro permitido a qualquer usuário autenticado registrando sua própria ação
+      // Registro estritamente restrito a professores/administradores registrando suas próprias ações
       allow create: if isValidId(auditoriaId) &&
-        isSignedIn() &&
+        isProfessor() &&
         incoming().usuario_id == request.auth.uid &&
         isValidAuditoria(incoming());
 

@@ -14,7 +14,8 @@
         "turma": { "type": "string", "maxLength": 50 },
         "telefone": { "type": "string", "maxLength": 30 },
         "criado_em": { "type": "string", "maxLength": 50 },
-        "avatar_cor": { "type": "string", "maxLength": 40 }
+        "avatar_cor": { "type": "string", "maxLength": 40 },
+        "codigo_convite": { "type": "string", "maxLength": 100 }
       },
       "required": ["uid", "nome", "email", "role", "criado_em"]
     },

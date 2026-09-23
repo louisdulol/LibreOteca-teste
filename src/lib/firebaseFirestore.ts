@@ -7,8 +7,10 @@ import {
   deleteDoc,
   onSnapshot,
   query,
+  where,
   orderBy,
   limit,
+  runTransaction,
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import {
@@ -278,16 +280,121 @@ export async function deleteEmprestimoFirestore(id: string): Promise<boolean> {
   }
 }
 
-export function subscribeEmprestimos(callback: (emprestimos: Emprestimo[]) => void) {
+// Realiza o empréstimo de forma atômica com Firestore runTransaction,
+// impedindo que duas pessoas retirem o último exemplar simultaneamente.
+export async function realizarEmprestimoTransacionalFirestore(
+  emprestimo: Emprestimo,
+  livroId: string
+): Promise<{ success: boolean; message?: string }> {
+  const path = `${COLLECTIONS.EMPRESTIMOS}/${emprestimo.id}`;
+  try {
+    await runTransaction(db, async transaction => {
+      const livroRef = doc(db, COLLECTIONS.LIVROS, livroId);
+      const livroDoc = await transaction.get(livroRef);
+
+      if (!livroDoc.exists()) {
+        throw new Error('Livro não encontrado no catálogo do Firestore.');
+      }
+
+      const livroData = livroDoc.data() as Livro;
+      if (livroData.disponiveis <= 0) {
+        throw new Error('Exemplares esgotados no momento. Não há unidades disponíveis para empréstimo.');
+      }
+
+      // Decrementa exemplar disponível no documento do livro atomicamente
+      transaction.update(livroRef, {
+        disponiveis: livroData.disponiveis - 1,
+      });
+
+      // Cria o registro do empréstimo atomicamente
+      const empRef = doc(db, COLLECTIONS.EMPRESTIMOS, emprestimo.id);
+      const sanitized = sanitizeFirestoreData(emprestimo);
+      transaction.set(empRef, sanitized);
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    if (error instanceof Error && error.message.includes('permission-denied')) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+    }
+    console.warn('Erro na transação atômica de empréstimo:', error?.message || error);
+    return {
+      success: false,
+      message: error?.message || 'Falha ao processar empréstimo atômico.',
+    };
+  }
+}
+
+// Realiza a devolução atômica: incrementa exemplar disponível e fecha empréstimo
+export async function realizarDevolucaoTransacionalFirestore(
+  emprestimoId: string,
+  livroId: string,
+  dataDevolucao: string
+): Promise<{ success: boolean; message?: string }> {
+  const path = `${COLLECTIONS.EMPRESTIMOS}/${emprestimoId}`;
+  try {
+    await runTransaction(db, async transaction => {
+      const empRef = doc(db, COLLECTIONS.EMPRESTIMOS, emprestimoId);
+      const empDoc = await transaction.get(empRef);
+
+      if (!empDoc.exists()) {
+        throw new Error('Empréstimo não encontrado.');
+      }
+
+      const empData = empDoc.data() as Emprestimo;
+      if (empData.devolvido_em) {
+        throw new Error('Este empréstimo já foi devolvido anteriormente.');
+      }
+
+      const livroRef = doc(db, COLLECTIONS.LIVROS, livroId);
+      const livroDoc = await transaction.get(livroRef);
+      if (livroDoc.exists()) {
+        const livroData = livroDoc.data() as Livro;
+        const novosDisponiveis = Math.min(livroData.total_exemplares, livroData.disponiveis + 1);
+        transaction.update(livroRef, { disponiveis: novosDisponiveis });
+      }
+
+      transaction.update(empRef, { devolvido_em: dataDevolucao });
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    if (error instanceof Error && error.message.includes('permission-denied')) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+    }
+    console.warn('Erro na devolução transacional:', error?.message || error);
+    return {
+      success: false,
+      message: error?.message || 'Falha ao processar devolução transacional.',
+    };
+  }
+}
+
+export function subscribeEmprestimos(
+  callback: (emprestimos: Emprestimo[]) => void,
+  filtro?: { isProfessor?: boolean; leitorId?: string }
+) {
   const path = COLLECTIONS.EMPRESTIMOS;
   const colRef = collection(db, path);
+
+  // Alinha a consulta às regras de segurança: se for aluno, filtra pelo titular
+  let q: any = colRef;
+  if (!filtro?.isProfessor) {
+    if (filtro?.leitorId) {
+      q = query(colRef, where('leitor_id', '==', filtro.leitorId));
+    } else {
+      // Se for aluno sem identificador ainda carregado, não dispara query não autorizada
+      return () => {};
+    }
+  }
+
   return onSnapshot(
-    colRef,
-    snapshot => {
-      const emprestimos = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Emprestimo));
+    q,
+    (snapshot: any) => {
+      const emprestimos = snapshot.docs.map((d: any) => ({ id: d.id, ...d.data() } as Emprestimo));
       callback(emprestimos);
     },
-    err => {
+    (err: any) => {
       if (err.message.includes('permission-denied')) {
         handleFirestoreError(err, OperationType.LIST, path);
       }
@@ -300,10 +407,12 @@ export function subscribeEmprestimos(callback: (emprestimos: Emprestimo[]) => vo
 // COMENTARIOS & AVALIAÇÕES
 // ==========================================
 
-export async function fetchComentariosFirestore(): Promise<ComentarioLivro[]> {
+export async function fetchComentariosFirestore(isProfessor = false): Promise<ComentarioLivro[]> {
   const path = COLLECTIONS.COMENTARIOS;
   try {
-    const snap = await getDocs(collection(db, path));
+    const colRef = collection(db, path);
+    const q = isProfessor ? colRef : query(colRef, where('status', '==', 'aprovado'));
+    const snap = await getDocs(q);
     return snap.docs.map(d => ({ id: d.id, ...d.data() } as ComentarioLivro));
   } catch (error) {
     if (error instanceof Error && error.message.includes('permission-denied')) {
@@ -345,11 +454,17 @@ export async function deleteComentarioFirestore(id: string): Promise<boolean> {
   }
 }
 
-export function subscribeComentarios(callback: (comentarios: ComentarioLivro[]) => void) {
+export function subscribeComentarios(
+  callback: (comentarios: ComentarioLivro[]) => void,
+  isProfessor = false
+) {
   const path = COLLECTIONS.COMENTARIOS;
   const colRef = collection(db, path);
+  // Alunos e visitantes veem comentários aprovados; professores veem fila de moderação completa
+  const q = isProfessor ? colRef : query(colRef, where('status', '==', 'aprovado'));
+
   return onSnapshot(
-    colRef,
+    q,
     snapshot => {
       const comentarios = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as ComentarioLivro));
       callback(comentarios);
