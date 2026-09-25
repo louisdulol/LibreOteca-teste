@@ -7,7 +7,6 @@ import {
   loginContaFirebase,
   logoutFirebase,
 } from '../lib/firebaseAuth';
-import { CODIGO_MESTRE_PROFESSOR_PADRAO } from '../lib/firebase';
 import {
   GraduationCap,
   BookOpen,
@@ -150,15 +149,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         setFeedback({
           type: 'error',
           message: 'O Código de Acesso do Professor é obrigatório para cadastrar como Professor.',
-        });
-        return;
-      }
-
-      if (codigoInformado !== CODIGO_MESTRE_PROFESSOR_PADRAO) {
-        setFeedback({
-          type: 'error',
-          message:
-            'Código de Acesso do Professor incorreto. Solicite o código com a coordenação ou direção da escola.',
         });
         return;
       }

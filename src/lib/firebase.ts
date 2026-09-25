@@ -40,9 +40,6 @@ try {
 
 export const db: Firestore = firestoreDb;
 
-// Código mestre padrão para criação de conta de professor/administrador
-export const CODIGO_MESTRE_PROFESSOR_PADRAO = 'PROF-LIBRE-2026';
-
 /**
  * Validação de conexão inicial com o servidor Firestore
  */

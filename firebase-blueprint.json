@@ -67,6 +67,7 @@
         "id": { "type": "string", "maxLength": 128 },
         "livro_id": { "type": "string", "maxLength": 128 },
         "leitor_id": { "type": "string", "maxLength": 128 },
+        "usuario_id": { "type": "string", "maxLength": 128 },
         "emprestado_em": { "type": "string", "maxLength": 30 },
         "devolucao_prevista": { "type": "string", "maxLength": 30 },
         "devolvido_em": { "type": "string", "maxLength": 30 },
@@ -105,10 +106,18 @@
         "prazo_padrao_dias": { "type": "integer" },
         "limite_emprestimos_por_leitor": { "type": "integer" },
         "bloquear_leitor_com_atraso": { "type": "boolean" },
-        "permitir_renovacao_com_atraso": { "type": "boolean" },
-        "codigo_mestre_professor": { "type": "string", "maxLength": 100 }
+        "permitir_renovacao_com_atraso": { "type": "boolean" }
       },
       "required": ["nome_biblioteca", "prazo_padrao_dias", "limite_emprestimos_por_leitor"]
+    },
+    "AdminsConfig": {
+      "title": "AdminsConfig",
+      "description": "Configurações confidenciais e códigos mestres acessíveis apenas por super administradores",
+      "type": "object",
+      "properties": {
+        "codigo_mestre_professor": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["codigo_mestre_professor"]
     },
     "Auditoria": {
       "title": "Auditoria",
@@ -151,6 +160,10 @@
     "/configuracoes/{configId}": {
       "schema": "Configuracoes",
       "description": "Configurações institucionais da biblioteca"
+    },
+    "/admins_config/{configId}": {
+      "schema": "AdminsConfig",
+      "description": "Configurações confidenciais e códigos mestres acessíveis apenas por super administradores"
     },
     "/auditoria/{auditoriaId}": {
       "schema": "Auditoria",

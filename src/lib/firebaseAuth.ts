@@ -14,7 +14,7 @@ import {
   where,
   getDocs,
 } from 'firebase/firestore';
-import { auth, db, CODIGO_MESTRE_PROFESSOR_PADRAO } from './firebase';
+import { auth, db } from './firebase';
 import { UsuarioSessao, UserRole, ContaUsuario, Leitor } from '../types';
 import { saveLeitorFirestore, sanitizeFirestoreData } from './firebaseFirestore';
 
@@ -214,16 +214,14 @@ export async function cadastrarContaFirebase(
     const { nome, email, senha, role, codigoAcessoProfessor, matricula, turma, telefone } = payload;
     const emailLimpo = email.trim().toLowerCase();
 
-    // 1. Validação estrita do código de acesso para professores
+    // 1. Validação do código de acesso para professores
     if (role === 'professor') {
-      const codigoLimpo = (codigoAcessoProfessor || '').trim().toUpperCase();
-      const codigoEsperado = CODIGO_MESTRE_PROFESSOR_PADRAO.toUpperCase();
-
-      if (!codigoLimpo || codigoLimpo !== codigoEsperado) {
+      const codigoLimpo = (codigoAcessoProfessor || '').trim();
+      if (!codigoLimpo) {
         return {
           success: false,
           message:
-            'Código de Acesso do Professor inválido. Para criar uma conta de Professor/Administrador é obrigatório fornecer o código fornecido pela instituição.',
+            'Código de Acesso do Professor obrigatório. Para criar uma conta de Professor/Administrador é obrigatório fornecer o código fornecido pela instituição.',
         };
       }
     }
@@ -322,8 +320,15 @@ export async function cadastrarContaFirebase(
     const sanitizedProfile = sanitizeFirestoreData(profileData);
     try {
       await setDoc(userDocRef, sanitizedProfile);
-    } catch (docErr) {
+    } catch (docErr: any) {
       console.warn('Aviso ao gravar perfil no Firestore:', docErr);
+      if (role === 'professor' && (docErr?.message?.includes('permission-denied') || docErr?.code === 'permission-denied')) {
+        return {
+          success: false,
+          message:
+            'Código de Acesso do Professor incorreto ou não autorizado. Solicite o código válido com a coordenação ou direção da escola.',
+        };
+      }
     }
 
     // Sincroniza também no armazenamento local para resiliência offline e troca rápida

@@ -602,10 +602,20 @@ export const StorageService = {
     const dataDevolucao = new Date(hoje);
     dataDevolucao.setDate(hoje.getDate() + dias);
 
+    const leitor = this.getLeitorById(dados.leitor_id);
+    const contas: ContaUsuario[] = this.getContas();
+    const contaVinculada = contas.find(c =>
+      c.id === dados.leitor_id ||
+      (leitor?.matricula && c.matricula && c.matricula.toLowerCase() === leitor.matricula.toLowerCase()) ||
+      (leitor?.email && c.email && c.email.toLowerCase() === leitor.email.toLowerCase())
+    );
+    const usuarioIdVinculado = contaVinculada?.id || (dados.leitor_id.startsWith('usr_') ? dados.leitor_id : undefined);
+
     const novoEmprestimo: Emprestimo = {
       id: crypto.randomUUID(),
       livro_id: dados.livro_id,
       leitor_id: dados.leitor_id,
+      usuario_id: usuarioIdVinculado,
       emprestado_em: hoje.toISOString().split('T')[0],
       devolucao_prevista: dataDevolucao.toISOString().split('T')[0],
       devolvido_em: null,
@@ -628,7 +638,6 @@ export const StorageService = {
       saveEmprestimoFirestore(novoEmprestimo).catch(() => {});
     });
 
-    const leitor = this.getLeitorById(dados.leitor_id);
     this.addAuditoria('CRIAR_EMPRESTIMO', 'emprestimos', novoEmprestimo.id, `Empréstimo registrado: Livro "${livros[livroIndex].titulo}" para ${leitor?.nome || 'Leitor'}`);
 
     return {

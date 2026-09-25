@@ -34,6 +34,7 @@ export interface Emprestimo {
   id: string;
   livro_id: string;
   leitor_id: string;
+  usuario_id?: string;
   emprestado_em: string; // YYYY-MM-DD
   devolucao_prevista: string; // YYYY-MM-DD
   devolvido_em: string | null; // YYYY-MM-DD or null

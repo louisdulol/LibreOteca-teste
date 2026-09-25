@@ -81,9 +81,10 @@ service cloud.firestore {
 
     function isValidEmprestimo(data) {
       return data.keys().hasAll(['livro_id', 'leitor_id', 'emprestado_em', 'devolucao_prevista', 'renovacoes']) &&
-        data.keys().hasOnly(['id', 'livro_id', 'leitor_id', 'emprestado_em', 'devolucao_prevista', 'devolvido_em', 'renovacoes', 'observacao']) &&
+        data.keys().hasOnly(['id', 'livro_id', 'leitor_id', 'usuario_id', 'emprestado_em', 'devolucao_prevista', 'devolvido_em', 'renovacoes', 'observacao']) &&
         data.livro_id is string && data.livro_id.size() <= 128 &&
         data.leitor_id is string && data.leitor_id.size() <= 128 &&
+        (!('usuario_id' in data) || (data.usuario_id is string && data.usuario_id.size() <= 128)) &&
         data.emprestado_em is string && data.emprestado_em.size() <= 30 &&
         data.devolucao_prevista is string && data.devolucao_prevista.size() <= 30 &&
         data.renovacoes is int && data.renovacoes >= 0;
@@ -103,10 +104,16 @@ service cloud.firestore {
 
     function isValidConfiguracao(data) {
       return data.keys().hasAll(['nome_biblioteca', 'prazo_padrao_dias', 'limite_emprestimos_por_leitor']) &&
-        data.keys().hasOnly(['nome_biblioteca', 'tipo_instituicao', 'prazo_padrao_dias', 'limite_emprestimos_por_leitor', 'bloquear_leitor_com_atraso', 'permitir_renovacao_com_atraso', 'codigo_mestre_professor']) &&
+        data.keys().hasOnly(['nome_biblioteca', 'tipo_instituicao', 'prazo_padrao_dias', 'limite_emprestimos_por_leitor', 'bloquear_leitor_com_atraso', 'permitir_renovacao_com_atraso']) &&
         data.nome_biblioteca is string && data.nome_biblioteca.size() <= 150 &&
         data.prazo_padrao_dias is int && data.prazo_padrao_dias >= 1 && data.prazo_padrao_dias <= 90 &&
         data.limite_emprestimos_por_leitor is int && data.limite_emprestimos_por_leitor >= 1 && data.limite_emprestimos_por_leitor <= 20;
+    }
+
+    function isValidAdminsConfig(data) {
+      return data.keys().hasAll(['codigo_mestre_professor']) &&
+        data.keys().hasOnly(['codigo_mestre_professor']) &&
+        data.codigo_mestre_professor is string && data.codigo_mestre_professor.size() >= 4 && data.codigo_mestre_professor.size() <= 100;
     }
 
     function isValidAuditoria(data) {
@@ -130,7 +137,7 @@ service cloud.firestore {
       // Listagem completa de usuários restrita a professores/administradores
       allow list: if isProfessor();
 
-      // Criação de perfil: alunos livremente; professor exige código mestre ou autorização de super admin
+      // Criação de perfil: alunos livremente; professor exige código mestre em admins_config ou autorização de super admin
       allow create: if isValidId(userId) &&
         isSignedIn() &&
         request.auth.uid == userId &&
@@ -141,8 +148,8 @@ service cloud.firestore {
             incoming().role == 'professor' && (
               isSuperAdmin() ||
               (
-                exists(/databases/$(database)/documents/configuracoes/geral) &&
-                incoming().get('codigo_convite', '') == get(/databases/$(database)/documents/configuracoes/geral).data.get('codigo_mestre_professor', '') &&
+                exists(/databases/$(database)/documents/admins_config/geral) &&
+                incoming().get('codigo_convite', '') == get(/databases/$(database)/documents/admins_config/geral).data.get('codigo_mestre_professor', '') &&
                 incoming().get('codigo_convite', '') != ''
               )
             )
@@ -209,15 +216,21 @@ service cloud.firestore {
     // COLEÇÃO: EMPRESTIMOS (CIRCULAÇÃO E DEVOLUÇÕES)
     // ===============================================================
     match /emprestimos/{emprestimoId} {
-      // Consulta individual: professor ou o leitor titular do empréstimo
+      // Consulta individual: professor ou o leitor titular do empréstimo (por leitor_id ou usuario_id vinculado)
       allow get: if isValidId(emprestimoId) && (
         isProfessor() ||
-        (isSignedIn() && resource.data.leitor_id == request.auth.uid)
+        (isSignedIn() && (
+          resource.data.leitor_id == request.auth.uid ||
+          resource.data.get('usuario_id', '') == request.auth.uid
+        ))
       );
 
       // Listagem: professores veem todos; leitor autenticado vê apenas os seus
       allow list: if isProfessor() || (
-        isSignedIn() && resource.data.leitor_id == request.auth.uid
+        isSignedIn() && (
+          resource.data.leitor_id == request.auth.uid ||
+          resource.data.get('usuario_id', '') == request.auth.uid
+        )
       );
 
       // Criação: apenas professor, com garantia relacional (livro e leitor devem existir)
@@ -314,6 +327,16 @@ service cloud.firestore {
 
       // IMUTABILIDADE: Auditoria nunca pode ser editada nem apagada por ninguém
       allow update, delete: if false;
+    }
+
+    // ===============================================================
+    // COLEÇÃO: ADMINS_CONFIG (SEGREDOS E CÓDIGOS MESTRES RESTRITOS)
+    // ===============================================================
+    match /admins_config/{configId} {
+      // NENHUM usuário comum ou visitante pode ler ou listar segredos.
+      // Apenas Super Admin verificado na nuvem pode consultar e alterar.
+      // O motor do Firestore usa get() interno durante o cadastro de professores.
+      allow read, write: if isValidId(configId) && isSuperAdmin();
     }
 
     // ===============================================================
