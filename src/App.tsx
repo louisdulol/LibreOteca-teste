@@ -28,6 +28,7 @@ import {
   LogIn,
   GraduationCap,
   BookOpen,
+  Award,
 } from 'lucide-react';
 
 export default function App() {
@@ -260,6 +261,7 @@ export default function App() {
             usuario={usuarioAtual}
             onExplorarAcervo={() => setActiveTab('acervo')}
             onVerDetalhesLivro={handleVerDetalhesLivro}
+            onAbrirPerfil={() => setActiveTab('perfil')}
           />
         )}
 
@@ -310,13 +312,31 @@ export default function App() {
           <ConfiguracoesView onRefresh={carregarDados} />
         )}
 
-        {activeTab === 'perfil' && (
+        {activeTab === 'perfil' && usuarioAtual && (
           <PerfilView
             usuarioAtual={usuarioAtual}
             config={config}
             livros={livros}
             onAtualizarSessao={carregarDados}
           />
+        )}
+
+        {activeTab === 'perfil' && !usuarioAtual && (
+          <div className="max-w-md mx-auto my-12 p-6 sm:p-8 bg-slate-900/80 border border-slate-800 rounded-3xl text-center space-y-4 shadow-xl">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/20">
+              <Award className="w-7 h-7" />
+            </div>
+            <h2 className="text-xl font-bold text-white font-serif">Área Exclusiva para Leitores com Conta</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              O perfil personalizado e a carteirinha digital do leitor estão disponíveis para alunos e professores cadastrados no sistema.
+            </p>
+            <button
+              onClick={() => setIsLoginModalOpen(true)}
+              className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+              Entrar ou Criar Conta
+            </button>
+          </div>
         )}
       </main>
 
