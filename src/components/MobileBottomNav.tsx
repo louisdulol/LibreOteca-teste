@@ -14,6 +14,7 @@ import {
   Globe,
   Plus,
   HelpCircle,
+  Award,
   X,
   GraduationCap,
 } from 'lucide-react';
