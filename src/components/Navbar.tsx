@@ -154,49 +154,63 @@ export const Navbar: React.FC<NavbarProps> = ({
             <ThemeSelector />
 
             {/* Seletor / Botão de Usuário Ativo & Login */}
-            <div className="flex items-center pl-1 sm:pl-2 border-l border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-1.5 pl-1 sm:pl-2 border-l border-slate-200 dark:border-slate-800">
               {!usuarioAtual ? (
                 <button
                   id="btn-login-header"
                   onClick={onOpenLoginModal}
-                  className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-xs transition-all active:scale-95"
+                  className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Entrar</span>
                 </button>
               ) : (
-                <button
-                  id="btn-usuario-ativo-header"
-                  onClick={onOpenLoginModal}
-                  className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-lg border border-slate-200 dark:border-slate-700/80 hover:border-amber-500/50 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                  title="Clique para gerenciar a conta, trocar de perfil ou sair"
-                >
-                  <div
-                    className={`w-6 h-6 rounded-full overflow-hidden ${
-                      isProfessor ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white'
-                    } flex items-center justify-center text-xs font-bold shrink-0`}
+                <div className="flex items-center gap-1">
+                  <button
+                    id="btn-usuario-ativo-header"
+                    onClick={() => setActiveTab('perfil')}
+                    className={`flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 rounded-lg border transition-colors cursor-pointer ${
+                      activeTab === 'perfil'
+                        ? 'bg-amber-500/20 border-amber-500/50 text-amber-900 dark:text-amber-300'
+                        : 'border-slate-200 dark:border-slate-700/80 hover:border-amber-500/50 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800'
+                    }`}
+                    title="Clique para abrir seu Perfil e Carteirinha Digital"
                   >
-                    {usuarioAtual.avatar_url ? (
-                      <img
-                        src={usuarioAtual.avatar_url}
-                        alt="Avatar"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : isProfessor ? (
-                      <GraduationCap className="w-3.5 h-3.5" />
-                    ) : (
-                      <User className="w-3.5 h-3.5" />
-                    )}
-                  </div>
-                  <div className="hidden sm:block text-left">
-                    <span className="block text-xs font-bold text-slate-900 dark:text-white leading-tight truncate max-w-[110px]">
-                      {usuarioAtual.nome.split(' ')[0]}
-                    </span>
-                    <span className="block text-[9px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
-                      {isProfessor ? 'Professor' : 'Aluno'}
-                    </span>
-                  </div>
-                </button>
+                    <div
+                      className={`w-6 h-6 rounded-full overflow-hidden ${
+                        isProfessor ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white'
+                      } flex items-center justify-center text-xs font-bold shrink-0`}
+                    >
+                      {usuarioAtual.avatar_url ? (
+                        <img
+                          src={usuarioAtual.avatar_url}
+                          alt="Avatar"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : isProfessor ? (
+                        <GraduationCap className="w-3.5 h-3.5" />
+                      ) : (
+                        <User className="w-3.5 h-3.5" />
+                      )}
+                    </div>
+                    <div className="hidden sm:block text-left">
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white leading-tight truncate max-w-[110px]">
+                        {usuarioAtual.nome.split(' ')[0]}
+                      </span>
+                      <span className="block text-[9px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
+                        {isProfessor ? 'Docente' : 'Aluno'} • Perfil
+                      </span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={onOpenLoginModal}
+                    className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-[10px] font-semibold transition-colors cursor-pointer"
+                    title="Trocar de conta ou gerenciar sessão"
+                  >
+                    Trocar
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -220,7 +234,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* Aba Meu Perfil & Carteirinha (para Alunos e Professores) */}
+          {/* Aba Meu Perfil & Carteirinha (Visível exclusivamente para usuários com conta logada) */}
           {usuarioAtual && (
             <button
               id="tab-perfil"

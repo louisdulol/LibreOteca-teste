@@ -21,12 +21,14 @@ interface MinhasEstatisticasAlunoViewProps {
   usuario: UsuarioSessao;
   onExplorarAcervo: () => void;
   onVerDetalhesLivro: (livro: Livro) => void;
+  onAbrirPerfil?: () => void;
 }
 
 export const MinhasEstatisticasAlunoView: React.FC<MinhasEstatisticasAlunoViewProps> = ({
   usuario,
   onExplorarAcervo,
   onVerDetalhesLivro,
+  onAbrirPerfil,
 }) => {
   const leitorId = usuario.leitor_id || '';
   const estatisticas = useMemo(() => {
@@ -63,14 +65,26 @@ export const MinhasEstatisticasAlunoView: React.FC<MinhasEstatisticasAlunoViewPr
           </div>
         </div>
 
-        <button
-          onClick={onExplorarAcervo}
-          className="w-full sm:w-auto px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
-        >
-          <BookOpen className="w-4 h-4" />
-          <span>Explorar Acervo & Comentar</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+          {onAbrirPerfil && (
+            <button
+              onClick={onAbrirPerfil}
+              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+              <Award className="w-4 h-4 text-amber-400" />
+              <span>Minha Carteirinha & Perfil</span>
+            </button>
+          )}
+
+          <button
+            onClick={onExplorarAcervo}
+            className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Explorar Acervo</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Caixa de Aviso Regulamentar */}
