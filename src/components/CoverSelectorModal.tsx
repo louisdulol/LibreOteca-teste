@@ -145,7 +145,7 @@ export const CoverSelectorModal: React.FC<CoverSelectorModalProps> = ({
                 : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+            <Search className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
             <span>Buscar Capas na Web</span>
           </button>
           <button

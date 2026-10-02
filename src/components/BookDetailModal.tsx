@@ -313,7 +313,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
               </div>
               {feedbackComentario.dica && (
                 <p className="text-[11px] font-medium pl-6 leading-relaxed">
-                  💡 <strong>Orientações:</strong> {feedbackComentario.dica}
+                  <strong>Orientações:</strong> {feedbackComentario.dica}
                 </p>
               )}
             </div>

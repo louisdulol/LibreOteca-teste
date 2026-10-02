@@ -8,7 +8,7 @@ import {
   Clock,
   AlertTriangle,
   Award,
-  Sparkles,
+  Heart,
   TrendingUp,
   Star,
   MessageSquare,
@@ -335,8 +335,9 @@ export const MinhasEstatisticasAlunoView: React.FC<MinhasEstatisticasAlunoViewPr
                       <span>
                         Publicado em {new Date(com.criado_em).toLocaleDateString('pt-BR')}
                       </span>
-                      <span className="font-semibold text-rose-400">
-                        ❤️ {com.curtidas || 0} curtidas de colegas
+                      <span className="font-semibold text-rose-400 flex items-center gap-1">
+                        <Heart className="w-3 h-3 text-rose-500 fill-current" />
+                        <span>{com.curtidas || 0} curtidas de colegas</span>
                       </span>
                     </div>
                   </div>

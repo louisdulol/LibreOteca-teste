@@ -553,7 +553,7 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    const texto = `📖 LibreOteca - Acesso à Biblioteca\nAluno(a): ${leitorParaEditar.nome}\nMatrícula: ${leitorParaEditar.matricula}\nE-mail: ${leitorParaEditar.email || '(Entrar com a matrícula)'}\nSenha Provisória: ${novaSenha}`;
+                    const texto = `LibreOteca - Acesso à Biblioteca\nAluno(a): ${leitorParaEditar.nome}\nMatrícula: ${leitorParaEditar.matricula}\nE-mail: ${leitorParaEditar.email || '(Entrar com a matrícula)'}\nSenha Provisória: ${novaSenha}`;
                     navigator.clipboard.writeText(texto);
                     setCopiado(true);
                     setTimeout(() => setCopiado(false), 3000);

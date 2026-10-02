@@ -6,7 +6,7 @@ import {
   Users,
   BarChart3,
   Settings,
-  Sparkles,
+  Globe,
   GraduationCap,
   MessageSquare,
   TrendingUp,
@@ -14,6 +14,7 @@ import {
   LogIn,
   Tablet,
   Plus,
+  Award,
 } from 'lucide-react';
 import { Logo } from './Logo';
 import { ThemeSelector } from './ThemeSelector';
@@ -110,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={onExplorarOpenLibrary}
                   className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                  <Globe className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                   <span>Open Library</span>
                 </button>
 
@@ -171,11 +172,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                   title="Clique para gerenciar a conta, trocar de perfil ou sair"
                 >
                   <div
-                    className={`w-6 h-6 rounded-md ${
+                    className={`w-6 h-6 rounded-full overflow-hidden ${
                       isProfessor ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white'
                     } flex items-center justify-center text-xs font-bold shrink-0`}
                   >
-                    {isProfessor ? (
+                    {usuarioAtual.avatar_url ? (
+                      <img
+                        src={usuarioAtual.avatar_url}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : isProfessor ? (
                       <GraduationCap className="w-3.5 h-3.5" />
                     ) : (
                       <User className="w-3.5 h-3.5" />
@@ -210,6 +217,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <TrendingUp className="w-3.5 h-3.5" />
               <span>Minhas Estatísticas</span>
+            </button>
+          )}
+
+          {/* Aba Meu Perfil & Carteirinha (para Alunos e Professores) */}
+          {usuarioAtual && (
+            <button
+              id="tab-perfil"
+              onClick={() => setActiveTab('perfil')}
+              className={`flex items-center gap-1.5 py-1 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                activeTab === 'perfil'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70'
+              }`}
+            >
+              <Award className="w-3.5 h-3.5" />
+              <span>Meu Perfil & Carteirinha</span>
             </button>
           )}
 

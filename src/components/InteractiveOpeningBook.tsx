@@ -5,7 +5,7 @@ import { EditorialCover } from './EditorialCover';
 import {
   BookOpen,
   Star,
-  Sparkles,
+  Bookmark,
   ChevronRight,
   BookMarked,
   Layers,
@@ -67,7 +67,7 @@ export const InteractiveOpeningBook: React.FC<InteractiveOpeningBookProps> = ({
               {/* Badge Flutuante de Status */}
               <div className="absolute top-3 left-4 z-10">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-900/90 text-amber-300 backdrop-blur-md border border-amber-500/40 shadow-md">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <Bookmark className="w-3 h-3 text-amber-400" />
                   <span>Obra em Destaque</span>
                 </span>
               </div>

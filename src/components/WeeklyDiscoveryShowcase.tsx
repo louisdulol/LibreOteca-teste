@@ -3,7 +3,6 @@ import { Livro } from '../types';
 import { StorageService, sanitizarAutor } from '../lib/storage';
 import { InteractiveOpeningBook } from './InteractiveOpeningBook';
 import {
-  Sparkles,
   Star,
   BookOpen,
   ArrowRight,
@@ -40,7 +39,7 @@ export const WeeklyDiscoveryShowcase: React.FC<WeeklyDiscoveryShowcaseProps> = (
         <div className="lg:col-span-6 space-y-4 sm:space-y-5 text-left min-w-0 w-full">
           {/* Badge de Curadoria */}
           <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 animate-pulse" />
+            <BookOpen className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
             <span className="tracking-wide uppercase text-[10px] sm:text-[11px]">Descoberta da Semana • Curadoria</span>
           </div>
 

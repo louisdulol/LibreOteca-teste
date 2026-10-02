@@ -5,7 +5,9 @@ import { identifyBookOnline, IdentifiedBook } from '../lib/bookIdentifier';
 import { livroSchema } from '../lib/validations';
 import { Modal } from './Modal';
 import { CoverSelectorModal } from './CoverSelectorModal';
-import { Search, Loader2, Sparkles, BookOpen, AlertCircle, Check, Globe, Layers, ArrowRight, Image as ImageIcon } from 'lucide-react';
+import { BackCoverScannerModal } from './BackCoverScannerModal';
+import { buscarResumoOnline } from '../lib/bookSummaryFinder';
+import { Search, Loader2, BookOpen, AlertCircle, Check, Globe, Layers, ArrowRight, Image as ImageIcon, Camera } from 'lucide-react';
 
 interface BookFormModalProps {
   isOpen: boolean;
@@ -55,8 +57,53 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
   const [candidateBooks, setCandidateBooks] = useState<IdentifiedBook[]>([]);
   const [availableCovers, setAvailableCovers] = useState<string[]>([]);
   const [isCoverSelectorOpen, setIsCoverSelectorOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [isSearchingSummary, setIsSearchingSummary] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  const handleBuscarResumoWeb = async () => {
+    if (!formData.titulo.trim() && !formData.isbn.trim()) {
+      setFeedback({
+        type: 'error',
+        message: 'Preencha ao menos o Título ou o ISBN do livro antes de buscar o resumo na web.',
+      });
+      return;
+    }
+
+    setIsSearchingSummary(true);
+    setFeedback(null);
+    try {
+      const res = await buscarResumoOnline(formData.titulo, formData.autor, formData.isbn);
+      if (res && res.sinopse) {
+        setFormData(prev => ({ ...prev, sinopse: res.sinopse }));
+        setFeedback({
+          type: 'success',
+          message: `Resumo oficial de "${formData.titulo || 'Livro'}" encontrado e preenchido via ${res.fonte}!`,
+        });
+      } else {
+        setFeedback({
+          type: 'info',
+          message: 'Nenhum resumo encontrado automaticamente na web para este título. Use a Câmera OCR para escanear a contracapa física ou digite manualmente.',
+        });
+      }
+    } catch {
+      setFeedback({
+        type: 'error',
+        message: 'Falha temporária ao consultar resumo online. Tente a Câmera OCR da contracapa.',
+      });
+    } finally {
+      setIsSearchingSummary(false);
+    }
+  };
+
+  const handleSinopseEscaneada = (textoEscaneado: string) => {
+    setFormData(prev => ({ ...prev, sinopse: textoEscaneado }));
+    setFeedback({
+      type: 'success',
+      message: 'Texto da contracapa escaneado com sucesso e inserido na sinopse!',
+    });
+  };
 
   useEffect(() => {
     if (livroParaEditar) {
@@ -267,7 +314,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Search className="w-3.5 h-3.5" />
                   <span>Identificar Livro</span>
                 </>
               )}
@@ -287,7 +334,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
             >
               {feedback.type === 'success' && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
               {feedback.type === 'error' && <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />}
-              {feedback.type === 'info' && <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />}
+              {feedback.type === 'info' && <BookOpen className="w-4 h-4 text-amber-400 shrink-0" />}
               <span>{feedback.message}</span>
             </div>
           )}
@@ -553,7 +600,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
                 onClick={() => setIsCoverSelectorOpen(true)}
                 className="flex items-center gap-1.5 px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-xs transition-colors"
               >
-                <Sparkles className="w-3 h-3 text-slate-950" />
+                <ImageIcon className="w-3 h-3 text-slate-950" />
                 <span>Buscar Capas Reais na Web</span>
               </button>
             </div>
@@ -643,19 +690,56 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
             )}
           </div>
 
-          {/* Sinopse */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Sinopse Completa / Descrição da Obra
-            </label>
+          {/* Sinopse com Ações Inteligentes (Web e Câmera OCR) */}
+          <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <label className="block text-xs font-bold text-white flex items-center gap-1.5">
+                <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                <span>Sinopse Completa / Resumo da Obra</span>
+              </label>
+
+              {/* Botões Inteligentes de Preenchimento Automático */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  id="btn-buscar-resumo-web"
+                  onClick={handleBuscarResumoWeb}
+                  disabled={isSearchingSummary}
+                  className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-amber-400 hover:text-amber-300 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                  title="Busca o resumo oficial nos repositórios online (Google Books, Open Library e Wikipédia)"
+                >
+                  {isSearchingSummary ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Globe className="w-3.5 h-3.5" />
+                  )}
+                  <span>Buscar na Web</span>
+                </button>
+
+                <button
+                  type="button"
+                  id="btn-escanear-contracapa-camera"
+                  onClick={() => setIsScannerOpen(true)}
+                  className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  title="Abre a câmera do celular/computador para ler o texto impresso na contracapa do livro"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Escanear Contracapa (Câmera)</span>
+                </button>
+              </div>
+            </div>
+
             <textarea
-              rows={3}
+              rows={4}
               id="textarea-sinopse"
-              placeholder="A sinopse é preenchida automaticamente ao identificar na internet, ou você pode escrever uma apresentação personalizada para os leitores..."
+              placeholder="A sinopse é obrigatória para os leitores. Clique em 'Buscar na Web' para obter automaticamente ou 'Escanear Contracapa' para ler com a câmera..."
               value={formData.sinopse}
               onChange={e => setFormData({ ...formData, sinopse: e.target.value })}
               className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 leading-relaxed focus:outline-hidden focus:ring-2 focus:ring-amber-500"
             />
+            <p className="text-[11px] text-slate-400">
+              Dica: Você não precisa digitar! Se o livro for novo ou clássico, o sistema busca na web com 1 clique; se for raro ou didático, aponte a câmera para a contracapa física.
+            </p>
           </div>
 
           {/* Rodapé com botões de ação */}
@@ -687,6 +771,13 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
         autor={formData.autor}
         isbn={formData.isbn}
         capaAtual={formData.capa_url}
+      />
+
+      <BackCoverScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onTextExtracted={handleSinopseEscaneada}
+        tituloLivro={formData.titulo}
       />
     </Modal>
   );

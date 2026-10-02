@@ -11,7 +11,7 @@ import {
   User,
   LogIn,
   Tablet,
-  Sparkles,
+  Globe,
   Plus,
   HelpCircle,
   X,
@@ -150,6 +150,22 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
                 <button
                   type="button"
+                  onClick={() => handleTabClick('perfil')}
+                  className={`w-full p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors ${
+                    activeTab === 'perfil'
+                      ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/40 font-bold'
+                      : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <User className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                    <span>Meu Perfil & Carteirinha</span>
+                  </div>
+                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">Abrir</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => handleTabClick('configuracoes')}
                   className={`w-full p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors ${
                     activeTab === 'configuracoes'
@@ -190,7 +206,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   className="w-full p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                    <Globe className="w-4 h-4 text-amber-500 dark:text-amber-400" />
                     <span>Importar da Open Library</span>
                   </div>
                   <span className="text-[10px] text-slate-400">Online</span>
@@ -299,8 +315,13 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
               <button
                 type="button"
-                onClick={onOpenLoginModal}
-                className="flex-1 py-1 px-0.5 min-h-[38px] rounded-lg flex flex-col items-center justify-center gap-0.5 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-all active:scale-95"
+                onClick={() => handleTabClick('perfil')}
+                className={`flex-1 py-1 px-0.5 min-h-[38px] rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 ${
+                  activeTab === 'perfil'
+                    ? 'text-amber-700 dark:text-amber-400 font-bold bg-amber-500/15'
+                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                }`}
+                aria-current={activeTab === 'perfil' ? 'page' : undefined}
               >
                 <User className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span className="text-[9px] font-medium tracking-tight truncate leading-tight">Perfil</span>

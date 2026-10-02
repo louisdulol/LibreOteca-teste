@@ -136,7 +136,7 @@ export async function fetchBookByISBN(isbnInput: string): Promise<OpenLibraryBoo
           ano_publicacao: anoPublicacao,
           paginas: book.number_of_pages,
           editora,
-          sinopse: typeof book.notes === 'string' ? book.notes : undefined,
+          sinopse: undefined, // Nunca injeta notas da Open Library em inglês
         };
       }
     }

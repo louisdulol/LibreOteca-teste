@@ -11,6 +11,7 @@ import { RelatoriosView } from './components/RelatoriosView';
 import { ConfiguracoesView } from './components/ConfiguracoesView';
 import { MinhasEstatisticasAlunoView } from './components/MinhasEstatisticasAlunoView';
 import { MuralComentariosView } from './components/MuralComentariosView';
+import { PerfilView } from './components/PerfilView';
 import { BookFormModal } from './components/BookFormModal';
 import { OpenLibraryExplorerModal } from './components/OpenLibraryExplorerModal';
 import { BookDetailModal } from './components/BookDetailModal';
@@ -307,6 +308,15 @@ export default function App() {
 
         {isProfessor && activeTab === 'configuracoes' && (
           <ConfiguracoesView onRefresh={carregarDados} />
+        )}
+
+        {activeTab === 'perfil' && (
+          <PerfilView
+            usuarioAtual={usuarioAtual}
+            config={config}
+            livros={livros}
+            onAtualizarSessao={carregarDados}
+          />
         )}
       </main>
 

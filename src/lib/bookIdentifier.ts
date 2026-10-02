@@ -1,5 +1,6 @@
 import { normalizeCategory } from './openlibrary';
 import { cleanGoogleBooksCoverUrl, buildOpenLibraryCoverUrl } from './coverFinder';
+import { isTextoEmPortugues, buscarResumoOnline } from './bookSummaryFinder';
 import {
   traduzirTituloParaPortugues,
   fetchBrasilApiByIsbn,
@@ -57,12 +58,12 @@ export async function identifyBookOnline(query: string): Promise<IdentifiedBook[
     }
   }
 
-  // 2. Consulta ao Google Books API com preferência de idioma pt-BR
+  // 2. Consulta ao Google Books API com restrição de idioma estrita pt-BR
   try {
     const cleanQuery = isIsbn ? `isbn:${rawIsbn}` : trimmed;
     const gbooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
       cleanQuery
-    )}&hl=pt-BR&maxResults=6`;
+    )}&langRestrict=pt&hl=pt-BR&maxResults=6`;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 6500);
@@ -123,11 +124,16 @@ export async function identifyBookOnline(query: string): Promise<IdentifiedBook[
           );
 
           if (!alreadyExists) {
+            const sinopseValida =
+              info.description && isTextoEmPortugues(info.description)
+                ? info.description
+                : undefined;
+
             results.push({
               titulo: tituloFinal,
               autor: info.authors ? info.authors.join(', ') : 'Autor Desconhecido',
               isbn: isbn || (isIsbn ? rawIsbn : undefined),
-              sinopse: info.description || undefined,
+              sinopse: sinopseValida,
               ano_publicacao: ano,
               paginas: info.pageCount || undefined,
               editora: info.publisher || undefined,
@@ -173,7 +179,7 @@ export async function identifyBookOnline(query: string): Promise<IdentifiedBook[
               titulo: traduzirTituloParaPortugues(normalizarCaixaTitulo(book.title || 'Livro Sem Título')),
               autor,
               isbn: rawIsbn,
-              sinopse: typeof book.notes === 'string' ? book.notes : undefined,
+              sinopse: undefined, // Nunca usar notas da Open Library
               ano_publicacao: ano,
               paginas: book.number_of_pages,
               editora: book.publishers?.[0]?.name,
@@ -217,6 +223,22 @@ export async function identifyBookOnline(query: string): Promise<IdentifiedBook[
       }
     } catch (err) {
       console.warn('Open Library consulta avisou:', err);
+    }
+  }
+
+  // 4. Enriquecimento: Garante que os livros encontrados recebam sinopse em Português
+  for (const item of results) {
+    if (!item.sinopse || !isTextoEmPortugues(item.sinopse)) {
+      try {
+        const resumoEncontrado = await buscarResumoOnline(item.titulo, item.autor, item.isbn);
+        if (resumoEncontrado && isTextoEmPortugues(resumoEncontrado.sinopse)) {
+          item.sinopse = resumoEncontrado.sinopse;
+        } else {
+          item.sinopse = undefined;
+        }
+      } catch {
+        item.sinopse = undefined;
+      }
     }
   }
 

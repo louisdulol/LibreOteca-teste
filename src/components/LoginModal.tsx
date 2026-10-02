@@ -555,7 +555,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 absolute left-3 top-2.5 pointer-events-none" />
                 </div>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
-                  🔒 Para proteger o sistema contra acessos indevidos, apenas quem possui o código institucional autorizado pode criar uma conta de Professor/Administrador.
+                  Para proteger o sistema contra acessos indevidos, apenas quem possui o código institucional autorizado pode criar uma conta de Professor/Administrador.
                 </p>
               </div>
             )}

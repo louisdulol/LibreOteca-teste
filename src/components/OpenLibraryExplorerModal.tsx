@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Livro } from '../types';
 import { searchOpenLibrary, OpenLibraryBookDetails } from '../lib/openlibrary';
+import { buscarResumoOnline } from '../lib/bookSummaryFinder';
 import { StorageService } from '../lib/storage';
 import { Modal } from './Modal';
 import { Search, Loader2, BookOpen, Plus, Check, Globe } from 'lucide-react';
@@ -39,7 +40,19 @@ export const OpenLibraryExplorerModal: React.FC<OpenLibraryExplorerModalProps> =
     }
   };
 
-  const handleImport = (book: OpenLibraryBookDetails, index: number) => {
+  const handleImport = async (book: OpenLibraryBookDetails, index: number) => {
+    let sinopse = book.sinopse;
+    if (!sinopse || sinopse.length < 20) {
+      try {
+        const res = await buscarResumoOnline(book.titulo, book.autor, book.isbn);
+        if (res && res.sinopse) {
+          sinopse = res.sinopse;
+        }
+      } catch (e) {
+        console.warn('Falha ao obter sinopse na importação:', e);
+      }
+    }
+
     const proximoCodigo = StorageService.gerarProximoCodigoInterno();
     const novoLivro = StorageService.saveLivro({
       codigo_interno: proximoCodigo,
@@ -53,7 +66,7 @@ export const OpenLibraryExplorerModal: React.FC<OpenLibraryExplorerModalProps> =
       ano_publicacao: book.ano_publicacao,
       paginas: book.paginas,
       editora: book.editora,
-      sinopse: book.sinopse,
+      sinopse,
     });
 
     setImportedIndices(prev => ({ ...prev, [index]: true }));

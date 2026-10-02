@@ -93,6 +93,65 @@ export interface UsuarioSessao {
   leitor_id?: string; // associado ao registro de Leitor para alunos
   email: string;
   avatar_cor?: string;
+  avatar_url?: string;
+}
+
+export interface ElementosCarteirinha {
+  mostrarFoto: boolean;
+  mostrarNome: boolean;
+  mostrarCargo: boolean;
+  mostrarMatricula: boolean;
+  mostrarTurma: boolean;
+  mostrarGenero: boolean;
+  mostrarQrCode: boolean;
+  mostrarBiblioteca: boolean;
+  mostrarValidade: boolean;
+}
+
+export interface EstiloCarteirinha {
+  ativa: boolean; // Se a carteirinha digital está ativada no perfil
+  layout: 'padrao-esquerda' | 'moderno-direita' | 'credencial-topo' | 'minimalista-sleek';
+  background: string; // ID do preset ou 'personalizado'
+  corFundoCustom?: string; // Cor livre da roda de cores
+  corFundoSecundaria?: string; // Segunda cor para gradiente livre
+  usarGradienteCustom?: boolean;
+  corTextoCustom?: string; // Cor livre do texto da carteirinha
+  corBordaCustom?: string; // Cor livre da borda
+  textura: 'nenhuma' | 'pontilhado' | 'ondas' | 'geometrica' | 'linhas' | 'estrelas' | 'pixel-grid';
+  molduraAvatar?: 'nenhuma' | 'ouro-real' | 'neon-pulse' | 'orbita-cosmica' | 'pixel-retro' | 'cristal-arcano' | 'fogo-cyber';
+  fonte: 'sans' | 'serif' | 'mono' | 'display' | 'cursiva' | 'retro';
+  posicaoQrCode: 'canto-inferior-direito' | 'rodape-central' | 'oculto';
+  generoFavorito?: string;
+  anoValidade?: string;
+  arredondamento?: 'nenhum' | 'pequeno' | 'medio' | 'total';
+  tamanhoCard?: 'compacto' | 'padrao' | 'expandido';
+  elementos: ElementosCarteirinha;
+}
+
+export interface PerfilUsuario {
+  id: string; // UID do usuário
+  nome: string;
+  email: string;
+  role: UserRole;
+  matricula?: string;
+  turma?: string;
+  avatarUrl?: string;
+  avatarConfig?: {
+    estilo: string;
+    seed: string;
+    corFundo: string;
+  };
+  molduraAvatar?: 'nenhuma' | 'ouro-real' | 'neon-pulse' | 'orbita-cosmica' | 'pixel-retro' | 'cristal-arcano' | 'fogo-cyber';
+  corPerfilCustom?: string; // Cor livre da roda de cores para o perfil
+  corDestaqueCustom?: string; // Cor de destaque da roda de cores
+  temaPerfil?: 'steam-midnight' | 'steam-summer' | 'cosmic-nebula' | 'cyberpunk-neon' | 'crimson-dark' | 'emerald-sanctuary' | 'parchment-classic' | 'personalizado';
+  livroDestaqueId?: string; // Livro em destaque na vitrine do perfil estilo Steam
+  perfilPublico: boolean; // Controle de privacidade: público ou privado
+  bio?: string;
+  metaLeituraAnual?: number;
+  generosFavoritos?: string[];
+  carteirinha: EstiloCarteirinha;
+  atualizado_em?: string;
 }
 
 export interface ComentarioLivro {
@@ -129,5 +188,6 @@ export type ActiveTab =
   | 'relatorios'
   | 'configuracoes'
   | 'comentarios'
-  | 'minhas-estatisticas';
+  | 'minhas-estatisticas'
+  | 'perfil';
 

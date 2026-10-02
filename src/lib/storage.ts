@@ -10,6 +10,7 @@ import {
   ContaUsuario,
   UserRole,
   TipoLeitor,
+  PerfilUsuario,
 } from '../types';
 import { avaliarComentario, ModerationResult } from './commentFilter';
 import {
@@ -46,6 +47,7 @@ const STORAGE_KEYS = {
   COMENTARIOS: 'libreoteca_comentarios_v2',
   AUTH_SESSAO: 'libreoteca_sessao_v2',
   CONTAS: 'libreoteca_contas_v2',
+  PERFIS: 'libreoteca_perfis_v2',
 };
 
 // Dados semente de catálogo bibliográfico de alta qualidade
@@ -1081,6 +1083,102 @@ export const StorageService = {
 
   logoutUsuario(): void {
     this.logout();
+  },
+
+  // PERFIL DO USUÁRIO & CARTEIRINHA
+  getPerfilUsuario(usuarioId?: string): PerfilUsuario {
+    const sessao = this.getSessaoUsuario();
+    const targetId = usuarioId || sessao?.id || 'visitante';
+    const perfis = safeGet<Record<string, PerfilUsuario>>(STORAGE_KEYS.PERFIS, {});
+
+    const defaultPerfil: PerfilUsuario = {
+      id: targetId,
+      nome: sessao?.nome || 'Leitor Apaixonado',
+      email: sessao?.email || '',
+      role: sessao?.role || 'aluno',
+      matricula: sessao?.matricula || '',
+      avatarUrl:
+        sessao?.avatar_url ||
+        `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(
+          sessao?.nome || 'leitor'
+        )}&backgroundColor=f59e0b&radius=50`,
+      avatarConfig: {
+        estilo: 'adventurer',
+        seed: sessao?.nome || 'leitor',
+        corFundo: 'f59e0b',
+      },
+      molduraAvatar: 'nenhuma',
+      temaPerfil: 'steam-midnight',
+      perfilPublico: true,
+      bio: 'Explorando novas histórias e universos nas páginas dos livros.',
+      metaLeituraAnual: 12,
+      generosFavoritos: ['Ficção e Romance', 'Literatura Brasileira'],
+      carteirinha: {
+        ativa: true,
+        layout: 'padrao-esquerda',
+        background: 'gradiente-aurora',
+        textura: 'nenhuma',
+        molduraAvatar: 'nenhuma',
+        fonte: 'sans',
+        posicaoQrCode: 'canto-inferior-direito',
+        generoFavorito: 'Literatura Brasileira',
+        anoValidade: '2026 / 2027',
+        arredondamento: 'medio',
+        tamanhoCard: 'padrao',
+        elementos: {
+          mostrarFoto: true,
+          mostrarNome: true,
+          mostrarCargo: true,
+          mostrarMatricula: true,
+          mostrarTurma: true,
+          mostrarGenero: true,
+          mostrarQrCode: true,
+          mostrarBiblioteca: true,
+          mostrarValidade: true,
+        },
+      },
+    };
+
+    if (perfis[targetId]) {
+      const salvo = perfis[targetId];
+      const merged: PerfilUsuario = {
+        ...defaultPerfil,
+        ...salvo,
+        carteirinha: {
+          ...defaultPerfil.carteirinha,
+          ...(salvo.carteirinha || {}),
+          elementos: {
+            ...defaultPerfil.carteirinha.elementos,
+            ...(salvo.carteirinha?.elementos || {}),
+          },
+        },
+      };
+      return merged;
+    }
+
+    perfis[targetId] = defaultPerfil;
+    safeSet(STORAGE_KEYS.PERFIS, perfis);
+    return defaultPerfil;
+  },
+
+  salvarPerfilUsuario(perfil: PerfilUsuario): void {
+    const perfis = safeGet<Record<string, PerfilUsuario>>(STORAGE_KEYS.PERFIS, {});
+    perfis[perfil.id] = {
+      ...perfil,
+      atualizado_em: new Date().toISOString(),
+    };
+    safeSet(STORAGE_KEYS.PERFIS, perfis);
+
+    // Se o perfil atualizado for o usuário ativo na sessão, sincroniza o avatar e nome na sessão
+    const sessao = this.getSessaoUsuario();
+    if (sessao && sessao.id === perfil.id) {
+      const sessaoAtualizada: UsuarioSessao = {
+        ...sessao,
+        nome: perfil.nome,
+        avatar_url: perfil.avatarUrl,
+      };
+      this.setSessaoUsuario(sessaoAtualizada);
+    }
   },
 
   // CONFIGURAÇÕES
